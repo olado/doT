@@ -121,21 +121,21 @@
 		// 'complete' fires for each test when it finishes.
 		jslitmus.on('complete', function(test) {
 		// Output test results
-			//if (window.console) console.log(test + '');
 			currentSet.innerHTML += test + '<br/>';
 		});
 		// 'all_complete' fires when all tests have finished.
 		jslitmus.on('all_complete', function() {
 			// Get the results image URL
 			var url = jslitmus.getGoogleChart();
-			console.log('Chart url: ' + jslitmus.getGoogleChart());
 			if (currentSet.id === 'small') {
 				currentSet.innerHTML += resultTmpl({size: snippet.length, url: url});
-				jslitmus.clearAll();
-				currentSet = document.getElementById('large');
-				for(var i=0; i<10; i++) { snippet += snippet; }
-				testsetup(snippet);
-				jslitmus.runAll();
+				setTimeout(function() {
+					jslitmus.clearAll();
+					currentSet = document.getElementById('large');
+					for(var i=0; i<10; i++) { snippet += snippet; }
+					testsetup(snippet);
+					jslitmus.runAll();
+				}, 10);
 			} else {
 				currentSet.innerHTML += resultTmpl({size: snippet.length, url: url});
 			}

@@ -1,7 +1,7 @@
 // doU.js
-// 2010 Laura Doktorova
+// https://github.com/olado/doT
 // doU is a slight modification of Underscore.js (http://documentcloud.github.com/underscore/) templating function.
-// Modifications: avoided the use of performance impacting with statement.
+// Main difference: avoided use of performance impacting with statement.
 (function() {
 	var doU = { version : '0.1.0' };
 
