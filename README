@@ -1,0 +1,25 @@
+Created in search of the fastest and concise JavaScript templating function with emphasis on performance under V8 and nodejs.
+
+  doT.js is based on templating function extracted from excellent jQuery plugin jQote2 with some modifications.
+  doU.js is based on templating function extracted from underscore.js with some optimizations.
+
+Both doT.js and doU.js can be used with node or without and provide better performance than compiled undescore.js.
+
+doT.js (using jQote2 technique) provides excellent performance under V8.
+
+
+Benchmarks:
+  jslitmus is used for benchmarking.
+  Only execution of compiled templates is being measured, not generation of the templating functions.
+
+To run the benchmarks:
+
+  In the browser:
+    http://olado.github.com/doT/templatesBench.html
+
+
+  With node:
+    node benchmarks/templatesBench.js
+
+
+
