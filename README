@@ -3,7 +3,7 @@ Created in search of the fast and concise JavaScript templating function with em
   doT.js is based on templating function extracted from excellent jQuery plugin jQote2 with some modifications.
   doU.js is based on templating function extracted from underscore.js with some optimizations.
 
-Both doT.js and doU.js can be used with node or without and provide better performance than compiled undescore.js.
+Both doT.js and doU.js can be used with node or without.
 
 doT.js (using jQote2 technique) provides excellent performance under V8.
 
