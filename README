@@ -1,26 +1,40 @@
 Created in search of the fast and concise JavaScript templating function with emphasis on performance under V8 and nodejs.
 
-  doT.js is based on templating function extracted from excellent jQuery plugin jQote2 with some modifications.
-  doU.js is based on templating function extracted from underscore.js with some optimizations.
+	doT.js is based on templating function extracted from excellent jQuery plugin jQote2 with some modifications.
+	doT.js can be used with nodejs, allows for custom template delimiters and only allows direct invocation of the compiled function.
 
-Both doT.js and doU.js can be used with node or without.
 
-doT.js (using jQote2 technique) provides excellent performance under V8.
+	doU.js is based on templating function extracted from underscore.js with some optimizations.
+	The main difference with underscore.js templating is that doU.js does not use performance impacting "with" statement.
+
+	Both doT.js and doU.js can be used with node or without.
+
+	doT.js (using jQote2 technique) provides excellent performance under V8.
 
 
 Benchmarks:
-  jslitmus is used for benchmarking.
-  Only execution of compiled templates is being measured, not generation of the template functions.
+	jslitmus is used for benchmarking.
+	Only execution of compiled templates is being measured, not generation of the template functions.
 
 To run the benchmarks:
 
-  In the browser:
-    navigate to benchmarks/index.html
-	or go to http://olado.github.com/doT/bench.html
+	In the browser:
+		navigate to benchmarks/index.html
+		or go to http://olado.github.com/doT/bench.html
 
 
-  With node:
-    node benchmarks/templatesBench.js
+	With node:
+		node benchmarks/templatesBench.js
 
+Usage:
+	Both doU.js and doT.js by default use {{= }} and {{ }} delimiters, though other delimiters may be configured.
+	doT.js also inherits jQote2' support for auto-encoding when ! is used.
+
+	Both doU.js and doT.js have the same usage pattern.
+
+	// 1. Compile template function
+	var tempFn = doT.template("<h1>Here is a sample template {{=it.foo}} </h1>");
+	// 2. Use template function as many times as you like
+	var resultText = tempFn({foo: 'with doT'});
 
 

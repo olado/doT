@@ -23,41 +23,41 @@
 		// doT with 'this'
 		var doTCompiled = doT.template(snippet.replace(/=it\./g, '=this.'));
 
-		jslitmus.test('_', function() {
+		jslitmus.test('underscore.js', function() {
 			uCompiled(data);
 		});
 
-		jslitmus.test('_ looping', function(count) {
+		jslitmus.test('underscore.js - looping', function(count) {
 			while (count--) {
 				uCompiled(data);
 			}
 		});
 
-		jslitmus.test('doU', function() {
+		jslitmus.test('doU.js', function() {
 			doUCompiled(data);
 		});
 
-		jslitmus.test('doU looping', function(count) {
+		jslitmus.test('doU.js - looping', function(count) {
 			while (count--) {
 				doUCompiled(data);
 			}
 		});
 
-		jslitmus.test('doT', function() {
+		jslitmus.test('doT.js - using this', function() {
 			doTCompiled.call(data);
 		});
 
-		jslitmus.test('doT looping', function(count) {
+		jslitmus.test('doT.js - using this - looping', function(count) {
 			while (count--) {
 				doTCompiled.call(data);
 			}
 		});
 
-		jslitmus.test('doT param', function() {
+		jslitmus.test('doT.js - using it', function() {
 			doTCompiledParam(data);
 		});
 
-		jslitmus.test('doT param looping', function(count) {
+		jslitmus.test('doT.js - using it - looping', function(count) {
 			while (count--) {
 				doTCompiledParam(data);
 			}
@@ -92,7 +92,7 @@
 				break;
 			case 1:
 				passOne++;
-				for(var i=0; i<5; i++) { snippet += snippet; }
+				for(var i=0; i<3; i++) { snippet += snippet; }
 				console.log("*** Large template length: " + snippet.length);
 				break;
 			default:
@@ -132,7 +132,7 @@
 				setTimeout(function() {
 					jslitmus.clearAll();
 					currentSet = document.getElementById('large');
-					for(var i=0; i<10; i++) { snippet += snippet; }
+					for(var i=0; i<8; i++) { snippet += snippet; }
 					testsetup(snippet);
 					jslitmus.runAll();
 				}, 10);
