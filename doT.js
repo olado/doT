@@ -23,7 +23,7 @@
 	doT.template = function(tmpl, conf) {
 		conf = conf || doT.templateSettings;
 		var str = '', tb = conf.begin, te = conf.end, m, l,
-			arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]/g, '')
+			arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*\*\/)/g, '')
 				.split(tb).join(te +'\x1b')
 				.split(te);
 
@@ -40,6 +40,11 @@
 			.split('var out="";out+=').join('var out=') +
 			'} catch(e){e.type="TemplateExecutionError";e.args=arguments;e.template=arguments.callee.toString();throw e;}';
 
-		return new Function(conf.varname, str);
+		try {
+			return new Function(conf.varname, str);
+		} catch (e) {
+			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
+			throw e;
+		}
 	};
 }());
