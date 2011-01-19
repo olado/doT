@@ -23,7 +23,7 @@
 	doT.template = function(tmpl, conf) {
 		conf = conf || doT.templateSettings;
 		var str = '', tb = conf.begin, te = conf.end, m, l,
-			arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*\*\/)/g, '')
+			arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, '')
 				.split(tb).join(te +'\x1b')
 				.split(te);
 
