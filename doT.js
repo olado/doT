@@ -1,10 +1,18 @@
 // doT.js
+// (c) 2011, Laura Doktorova
 // https://github.com/olado/doT
-// doT is an extraction and slight modification of an excellent jQote2.js templating function (jQuery plugin) (http://aefxx.com/jquery-plugins/jqote2/).
+//
+// doT is an extraction and slight modification of an excellent
+// templating function from jQote2.js (jQuery plugin) by aefxx
+// (http://aefxx.com/jquery-plugins/jqote2/).
+//
 // Modifications:
 // 1. nodejs support
 // 2. allow for custom template markers
 // 3. only allow direct invocation of the compiled function
+//
+// Licensed under the MIT license.
+
 (function() {
 	var doT = { version : '0.1.0' };
 
