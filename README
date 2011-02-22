@@ -10,6 +10,7 @@ Created in search of the fast and concise JavaScript templating function with em
 	Both doT.js and doU.js can be used with node or without.
 
 	doT.js (using jQote2 technique) provides excellent performance under V8.
+	Addditional advantage of doT is that it allows you to flush data to the stream at any points in the generated template function, this is handy when using on server.
 
 
 Benchmarks:
@@ -25,6 +26,11 @@ To run the benchmarks:
 
 	With node:
 		node benchmarks/templatesBench.js
+
+Install doT:
+	npm install dot
+
+	// use require('dot') in your code if you installed with npm
 
 Usage:
 	Both doU.js and doT.js by default use {{= }} and {{ }} delimiters, though other delimiters may be configured.
