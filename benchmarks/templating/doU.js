@@ -32,7 +32,7 @@
 				.replace(/\r/g, '\\r')
 				.replace(/\n/g, '\\n')
 				.replace(/\t/g, '\\t')
-				+ "';return __o";
+				+ "';return __o;";
 		return new Function(c.varname, tmpl);
 	};
 }());
