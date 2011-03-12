@@ -3,8 +3,7 @@ Created in search of the fast and concise JavaScript templating function with em
 	doT.js is based on templating function extracted from excellent jQuery plugin jQote2 with some modifications.
 	doT.js can be used with nodejs, allows for custom template delimiters and only allows direct invocation of the compiled function.
 
-	doU.js is based on templating function extracted from underscore.js with blended with jQote2.
-	The main difference with underscore.js templating is that doU.js does not use performance impacting "with" statement and also has been	modified to use jQote2 technique of appending text.
+	doU.js is based on templating function extracted from underscore.js and blended with jQote2.
 
 	Addditional advantage of jQote2 technique is that it allows you to flush data to the stream at any point in the generated template function, this is handy when using on server.
 
@@ -12,17 +11,24 @@ Created in search of the fast and concise JavaScript templating function with em
 
 Benchmarks:
 	jslitmus is used for benchmarking.
-	Only execution of compiled templates is being measured, not generation of the template functions.
 
-To run the benchmarks:
+To run the benchmarks for measuring execution of compiled templates:
 
 	In the browser:
 		navigate to benchmarks/index.html
 		or go to http://olado.github.com/doT/bench.html
 
-
 	With node:
 		node benchmarks/templatesBench.js
+
+To run the benchmarks for measuring compilation speed:
+
+	In the browser:
+		navigate to benchmarks/genspeed.html
+
+	With node:
+		node benchmarks/compileBench.js
+
 
 Install doT:
 	npm install dot
@@ -30,10 +36,14 @@ Install doT:
 	// use require('dot') in your code if you installed with npm
 
 Usage:
-	Default delimiters: both doU.js and doT.js by default use {{= }} for interpolation,  {{ }} for evaluation and {{! }} for interpolation with encoding, though other delimiters may be configured.
+	Default delimiters:
+		{{= }} for interpolation,
+		{{ }} for evaluation,
+		{{! }} for interpolation with encoding
 
-	Both doU.js and doT.js have the same usage pattern.
+	Other delimiters may be configured.
 
+	Sample:
 	// 1. Compile template function
 	var tempFn = doT.template("<h1>Here is a sample template {{=it.foo}} </h1>");
 	// 2. Use template function as many times as you like
