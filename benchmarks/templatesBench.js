@@ -18,20 +18,8 @@
 		var doUCompiled = doU.template(snippet);
 		// doT (modified jQote2) with 'it'
 		var doTCompiledParam = doT.template(snippet);
-		// underscore
-		var uCompiled = _.template(snippet.replace(/=it\./g, '='));
 		// doT with 'this'
 		var doTCompiled = doT.template(snippet.replace(/=it\./g, '=this.'));
-
-		jslitmus.test('underscore.js', function() {
-			uCompiled(data);
-		});
-
-		jslitmus.test('underscore.js - looping', function(count) {
-			while (count--) {
-				uCompiled(data);
-			}
-		});
 
 		jslitmus.test('doU.js', function() {
 			doUCompiled(data);
@@ -67,13 +55,8 @@
 	function runTests() {
 		//var sys = require('sys');
 		jslitmus = require('./jslitmus.js');
-		_ = require('./templating/underscore.js');
 		doU = require('./templating/doU.js');
 		doT = require('./templating/doT.js');
-		_.templateSettings = {
-			evaluate : /\{\{([\s\S]+?)\}\}/g,
-			interpolate : /\{\{=([\s\S]+?)\}\}/g
-		};
 		var passOne = 0;
 		console.log("*** Small template length: " + snippet.length);
 		testsetup(snippet);
@@ -108,12 +91,7 @@
 	}
 
 	function runTestsInBrowser() {
-		jslitmus = window.jslitmus;_ = window._;doU = window.doU;doT = window.doT;
-
-		_.templateSettings = {
-			evaluate : /\{\{([\s\S]+?)\}\}/g,
-			interpolate : /\{\{=([\s\S]+?)\}\}/g
-		};
+		jslitmus = window.jslitmus;doU = window.doU;doT = window.doT;
 
 		var resultTmpl = doT.template("<h3>Template length : {{=it.size}} </h3>	<img src='{{=it.url}}'/>");
 		var currentSet = document.getElementById('small');
