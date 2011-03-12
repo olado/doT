@@ -16,21 +16,20 @@
 		evaluate : /\{\{([\s\S]+?)\}\}/g,
 		interpolate : /\{\{=([\s\S]+?)\}\}/g,
 		encode :  /\{\{!([\s\S]+?)\}\}/g,
-		varname : 'it',
-		shrink : true
+		varname : 'it'
 	};
 
 	doU.template = function(tmpl, c) {
 		c = c || doU.templateSettings;
 		var str = ("var out='" +
-				((c.shrink) ? tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, '') : tmpl)
+				tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, '')
 			    .replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {
 					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\")  + ";out+='";
 				})
 				.replace(c.encode, function(match, code) {
-					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\") + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;');out+='";
+					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\") + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
 				})
 				.replace(c.evaluate, function(match, code) {
 					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\") + "out+='";

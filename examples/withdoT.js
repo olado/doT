@@ -1,10 +1,14 @@
 (function() {
 	var doT = require('../doT.js'),
-		data = { f1: 1, f2: 2, f3: 3},
-		snippet = "<h1>Just static text</h1> <p>Here is a simple case {{=it.f1+it.f3}} </p> <div> Next we will use a JavaScript block: </div> {{ for(var i=0; i < it.f2; i++) { }}	<div>{{=it.f3}}</div> {{ }; }}";
+		data = { f1: 1, f2: 2, f3: 3};
 
-		var doTCompiled = doT.template(snippet);
-
-		console.log("Generated function: \n" + doTCompiled.toString());
-		console.log("Result of calling with " + JSON.stringify(data) + " :\n" + doTCompiled(data));
+	require('fs').readFile(process.argv[1].replace(/\/[^\/]*$/,'/snippet.txt'), function (err, snippet) {
+		if (err) {
+			console.log("Error reading snippet.txt " + err);
+		} else {
+			var doTCompiled = doT.template(snippet.toString());
+			console.log("Generated function: \n" + doTCompiled.toString());
+			console.log("Result of calling with " + JSON.stringify(data) + " :\n" + doTCompiled(data));
+		}
+	});
 }());
