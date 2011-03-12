@@ -19,20 +19,20 @@
 
 	doU.template = function(str, c) {
 		c = c || doU.templateSettings;
-		var	tmpl = "var __o='';__o+='" +
+		var	tmpl = "var out='';out+='" +
 			str.replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {
-					return "';__o+=" + code.replace(/\\'/g, "'") + ";__o+='";
+					return "';out+=" + code.replace(/\\'/g, "'") + ";out+='";
 				})
 				.replace(c.evaluate || null, function(match, code) {
 					return "';" + code.replace(/\\'/g, "'")
-							  .replace(/[\r\n\t]/g, ' ') + "__o+='";
+							  .replace(/[\r\n\t]/g, ' ') + "out+='";
 				})
 				.replace(/\r/g, '\\r')
 				.replace(/\n/g, '\\n')
 				.replace(/\t/g, '\\t')
-				+ "';return __o;";
+				+ "';return out;";
 		return new Function(c.varname, tmpl);
 	};
 }());
