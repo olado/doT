@@ -1,4 +1,5 @@
 // doU.js
+// 2011, Laura Doktorova
 // https://github.com/olado/doT
 //
 // doU is a blend of underscore.js templating function (http://documentcloud.github.com/underscore/)
@@ -16,27 +17,32 @@
 		evaluate : /\{\{([\s\S]+?)\}\}/g,
 		interpolate : /\{\{=([\s\S]+?)\}\}/g,
 		encode :  /\{\{!([\s\S]+?)\}\}/g,
-		varname : 'it'
+		varname : 'it',
+		strip : true
 	};
 
 	doU.template = function(tmpl, c) {
 		c = c || doU.templateSettings;
 		var str = ("var out='" +
-				tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, '')
-			    .replace(/\\/g, '\\\\')
+				((c.strip) ? tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''):
+							 tmpl.replace(/\n/g, '\x1bn').replace(/\r/g, '\x1br').replace(/\t/g, '\x1bt'))
+				.replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {
-					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\")  + ";out+='";
+					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/\x1b./g, ' ') + ";out+='";
 				})
 				.replace(c.encode, function(match, code) {
-					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\") + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
+					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/\x1b./g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
 				})
 				.replace(c.evaluate, function(match, code) {
-					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\") + "out+='";
+					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/\x1b./g, ' ') + "out+='";
 				})
 				+ "';return out;")
-			.split("out+='';").join('')
-			.split('var out="";out+=').join('var out=');
+				.replace(/\x1bn/g, '\\n')
+				.replace(/\x1bt/g, '\\t')
+				.replace(/\x1br/g, '\\r')
+				.split("out+='';").join('')
+				.split('var out="";out+=').join('var out=');
 
 		try {
 			return new Function(c.varname, str);
