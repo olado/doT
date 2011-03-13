@@ -25,22 +25,22 @@
 		c = c || doU.templateSettings;
 		var str = ("var out='" +
 				((c.strip) ? tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''):
-							 tmpl.replace(/\n/g, '\x1bn').replace(/\r/g, '\x1br').replace(/\t/g, '\x1bt'))
+							 tmpl)
 				.replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {
-					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/\x1b./g, ' ') + ";out+='";
+					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + ";out+='";
 				})
 				.replace(c.encode, function(match, code) {
-					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/\x1b./g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
+					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
 				})
 				.replace(c.evaluate, function(match, code) {
-					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/\x1b./g, ' ') + "out+='";
+					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";
 				})
 				+ "';return out;")
-				.replace(/\x1bn/g, '\\n')
-				.replace(/\x1bt/g, '\\t')
-				.replace(/\x1br/g, '\\r')
+				.replace(/\n/g, '\\n')
+				.replace(/\t/g, '\\t')
+				.replace(/\r/g, '\\r')
 				.split("out+='';").join('')
 				.split('var out="";out+=').join('var out=');
 
