@@ -38,8 +38,8 @@
 		for (m=0,l=arr.length; m < l; m++) {
 			str += arr[m].charAt(0) !== '\x1b' ?
 			"out+='" + arr[m].replace(/(\\|["'])/g, '\\$1') + "'" : (arr[m].charAt(1) === '=' ?
-			';out+=(' + arr[m].substr(2) + ');' : (arr[m].charAt(1) === '!' ?
-			';out+=(' + arr[m].substr(2) + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');" : ';' + arr[m].substr(1)));
+			';out+=(' + arr[m].substr(2) + '||"");' : (arr[m].charAt(1) === '!' ?
+			';out+=(' + arr[m].substr(2) + "||'').toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');" : ';' + arr[m].substr(1)));
 		}
 
 		str = ('var out="";'+str+';return out;')
