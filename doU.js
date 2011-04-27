@@ -1,11 +1,20 @@
 // doU.js
-// 2011, Laura Doktorova
+// (c) 2011, Laura Doktorova
 // https://github.com/olado/doT
 //
-// doU is a blend of underscore.js templating function (http://documentcloud.github.com/underscore/)
-// and a templating function from jQote2.js (jQuery plugin) by aefxx (http://aefxx.com/jquery-plugins/jqote2/).
+// doU is an extraction and slight modification of an excellent
+// templating function from jQote2.js (jQuery plugin) by aefxx
+// (http://aefxx.com/jquery-plugins/jqote2/).
+//
+// Modifications:
+// 1. nodejs support
+// 2. allow for custom template markers
+// 3. only allow direct invocation of the compiled function
+//
+// Licensed under the MIT license.
+
 (function() {
-	var doU = { version : '0.1.1' };
+	var doU = { version : '0.1.2' };
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doU;
@@ -14,38 +23,31 @@
 	}
 
 	doU.templateSettings = {
-		evaluate : /\{\{([\s\S]+?)\}\}/g,
-		interpolate : /\{\{=([\s\S]+?)\}\}/g,
-		encode :  /\{\{!([\s\S]+?)\}\}/g,
-		varname : 'it',
-		strip : true
+		begin : '{{',
+		end : '}}',
+		varname : 'it'
 	};
 
-	doU.template = function(tmpl, c) {
-		c = c || doU.templateSettings;
-		var str = ("var out='" +
-				((c.strip) ? tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''):
-							 tmpl)
-				.replace(/\\/g, '\\\\')
-				.replace(/'/g, "\\'")
-				.replace(c.interpolate, function(match, code) {
-					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + ";out+='";
-				})
-				.replace(c.encode, function(match, code) {
-					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
-				})
-				.replace(c.evaluate, function(match, code) {
-					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";
-				})
-				+ "';return out;")
-				.replace(/\n/g, '\\n')
-				.replace(/\t/g, '\\t')
-				.replace(/\r/g, '\\r')
-				.split("out+='';").join('')
-				.split('var out="";out+=').join('var out=');
+	doU.template = function(tmpl, conf) {
+		conf = conf || doU.templateSettings;
+		var str = '', tb = conf.begin, te = conf.end, m, l,
+			arr = tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, '')
+				.split(tb).join(te +'\x1b')
+				.split(te);
+
+		for (m=0,l=arr.length; m < l; m++) {
+			str += arr[m].charAt(0) !== '\x1b' ?
+			"out+='" + arr[m].replace(/(\\|["'])/g, '\\$1') + "'" : (arr[m].charAt(1) === '=' ?
+			';out+=(' + arr[m].substr(2) + ');' : (arr[m].charAt(1) === '!' ?
+			';out+=(' + arr[m].substr(2) + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');" : ';' + arr[m].substr(1)));
+		}
+
+		str = ('var out="";'+str+';return out;')
+			.split("out+='';").join('')
+			.split('var out="";out+=').join('var out=');
 
 		try {
-			return new Function(c.varname, str);
+			return new Function(conf.varname, str);
 		} catch (e) {
 			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
 			throw e;
