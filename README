@@ -1,12 +1,19 @@
 Created in search of the fast and concise JavaScript templating function with emphasis on performance under V8 and nodejs.
 
-	doT can be used with nodejs, allows for custom template delimiters and only allows direct invocation of the compiled function.
+	doT can be used with nodejs and other javascript environments.
 
-	doT.js is a blend of jQote2 and underscore.js templating functions.
+	doT.js is a blend of jQote2 and underscore.js templating functions with some additions.
 
-	In addition to performance gains, another advantage of jQote2 technique is that it allows you to flush data to the stream at any point in the generated template function, this is handy when using on server.
+	jQote2 technique provides for fast performance and also enables flushing data to the stream at any point in the generated template function, this is handy when using on server.
 
-Note: previous version of doT.js 0.1.2 has been renamed to doU.js
+Features:
+		custom delimiters,
+		runtime evaluation,
+		runtime interpolation,
+		compile-time evaluation,
+		encoding,
+		control whitespace - strip or preserve,
+		streaming friendly
 
 Benchmarks:
 	jslitmus is used for benchmarking.
@@ -39,7 +46,7 @@ Usage:
 		{{= }} for interpolation,
 		{{ }} for evaluation,
 		{{! }} for interpolation with encoding,
-		{{# }} for evaluation during compilation time
+		{{# }} for compile-time evaluation
 
 	Other delimiters may be configured.
 
