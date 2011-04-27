@@ -39,7 +39,7 @@ Usage:
 		{{= }} for interpolation,
 		{{ }} for evaluation,
 		{{! }} for interpolation with encoding,
-		{{# }} for evaluation during compilation as opossed to runtime
+		{{# }} for evaluation during compilation time
 
 	Other delimiters may be configured.
 
