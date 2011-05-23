@@ -1,0 +1,22 @@
+Advanced templating: illustrates defines and includes.
+
+Include external snippet:
+{{#externalsnippet}}
+
+Here is defs block that will be used later. This snippet can be used in external templates too:
+{{#snippet1:
+	Some snippet that will be included {{#a}} later {{=it.f1}}
+#}}
+
+First use of snippet1:
+{{#snippet1}}
+
+Second use of snippet1:
+{{#snippet1}}
+
+Include if true:
+{{# true && snippet1 }}
+
+Runtime and Compile time evaluation used together:
+{{= it.f3 + {{#a + b}} }}
+

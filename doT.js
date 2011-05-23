@@ -2,14 +2,15 @@
 // 2011, Laura Doktorova
 // https://github.com/olado/doT
 //
-// doT is a blend of templating functions from jQote2.js
+// doT is a custom blend of templating functions from jQote2.js
 // (jQuery plugin) by aefxx (http://aefxx.com/jquery-plugins/jqote2/)
 // and underscore.js (http://documentcloud.github.com/underscore/)
+// plus extensions.
 //
 // Licensed under the MIT license.
 //
 (function() {
-	var doT = { version : '0.1.3' };
+	var doT = { version : '0.1.4' };
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
@@ -18,22 +19,32 @@
 	}
 
 	doT.templateSettings = {
-		evaluate : /\{\{([\s\S]+?)\}\}/g,
-		interpolate : /\{\{=([\s\S]+?)\}\}/g,
-		encode :  /\{\{!([\s\S]+?)\}\}/g,
-		defines:  /\{\{#([\s\S]+?)\}\}/g,
-		varname : 'it',
+		evaluate:    /\{\{([\s\S]+?)\}\}/g,
+		interpolate: /\{\{=([\s\S]+?)\}\}/g,
+		encode:      /\{\{!([\s\S]+?)\}\}/g,
+		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
+		define:      /\{\{#\s*([\w$]+)\s*\:([\s\S]+?)#\}\}/g, //compile time defs
+		varname: 'it',
 		strip : true
 	};
 
+	function resolveDefs(define, use, str, defs) {
+		return str.replace(define, function (match, code, value) {
+				if (!(code in defs)) defs[code]=value;
+				return '';
+			})
+			.replace(use, function(match, code) {
+				var value;// todo: detect circular use and convert into compiled functions
+				with(defs) {try { value = eval(code);} catch(e) { value='';} }
+				return value ? resolveDefs(define, use, value.toString(), defs) : value;
+			});
+	}
+
 	doT.template = function(tmpl, c, defs) {
 		c = c || doT.templateSettings;
-		var str = ("var out='" +
-				((c.strip) ? tmpl.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''):
-							 tmpl)
-				.replace(c.defines, function(match, code) {
-					return eval(code.replace(/[\r\t\n]/g, ' '));
-				})
+		var str = (c.use || c.define) ? resolveDefs(c.define, c.use, tmpl, defs || {}) : tmpl;
+		str = ("var out='" +
+				((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
 				.replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {

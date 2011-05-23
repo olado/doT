@@ -44,9 +44,10 @@ Install doT:
 Usage:
 	Default delimiters:
 		{{= }} for interpolation,
-		{{ }} for evaluation,
+		{{  }} for evaluation,
 		{{! }} for interpolation with encoding,
-		{{# }} for compile-time evaluation
+		{{# }} for compile-time evaluation/includes,
+		{{# #}} for compile-time defines
 
 	Other delimiters may be configured.
 
