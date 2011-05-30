@@ -25,7 +25,8 @@
 		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
 		define:      /\{\{#\s*([\w$]+)\s*\:([\s\S]+?)#\}\}/g, //compile time defs
 		varname: 'it',
-		strip : true
+		strip : true,
+		append: true
 	};
 
 	function resolveDefs(define, use, str, defs) {
@@ -42,16 +43,19 @@
 
 	doT.template = function(tmpl, c, defs) {
 		c = c || doT.templateSettings;
+		var cstart = c.append ? "'+(" : "';out+=(",// optimal choice depends on platform/size of templates
+		    cend   = c.append ? ")+'" : ");out+='";
 		var str = (c.use || c.define) ? resolveDefs(c.define, c.use, tmpl, defs || {}) : tmpl;
+
 		str = ("var out='" +
 				((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
 				.replace(/\\/g, '\\\\')
 				.replace(/'/g, "\\'")
 				.replace(c.interpolate, function(match, code) {
-					return "';out+=" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + ";out+='";
+					return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + cend;
 				})
 				.replace(c.encode, function(match, code) {
-					return "';out+=(" + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;');out+='";
+					return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;'" + cend;
 				})
 				.replace(c.evaluate, function(match, code) {
 					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";
