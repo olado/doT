@@ -65,7 +65,7 @@
 			.replace(/\t/g, '\\t')
 			.replace(/\r/g, '\\r')
 			.split("out+='';").join('')
-			.split('var out="";out+=').join('var out=');
+			.split("var out='';out+=").join('var out=');
 
 		try {
 			return new Function(c.varname, str);
