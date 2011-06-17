@@ -48,7 +48,7 @@
 		c = c || doT.templateSettings;
 		var cstart = c.append ? "'+(" : "';out+=(", // optimal choice depends on platform/size of templates
 		    cend   = c.append ? ")+'" : ");out+='";
-		var str = (c.use || c.define || c.strictuse) ? resolveDefs(c, tmpl, def || {}) : tmpl;
+		var str = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
 		str = ("var out='" +
 			((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
