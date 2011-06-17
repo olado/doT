@@ -10,7 +10,7 @@
 // Licensed under the MIT license.
 //
 (function() {
-	var doT = { version : '0.1.5' };
+	var doT = { version : '0.1.6' };
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
@@ -23,29 +23,32 @@
 		interpolate: /\{\{=([\s\S]+?)\}\}/g,
 		encode:      /\{\{!([\s\S]+?)\}\}/g,
 		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
-		define:      /\{\{#\s*([\w$]+)\s*\:([\s\S]+?)#\}\}/g, //compile time defs
+		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g, //compile time defs
 		varname: 'it',
 		strip : true,
 		append: true
 	};
 
-	function resolveDefs(define, use, str, defs) {
-		return str.replace(define, function (match, code, value) {
-			if (!(code in defs)) defs[code]=value;
+	function resolveDefs(c, block, def) {
+		return ((typeof block === 'string') ? block : block.toString())
+		.replace(c.define, function (match, code, assign, value) {
+			if (code.indexOf('def.') === 0) {
+				code = code.substring(4);
+			}
+			if (!(code in def)) def[code]= (assign === ':') ? value : eval(value);
 			return '';
 		})
-		.replace(use, function(match, code) {
-			var value; // todo: detect circular use and convert into compiled functions
-			with(defs) {try { value = eval(code);} catch(e) { value='';} }
-			return value ? resolveDefs(define, use, value.toString(), defs) : value;
+		.replace(c.use, function(match, code) {
+			var v = eval(code);
+			return v ? resolveDefs(c, v, def) : v;
 		});
 	}
 
-	doT.template = function(tmpl, c, defs) {
+	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cstart = c.append ? "'+(" : "';out+=(", // optimal choice depends on platform/size of templates
 		    cend   = c.append ? ")+'" : ");out+='";
-		var str = (c.use || c.define) ? resolveDefs(c.define, c.use, tmpl, defs || {}) : tmpl;
+		var str = (c.use || c.define || c.strictuse) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
 		str = ("var out='" +
 			((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
@@ -55,7 +58,7 @@
 				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + cend;
 			})
 			.replace(c.encode, function(match, code) {
-				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#x2F;'" + cend;
+				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#47;'" + cend;
 			})
 			.replace(c.evaluate, function(match, code) {
 				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";

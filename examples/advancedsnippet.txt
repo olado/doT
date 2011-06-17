@@ -1,22 +1,48 @@
 Advanced templating: illustrates defines and includes.
 
-Include external snippet:
-{{#externalsnippet}}
+Include external snippet defined in a variable:
+{{#def.externalsnippet}}
 
-Here is defs block that will be used later. This snippet can be used in external templates too:
-{{#snippet1:
-	Some snippet that will be included {{#a}} later {{=it.f1}}
+Load external template from a file:
+{{#def.loadfile('/snippet.txt')}}
+
+Load external template from a file and cache in a variable:
+{{#def['snippet.txt'] || (def['snippet.txt'] = def.loadfile('/snippet.txt'))}}
+
+Use cached file again:
+{{#def['snippet.txt']}}
+
+Here is a def block that will be used later. This snippet can be referenced from external templates too:
+{{##def.snippet1:
+	Some snippet that will be included {{#def.a}} later {{=it.f1}}
 #}}
 
 First use of snippet1:
-{{#snippet1}}
+{{#def.snippet1}}
 
 Second use of snippet1:
-{{#snippet1}}
+{{#def.snippet1}}
 
-Include if true:
-{{# true && snippet1 }}
+Include snippet1 if true:
+{{# true && def.snippet1 }}
 
 Runtime and Compile time evaluation used together:
-{{= it.f3 + {{#a + b}} }}
+{{= it.f3 + {{#def.a + def.b}} }}
+
+Include xyz or insert 'not found':
+{{#def.xyz || 'not found'}}
+
+Set xyz to 1 and exclude result from output:
+{{##def.xyz=1#}} is identical to {{#(def.xyz=1) && ""}}
+
+Compare xyz to 1, show 'xyz is not 1' if false:
+{{#def.xyz === 1 || 'xyz is not 1'}}
+
+{{ if ({{#!def.abc}}) { }}
+	{{#def.abc}} is falsy
+{{ } }}
+
+{{ if ({{#def.xyz === 1}}) { }}
+	if(true) block
+{{ } }}
 

@@ -1,10 +1,14 @@
 (function() {
 	var doT = require('../doT.js'),
+		fs = require('fs'),
 		data = { f1: 1, f2: 2, f3: 3},
 		defs = { a: 100, b: 200};
 
-	var fs = require('fs');
-	defs.externalsnippet = fs.readFileSync(process.argv[1].replace(/\/[^\/]*$/,'/snippet.txt'));
+	defs.loadfile = function(path) {
+		return fs.readFileSync(process.argv[1].replace(/\/[^\/]*$/,path));
+	};
+	defs.externalsnippet = defs.loadfile('/snippet.txt');
+
 	fs.readFile(process.argv[1].replace(/\/[^\/]*$/,'/advancedsnippet.txt'), function (err, snippet) {
 		if (err) {
 			console.log("Error reading advancedsnippet.txt " + err);

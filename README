@@ -47,7 +47,7 @@ Usage:
 		{{  }} for evaluation,
 		{{! }} for interpolation with encoding,
 		{{# }} for compile-time evaluation/includes,
-		{{# #}} for compile-time defines
+		{{## #}} for compile-time defines
 
 	Other delimiters may be configured.
 
