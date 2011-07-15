@@ -11,6 +11,7 @@ Features:
 		runtime evaluation,
 		runtime interpolation,
 		compile-time evaluation,
+		partials support,
 		encoding,
 		control whitespace - strip or preserve,
 		streaming friendly
@@ -26,6 +27,9 @@ To run the benchmarks for measuring execution of compiled templates:
 
 	With node:
 		node benchmarks/templatesBench.js
+
+	doT.js vs other engines:
+		http://jsperf.com/dom-vs-innerhtml-based-templating
 
 To run the benchmarks for measuring compilation speed:
 
@@ -46,7 +50,7 @@ Usage:
 		{{= }} for interpolation,
 		{{  }} for evaluation,
 		{{! }} for interpolation with encoding,
-		{{# }} for compile-time evaluation/includes,
+		{{# }} for compile-time evaluation/includes and partials,
 		{{## #}} for compile-time defines
 
 	Other delimiters may be configured.
@@ -58,6 +62,9 @@ Usage:
 	var tempFn = doT.template("<h1>Here is a sample template {{=it.foo}} </h1>");
 	// 2. Use template function as many times as you like
 	var resultText = tempFn({foo: 'with doT'});
+
+	Basic template sample: https://github.com/olado/doT/blob/master/examples/snippet.txt
+	Advanced template sample: https://github.com/olado/doT/blob/master/examples/advancedsnippet.txt
 
 License:
 	Licensed under the MIT License. (See LICENSE-DOT)
