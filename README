@@ -66,6 +66,10 @@ Usage:
 	Basic template sample: https://github.com/olado/doT/blob/master/examples/snippet.txt
 	Advanced template sample: https://github.com/olado/doT/blob/master/examples/advancedsnippet.txt
 
+Note about doU.js:
+	doU.js is here only so that legacy extrenal tests do not break. Use doT.js.
+	doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
+
 License:
 	doT is an open source component of http://bebedo.com
 
