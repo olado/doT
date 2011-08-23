@@ -14,12 +14,15 @@
 	}
 
 	function testsetup(snippet) {
-		// doU (improved underscore) with 'it'
+		// doU with 'it'
 		var doUCompiled = doU.template(snippet);
-		// doT (modified jQote2) with 'it'
+		// doT with 'it'
 		var doTCompiledParam = doT.template(snippet);
 		// doT with 'this'
 		var doTCompiled = doT.template(snippet.replace(/=it\./g, '=this.'));
+		// doT with 'it' and append = false
+		doT.templateSettings.append = false;
+		var doTCompiledNoAppend = doT.template(snippet);
 
 		jslitmus.test('doU.js', function() {
 			doUCompiled(data);
@@ -50,7 +53,17 @@
 				doTCompiledParam(data);
 			}
 		});
-	}
+
+		jslitmus.test('doT.js - append off', function() {
+			doTCompiledNoAppend(data);
+		});
+
+		jslitmus.test('doT.js - append off - looping', function(count) {
+			while (count--) {
+				doTCompiledNoAppend(data);
+			}
+		});
+}
 
 	function runTests() {
 		//var sys = require('sys');
