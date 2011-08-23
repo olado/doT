@@ -1,7 +1,7 @@
 <html>
 	<head>
 
-	<script id="headertmpl" type="text/dot-template">
+	<script id="headertmpl" type="text/x-dot-template">
 		<h1>{{=it.title}}</h1>
 	</script>
 
@@ -11,19 +11,19 @@
 		{{=it.name}}
 	</script>
 
-   <script id="customizableheadertmpl" type="text/x-dot-template">
-	   	 {{#def.header}}
+	<script id="customizableheadertmpl" type="text/x-dot-template">
+		 {{#def.header}}
 		 {{#def.mycustominjectionintoheader || ''}}
-     </script>
+	 </script>
 
-   <script id="pagetmplwithcustomizableheader" type="text/x-dot-template">
-	      <h2>Here is the page with customized header template</h2>
-	  	  {{##def.mycustominjectionintoheader:
+	<script id="pagetmplwithcustomizableheader" type="text/x-dot-template">
+		<h2>Here is the page with customized header template</h2>
+		{{##def.mycustominjectionintoheader:
 			<div>{{=it.title}} is not {{=it.name}}</div>
-          #}}
-	      {{#def.customheader}}
-          {{=it.name}}
-   </script>
+		#}}
+		{{#def.customheader}}
+		{{=it.name}}
+	</script>
 
 	<script src="../doT.js" type="text/javascript"></script>
 	</head>
