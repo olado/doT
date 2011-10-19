@@ -15,28 +15,8 @@ Features:
 Docs, usage and samples:
 	http://olado.github.com/doT
 
-Benchmarks:
-   jslitmus is used for benchmarking.
-
-   To run the benchmarks for measuring execution of compiled templates:
-
-	In the browser:
-		navigate to benchmarks/index.html
-		or go to http://olado.github.com/doT/bench.html
-
-	With node:
-		node benchmarks/templatesBench.js
-
-	doT.js vs other engines:
-		http://jsperf.com/dom-vs-innerhtml-based-templating
-
-   To run the benchmarks for measuring compilation speed:
-
-	In the browser:
-		navigate to benchmarks/genspeed.html
-
-	With node:
-		node benchmarks/compileBench.js
+Benchmarks for doT.js vs other engines:
+	http://jsperf.com/dom-vs-innerhtml-based-templating
 
 Note about doU.js:
 	doU.js is here only so that legacy extrenal tests do not break. Use doT.js.
