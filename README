@@ -1,24 +1,24 @@
 Created in search of the fastest and concise JavaScript templating function with emphasis on performance under V8 and nodejs. It shows great performance for both nodejs and browsers.
 
-	doT.js is a blend of jQote2 and underscore.js templating functions with lots of additions and performance improvements. It is fast, small and has no dependencies.
+doT.js is a blend of jQote2 and underscore.js templating functions with lots of additions and performance improvements. It is fast, small and has no dependencies.
 
 Features:
-		custom delimiters,
-		runtime evaluation,
-		runtime interpolation,
-		compile-time evaluation,
-		partials support,
-		encoding,
-		control whitespace - strip or preserve,
-		streaming friendly
+	custom delimiters,
+	runtime evaluation,
+	runtime interpolation,
+	compile-time evaluation,
+	partials support,
+	encoding,
+	control whitespace - strip or preserve,
+	streaming friendly
 
 Docs, usage and samples:
 	http://olado.github.com/doT
 
 Benchmarks:
-	jslitmus is used for benchmarking.
+   jslitmus is used for benchmarking.
 
-To run the benchmarks for measuring execution of compiled templates:
+   To run the benchmarks for measuring execution of compiled templates:
 
 	In the browser:
 		navigate to benchmarks/index.html
@@ -30,7 +30,7 @@ To run the benchmarks for measuring execution of compiled templates:
 	doT.js vs other engines:
 		http://jsperf.com/dom-vs-innerhtml-based-templating
 
-To run the benchmarks for measuring compilation speed:
+   To run the benchmarks for measuring compilation speed:
 
 	In the browser:
 		navigate to benchmarks/genspeed.html
