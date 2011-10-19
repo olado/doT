@@ -1,10 +1,6 @@
-Created in search of the fast and concise JavaScript templating function with emphasis on performance under V8 and nodejs.
+Created in search of the fastest and concise JavaScript templating function with emphasis on performance under V8 and nodejs. It shows great performance for both nodejs and browsers.
 
-	doT can be used with nodejs and other javascript environments.
-
-	doT.js is a blend of jQote2 and underscore.js templating functions with some additions.
-
-	jQote2 technique provides for fast performance and also enables flushing data to the stream at any point in the generated template function, this is handy when using on server.
+	doT.js is a blend of jQote2 and underscore.js templating functions with lots of additions and performance improvements. It is fast, small and has no dependencies.
 
 Features:
 		custom delimiters,
@@ -15,6 +11,9 @@ Features:
 		encoding,
 		control whitespace - strip or preserve,
 		streaming friendly
+
+Docs, usage and samples:
+	http://olado.github.com/doT
 
 Benchmarks:
 	jslitmus is used for benchmarking.
@@ -38,33 +37,6 @@ To run the benchmarks for measuring compilation speed:
 
 	With node:
 		node benchmarks/compileBench.js
-
-
-Install doT:
-	npm install dot
-
-	// use require('dot') in your code if you installed with npm
-
-Usage:
-	Default delimiters:
-		{{= }} for interpolation,
-		{{  }} for evaluation,
-		{{! }} for interpolation with encoding,
-		{{# }} for compile-time evaluation/includes and partials,
-		{{## #}} for compile-time defines
-
-	Other delimiters may be configured.
-
-	To control whitespace use 'strip' option, true - to strip, false - to preserve.
-
-	Sample:
-	// 1. Compile template function
-	var tempFn = doT.template("<h1>Here is a sample template {{=it.foo}} </h1>");
-	// 2. Use template function as many times as you like
-	var resultText = tempFn({foo: 'with doT'});
-
-	Basic template sample: https://github.com/olado/doT/blob/master/examples/snippet.txt
-	Advanced template sample: https://github.com/olado/doT/blob/master/examples/advancedsnippet.txt
 
 Note about doU.js:
 	doU.js is here only so that legacy extrenal tests do not break. Use doT.js.
