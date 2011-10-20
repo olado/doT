@@ -24,6 +24,8 @@
 		encode:      /\{\{!([\s\S]+?)\}\}/g,
 		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
 		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g, //compile time defs
+		conditionalStart: /\{\{\?([\s\S]+?)\}\}/g,
+		conditionalEnd: /\{\{\?\}\}/g,
 		varname: 'it',
 		strip : true,
 		append: true
@@ -65,6 +67,13 @@
 			})
 			.replace(c.encode, function(match, code) {
 				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#47;'" + cend;
+			})
+			.replace(c.conditionalEnd, function(match, expression) {
+				return "'; } out += '";
+			})
+			.replace(c.conditionalStart, function(match, expression) {
+				var code = "; if (" + expression + ") {\n"; 
+				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ')  + "out+='";
 			})
 			.replace(c.evaluate, function(match, code) {
 				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";
