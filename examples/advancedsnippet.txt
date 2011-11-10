@@ -3,7 +3,7 @@ Advanced templating: illustrates defines and includes.
 Include external snippet defined in a variable:
 {{#def.externalsnippet}}
 
-Load external template from a file:
+Load external template from a file (using a custom loadFile() method attached to def; see /examples/withdoT.js):
 {{#def.loadfile('/snippet.txt')}}
 
 Load external template from a file and cache in a variable:
@@ -38,6 +38,7 @@ Set xyz to 1 and exclude result from output:
 Compare xyz to 1, show 'xyz is not 1' if false:
 {{#def.xyz === 1 || 'xyz is not 1'}}
 
+Conditionals to be evaluated at runtime, with conditions pre-evaluated at compile time:
 {{ if ({{#!def.abc}}) { }}
 	{{#def.abc}} is falsy
 {{ } }}
@@ -46,3 +47,9 @@ Compare xyz to 1, show 'xyz is not 1' if false:
 	if(true) block
 {{ } }}
 
+Create a series of elements using a loop at runtime
+<ul>
+	{{ for (i in it.people) { }}
+		<li>My name is {{=it.people[i].firstName}}</li>
+	{{ } }}
+</ul>
