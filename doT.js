@@ -52,13 +52,6 @@
 		});
 	}
 
-	function ifdef(x) {
-		if (typeof x !== 'undefined' && x !== null)
-			return x;
-		else
-			return '';
-	}
-
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cstart = c.append ? "'+(" : "';out+=(", // optimal choice depends on platform/size of templates
@@ -69,8 +62,7 @@
 			((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
 			.replace(/\\/g, '\\\\')
 			.replace(/'/g, "\\'")
-			.replace(c.interpolate, function(match, expression) {
-				var code = 'ifdef(' + expression + ')';
+			.replace(c.interpolate, function(match, code) {
 				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + cend;
 			})
 			.replace(c.encode, function(match, code) {
@@ -80,7 +72,7 @@
 				return "'; } out += '";
 			})
 			.replace(c.conditionalStart, function(match, expression) {
-				var code = "; if (" + expression + ") {\n"; 
+				var code = "; if (" + expression + ") {\n";
 				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ')  + "out+='";
 			})
 			.replace(c.evaluate, function(match, code) {
@@ -92,11 +84,6 @@
 			.replace(/\r/g, '\\r')
 			.split("out+='';").join('')
 			.split("var out='';out+=").join('var out=');
-
-		if (!doT._ifdef)
-			doT._ifdef = ifdef.toString() + '; ';
-		
-		str = doT._ifdef + str;
 
 		try {
 			return new Function(c.varname, str);
