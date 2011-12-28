@@ -2,6 +2,8 @@
 // 2011, Laura Doktorova
 // https://github.com/olado/doT
 //
+// doT.js is an open source component of http://bebedo.com
+//
 // doT is a custom blend of templating functions from jQote2.js
 // (jQuery plugin) by aefxx (http://aefxx.com/jquery-plugins/jqote2/)
 // and underscore.js (http://documentcloud.github.com/underscore/)
