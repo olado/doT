@@ -46,3 +46,9 @@ Compare xyz to 1, show 'xyz is not 1' if false:
 	if(true) block
 {{ } }}
 
+{{##def.fntest = function() {
+	return "Function test worked!";
+}
+#}}
+
+{{#def.fntest()}}

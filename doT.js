@@ -10,7 +10,7 @@
 // Licensed under the MIT license.
 //
 (function() {
-	var doT = { version : '0.1.6' };
+	var doT = { version : '0.1.7' };
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
@@ -82,5 +82,9 @@
 			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
 			throw e;
 		}
+	};
+
+	doT.compile = function(tmpl, def) {
+		return doT.template(tmpl, null, def);
 	};
 }());
