@@ -1,7 +1,7 @@
 (function() {
 	var doT = require('../doT.js'),
 		fs = require('fs'),
-		data = { f1: 1, f2: 2, f3: 3},
+		data = { f1: 1, f2: 2, f3: 3, altEmail: "conditional works"},
 		defs = { a: 100, b: 200};
 
 	defs.loadfile = function(path) {
