@@ -19,7 +19,7 @@ Benchmarks for doT.js vs other engines:
 	http://jsperf.com/dom-vs-innerhtml-based-templating
 
 Note about doU.js:
-	doU.js is here only so that legacy extrenal tests do not break. Use doT.js.
+	doU.js is here only so that legacy external tests do not break. Use doT.js.
 	doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
 License:
