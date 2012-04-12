@@ -16,6 +16,10 @@
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
+	} else if (typeof define != 'function' && define.amd) {
+		define(function () {
+			return doT;
+		});
 	} else {
 		this.doT = doT;
 	}
