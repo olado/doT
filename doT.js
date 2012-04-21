@@ -23,6 +23,7 @@
 	doT.templateSettings = {
 		evaluate:    /\{\{([\s\S]+?)\}\}/g,
 		interpolate: /\{\{=([\s\S]+?)\}\}/g,
+		interpolateSafe: /\{\{~([\s\S]+?)\}\}/g,
 		encode:      /\{\{!([\s\S]+?)\}\}/g,
 		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
 		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g, //compile time defs
@@ -67,6 +68,9 @@
 			.replace(c.interpolate, function(match, code) {
 				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + cend;
 			})
+			.replace(c.interpolateSafe, function(match, code) {
+              			  return "';" + "var val = ''; try{val = " + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + ";}catch(e){}; out+= val + '";
+            		})
 			.replace(c.encode, function(match, code) {
 				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#47;'" + cend;
 			})
