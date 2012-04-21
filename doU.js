@@ -18,6 +18,10 @@
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doU;
+	} else if (typeof define === 'function' && define.amd) {
+		define(function () {
+			return doT;
+		});
 	} else {
 		this.doU = doU;
 	}
