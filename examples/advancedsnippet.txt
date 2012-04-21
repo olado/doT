@@ -54,10 +54,12 @@ Compare xyz to 1, show 'xyz is not 1' if false:
 {{#def.fntest()}}
 
 Conditionals:
-{{? it.altEmail }}
+{{? !it.altEmail }}
 <p>
 second email: {{= it.altEmail }}
 </p>
+{{?? true }}
+else case worked
 {{?}}
 
 

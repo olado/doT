@@ -1,33 +1,33 @@
 // doT.js
-// 2011, Laura Doktorova
-// https://github.com/olado/doT
+// 2011, Laura Doktorova, https://github.com/olado/doT
 //
 // doT.js is an open source component of http://bebedo.com
-//
-// doT is a custom blend of templating functions from jQote2.js
-// (jQuery plugin) by aefxx (http://aefxx.com/jquery-plugins/jqote2/)
-// and underscore.js (http://documentcloud.github.com/underscore/)
-// plus extensions.
-//
 // Licensed under the MIT license.
 //
 (function() {
-	var doT = { version : '0.1.7' };
+	"use strict";
+
+	var doT = { version : '0.1.8' };
+
+	var global = (function () { return this || (0 || eval)('this'); }());
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
+	} else if (typeof define === 'function' && define.amd) {
+		define(function() { return doT; });
 	} else {
-		this.doT = doT;
+		global.doT = doT;
 	}
 
 	doT.templateSettings = {
-		evaluate:    /\{\{([\s\S]+?)\}\}/g,
-		interpolate: /\{\{=([\s\S]+?)\}\}/g,
-		encode:      /\{\{!([\s\S]+?)\}\}/g,
-		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
-		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g, //compile time defs
+		evaluate:    	  /\{\{([\s\S]+?)\}\}/g,
+		interpolate: 	  /\{\{=([\s\S]+?)\}\}/g,
+		encode:      	  /\{\{!([\s\S]+?)\}\}/g,
+		use:         	  /\{\{#([\s\S]+?)\}\}/g,
+		define:      	  /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 		conditionalStart: /\{\{\?([\s\S]+?)\}\}/g,
-		conditionalEnd: /\{\{\?\}\}/g,
+		conditionalElse:  /\{\{\?\?\s*([\s\S]*?)\s*\}\}/g,
+		conditionalEnd:	  /\{\{\?\}\}/g,
 		varname: 'it',
 		strip : true,
 		append: true
@@ -35,7 +35,7 @@
 
 	function resolveDefs(c, block, def) {
 		return ((typeof block === 'string') ? block : block.toString())
-		.replace(c.define, function (match, code, assign, value) {
+		.replace(c.define, function (m, code, assign, value) {
 			if (code.indexOf('def.') === 0) {
 				code = code.substring(4);
 			}
@@ -43,42 +43,62 @@
 				if (assign === ':') {
 					def[code]= value;
 				} else {
-					eval("def[code]=" + value);
+					eval("def['"+code+"']=" + value);
 				}
 			}
 			return '';
 		})
-		.replace(c.use, function(match, code) {
+		.replace(c.use, function(m, code) {
 			var v = eval(code);
 			return v ? resolveDefs(c, v, def) : v;
 		});
 	}
 
+	function unescape(code) {
+		return  code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ');
+	}
+
+	if (!global.encodeHTML) { // encodeHTML is in global scope for performance :(
+		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
+			matchHTML = /&(?!\\w+;)|<|>|\"|'|\//g;
+		global.encodeHTML = function(code) {
+			return code ? code.toString().replace(matchHTML, function(m) { return encodeHTMLRules[m] || m; }) : code;
+		};
+	}
+
+	var startend = { // optimal choice depends on platform/size of templates
+		append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
+		split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML("}
+	};
+
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cstart = c.append ? "'+(" : "';out+=(", // optimal choice depends on platform/size of templates
-		    cend   = c.append ? ")+'" : ");out+='";
-		var str = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
+		var cse = c.append ? startend.append : startend.split, str;
 
-		str = ("var out='" +
-			((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
+		if (c.use || c.define) {
+			var olddef = global.def; global.def = def || {}; // workaround minifiers
+			str = resolveDefs(c, tmpl, global.def);
+			if (olddef) global.def = olddef; else delete global.def;
+		} else str = tmpl;
+
+		str = ("var out='" + ((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
 			.replace(/\\/g, '\\\\')
 			.replace(/'/g, "\\'")
-			.replace(c.interpolate, function(match, code) {
-				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + cend;
+			.replace(c.interpolate, function(m, code) {
+				return cse.start + unescape(code) + cse.end;
 			})
-			.replace(c.encode, function(match, code) {
-				return cstart + code.replace(/\\'/g, "'").replace(/\\\\/g, "\\").replace(/[\r\t\n]/g, ' ') + ").toString().replace(/&(?!\\w+;)/g, '&#38;').split('<').join('&#60;').split('>').join('&#62;').split('" + '"' + "').join('&#34;').split(" + '"' + "'" + '"' + ").join('&#39;').split('/').join('&#47;'" + cend;
+			.replace(c.encode, function(m, code) {
+				return cse.startencode + unescape(code) + cse.end;
 			})
-			.replace(c.conditionalEnd, function(match, expression) {
-				return "';}out+='";
+			.replace(c.conditionalEnd, "';}out+='")
+			.replace(c.conditionalElse, function(m, code) {
+				return (code) ? "';}else if(" + unescape(code)  + "){out+='" : "';}else{out+='";
 			})
-			.replace(c.conditionalStart, function(match, expression) {
-				var code = "if(" + expression + "){";
-				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ')  + "out+='";
+			.replace(c.conditionalStart, function(m, code) {
+				return "';if(" + unescape(code)  + "){out+='";
 			})
-			.replace(c.evaluate, function(match, code) {
-				return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ') + "out+='";
+			.replace(c.evaluate, function(m, code) {
+				return "';" + unescape(code) + "out+='";
 			})
 			+ "';return out;")
 			.replace(/\n/g, '\\n')

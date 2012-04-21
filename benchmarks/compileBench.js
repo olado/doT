@@ -1,10 +1,11 @@
 (function() {
 	var jslitmus, _, doU, doT,
-		data = { f1: 1, f2: 2, f3: 3},
+		data = { f1: 1, f2: 2, f3: 3, f4: "http://bebedo.com/laura"},
 		snippet = "<h1>Just static text</h1>\
 		<p>Here is a simple {{=it.f1}} </p>\
 		<div>test {{=it.f2}}\
 		<div>{{=it.f3}}</div>\
+		<div>{{!it.f4}}</div>\
 		</div>";
 
 	if (typeof module !== 'undefined' && module.exports) {
