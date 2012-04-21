@@ -26,7 +26,8 @@
 		encode:      /\{\{!([\s\S]+?)\}\}/g,
 		use:         /\{\{#([\s\S]+?)\}\}/g, //compile time evaluation
 		define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g, //compile time defs
-		conditionalStart: /\{\{\?([\s\S]+?)\}\}/g,
+		conditionalStart: /\{\{\?([^?][\s\S]+?)\}\}/g,
+		conditionalElse: /\{\{\?\?\s*([\s\S]*?)\s*\}\}/g,
 		conditionalEnd: /\{\{\?\}\}/g,
 		varname: 'it',
 		strip : true,
@@ -72,6 +73,14 @@
 			})
 			.replace(c.conditionalEnd, function(match, expression) {
 				return "';}out+='";
+			})
+			.replace(c.conditionalElse, function(match, expression) {
+				if ('' == expression) {
+					return "';}else{out+='";
+				} else {
+					var code = "}else if(" + expression + "){";
+					return "';" + code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ')  + "out+='";
+				}
 			})
 			.replace(c.conditionalStart, function(match, expression) {
 				var code = "if(" + expression + "){";
