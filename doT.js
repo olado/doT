@@ -80,7 +80,7 @@
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
 			str = resolveDefs(c, tmpl, global.def);
-			if (olddef) global.def = olddef; else delete global.def;
+			global.def = olddef;
 		} else str = tmpl;
 
 		str = ("var out='" + ((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
