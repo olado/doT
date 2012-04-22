@@ -7,7 +7,7 @@
 (function() {
 	"use strict";
 
-	var doT = { version : '0.1.8' };
+	var doT = { version : '0.2.0' };
 
 	var global = (function () { return this || (0 || eval)('this'); }());
 
@@ -30,7 +30,8 @@
 		conditionalEnd:	  /\{\{\?\}\}/g,
 		varname: 'it',
 		strip : true,
-		append: true
+		append: true,
+		selfcontained: false
 	};
 
 	function resolveDefs(c, block, def) {
@@ -58,13 +59,14 @@
 		return  code.replace(/\\'/g, "'").replace(/\\\\/g,"\\").replace(/[\r\t\n]/g, ' ');
 	}
 
-	if (!global.encodeHTML) { // encodeHTML is in global scope for performance :(
+	function encodeHTMLSource() {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
 			matchHTML = /&(?!\\w+;)|<|>|\"|'|\//g;
-		global.encodeHTML = function(code) {
+		return function(code) {
 			return code ? code.toString().replace(matchHTML, function(m) { return encodeHTMLRules[m] || m; }) : code;
 		};
 	}
+	global.encodeHTML = encodeHTMLSource();
 
 	var startend = { // optimal choice depends on platform/size of templates
 		append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
@@ -73,7 +75,7 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cse = c.append ? startend.append : startend.split, str;
+		var cse = c.append ? startend.append : startend.split, str, needhtmlencode;
 
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
@@ -88,14 +90,15 @@
 				return cse.start + unescape(code) + cse.end;
 			})
 			.replace(c.encode, function(m, code) {
+				needhtmlencode = true;
 				return cse.startencode + unescape(code) + cse.end;
 			})
 			.replace(c.conditionalEnd, "';}out+='")
 			.replace(c.conditionalElse, function(m, code) {
-				return (code) ? "';}else if(" + unescape(code)  + "){out+='" : "';}else{out+='";
+				return (code) ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='";
 			})
 			.replace(c.conditionalStart, function(m, code) {
-				return "';if(" + unescape(code)  + "){out+='";
+				return "';if(" + unescape(code) + "){out+='";
 			})
 			.replace(c.evaluate, function(m, code) {
 				return "';" + unescape(code) + "out+='";
@@ -107,6 +110,9 @@
 			.split("out+='';").join('')
 			.split("var out='';out+=").join('var out=');
 
+		if (needhtmlencode && c.selfcontained) {
+			str = "var encodeHTML=("+ encodeHTMLSource.toString()+"());"+str;
+		}
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {

@@ -1,6 +1,6 @@
 Created in search of the fastest and concise JavaScript templating function with emphasis on performance under V8 and nodejs. It shows great performance for both nodejs and browsers.
 
-doT.js is a blend of jQote2 and underscore.js templating functions with lots of additions and performance improvements. It is fast, small and has no dependencies.
+doT.js is fast, small and has no dependencies.
 
 Features:
 	custom delimiters,
@@ -8,6 +8,7 @@ Features:
 	runtime interpolation,
 	compile-time evaluation,
 	partials support,
+	conditionals,
 	encoding,
 	control whitespace - strip or preserve,
 	streaming friendly
