@@ -25,9 +25,7 @@
 		encode:      	  /\{\{!([\s\S]+?)\}\}/g,
 		use:         	  /\{\{#([\s\S]+?)\}\}/g,
 		define:      	  /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-		conditionalStart: /\{\{\?([\s\S]+?)\}\}/g,
-		conditionalElse:  /\{\{\?\?\s*([\s\S]*?)\s*\}\}/g,
-		conditionalEnd:	  /\{\{\?\}\}/g,
+		conditional:	  /\{\{\?(\?)?\s*([\s\S]*?)\}\}/g,
 		varname: 'it',
 		strip : true,
 		append: true,
@@ -93,12 +91,10 @@
 				needhtmlencode = true;
 				return cse.startencode + unescape(code) + cse.end;
 			})
-			.replace(c.conditionalEnd, "';}out+='")
-			.replace(c.conditionalElse, function(m, code) {
-				return (code) ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='";
-			})
-			.replace(c.conditionalStart, function(m, code) {
-				return "';if(" + unescape(code) + "){out+='";
+			.replace(c.conditional, function(m, elsecase, code) {
+				return elsecase ?
+					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
+					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 			})
 			.replace(c.evaluate, function(m, code) {
 				return "';" + unescape(code) + "out+='";
