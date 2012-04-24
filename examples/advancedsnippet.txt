@@ -55,11 +55,30 @@ Compare xyz to 1, show 'xyz is not 1' if false:
 
 Conditionals:
 {{? !it.altEmail }}
-<p>
-second email: {{= it.altEmail }}
-</p>
+	<p>
+	second email: {{= it.altEmail }}
+	</p>
 {{?? true }}
-else case worked
+	else case worked
 {{?}}
 
+Array iterators
+{{~ it.farray :p }}
+	<h1>{{=p.farray}}<h1>
+	{{~ p.farray :value:i }}
+		<h2>{{=i}}: {{=value}}</h2>
+		{{~ value :w }}
+			<h3>{{=w}}</h3>
+		{{~}}
+	{{~}}
+{{~}}
 
+{{~ ["apple", "banana", "orange"] :k}}
+	{{=k}}
+{{~}}
+
+{{~ (function(){ return [1,2,3]})() :k}}
+	{{=k}}
+{{~}}
+
+The end

@@ -8,8 +8,9 @@ Features:
 	runtime interpolation,
 	compile-time evaluation,
 	partials support,
-	conditionals,
 	encoding,
+	conditionals,
+	array iteration,
 	control whitespace - strip or preserve,
 	streaming friendly
 

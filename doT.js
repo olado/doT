@@ -25,7 +25,8 @@
 		encode:      	  /\{\{!([\s\S]+?)\}\}/g,
 		use:         	  /\{\{#([\s\S]+?)\}\}/g,
 		define:      	  /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-		conditional:	  /\{\{\?(\?)?\s*([\s\S]*?)\}\}/g,
+		conditional:	  /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+		iterate:      	  /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 		varname: 'it',
 		strip : true,
 		append: true,
@@ -73,7 +74,7 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cse = c.append ? startend.append : startend.split, str, needhtmlencode;
+		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
 
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
@@ -95,6 +96,12 @@
 				return elsecase ?
 					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
 					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
+			})
+			.replace(c.iterate, function(m, iterate, vname, iname) {
+				if (!iterate) return "'} };out+='";
+				sid+=1;indv = iname || "i"+sid;iterate=unescape(iterate);
+				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
+					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate, function(m, code) {
 				return "';" + unescape(code) + "out+='";

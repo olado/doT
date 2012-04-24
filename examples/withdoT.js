@@ -1,7 +1,7 @@
 (function() {
 	var doT = require('../doT.js'),
 		fs = require('fs'),
-		data = { f1: 1, f2: 2, f3: 3, altEmail: "conditional works"},
+		data = { f1: 1, f2: 2, f3: 3, altEmail: "conditional works", farray:[{farray:[1,2,3,[11,22,33]],person:{name:'Ell',age:23}},{farray:{how:'really'}}, {farray:[5,6,7,8]}]},
 		defs = { a: 100, b: 200};
 
 	defs.loadfile = function(path) {
