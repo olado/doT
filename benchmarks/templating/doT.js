@@ -109,7 +109,9 @@
 				return "';" + unescape(code) + "out+='";
 			})
 			+ "';return out;")
-			.replace(/[\r\t\n]/g, '\\$&')
+			.replace(/\n/g, '\\n')
+			.replace(/\t/g, '\\t')
+			.replace(/\r/g, '\\r')
 			.split("out+='';").join('')
 			.split("var out='';out+=").join('var out=');
 
