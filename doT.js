@@ -38,7 +38,7 @@
 
 	function encodeHTMLSource() {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
-			matchHTML = /&(?!\\w+;)|<|>|\"|'|\//g;
+			matchHTML = /&(?!\\w+;)|<|>|"|'|\//g;
 		return function(code) {
 			return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : code;
 		};
@@ -85,7 +85,8 @@
 			global.def = olddef;
 		} else str = tmpl;
 
-		str = ("var out='" + ((c.strip) ? str.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g, ''): str)
+		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
+					.replace(/\s*<!\[CDATA\[\s*|\s*\]\]>\s*|[\r\n\t]|(\/\*[\s\S]*?\*\/)/g,''): str)
 			.replace(/'|\\/g, '\\$&')
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;
@@ -100,7 +101,7 @@
 					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
-				if (!iterate) return "'} };out+='";
+				if (!iterate) return "';} } out+='";
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
@@ -109,11 +110,9 @@
 				return "';" + unescape(code) + "out+='";
 			})
 			+ "';return out;")
-			.replace(/\n/g, '\\n')
-			.replace(/\t/g, '\\t')
-			.replace(/\r/g, '\\r')
-			.split("out+='';").join('')
-			.split("var out='';out+=").join('var out=');
+			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
+			.replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '')
+			.replace(/(\s|;|}|^|{)out\+=''\+/g,'$1out+=');
 
 		if (needhtmlencode && c.selfcontained) {
 			str = "var encodeHTML=(" + encodeHTMLSource.toString() + "());" + str;
