@@ -15,17 +15,13 @@ Features:
     streaming friendly
     use it as logic-less or with logic, it is up to you
 
-Docs, usage and samples:
-	http://olado.github.com/doT
-
-Benchmarks for doT.js vs other engines:
-	http://jsperf.com/dom-vs-innerhtml-based-templating
+Docs, live playground and samples:
+    http://olado.github.com/doT
 
 Note about doU.js:
-	doU.js is here only so that legacy external tests do not break. Use doT.js.
-	doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
+    doU.js is here only so that legacy external tests do not break. Use doT.js.
+    doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
 License:
-	doT is an open source component of http://bebedo.com
-
-	doT is licensed under the MIT License. (See LICENSE-DOT)
+    doT is an open source component of http://bebedo.com
+    doT is licensed under the MIT License. (See LICENSE-DOT)
