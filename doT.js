@@ -26,7 +26,7 @@
 		compile:  undefined  //fn, for express
 	};
 
-	var global = (function(){ return this || (0||eval)('this'); }());
+	var global = (function(){ return this || (0,eval)('this'); }());
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
