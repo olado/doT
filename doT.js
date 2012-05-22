@@ -76,7 +76,10 @@
 	}
 
 	doT.template = function(tmpl, c, def) {
-		c = c || doT.templateSettings;
+		c = c || {};
+		for (var ck in doT.templateSettings) {
+			c[ck] = c[ck] || doT.templateSettings[ck];
+		}
 		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
 
 		if (c.use || c.define) {
