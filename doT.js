@@ -76,7 +76,10 @@
 	}
 
 	doT.template = function(tmpl, c, def) {
-		c = c || doT.templateSettings;
+		c = c || {};
+		for (var ck in doT.templateSettings) {
+			c[ck] = c[ck] || doT.templateSettings[ck];
+		}
 		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
 
 		if (c.use || c.define) {
@@ -103,7 +106,7 @@
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
-				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
+				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+indv+"=-1,l"+sid+"=arr"+sid+".length-1,"+vname+";while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
