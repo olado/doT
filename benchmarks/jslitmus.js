@@ -60,7 +60,7 @@
 
   var sys = null, querystring = null;
   if (platform.name == 'node') {
-    sys = require('sys');
+    util = require('util');
     querystring = require('querystring');
   }
 
@@ -72,7 +72,7 @@
     if (typeof(console) != 'undefined') {
       console.log(msg);
     } else if (sys) {
-      sys.log(msg);
+      util.log(msg);
     }
   }
 
