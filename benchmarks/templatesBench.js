@@ -67,7 +67,7 @@
 }
 
 	function runTests() {
-		//var sys = require('sys');
+		//var util = require('util');
 		jslitmus = require('./jslitmus.js');
 		doU = require('./templating/doU.js');
 		doT = require('./templating/doT.js');
@@ -76,7 +76,7 @@
 		testsetup(snippet);
 		// Log the test results
 		jslitmus.on('complete', function(test) {
-			//console.log(sys.inspect(process.memoryUsage()));
+			//console.log(util.inspect(process.memoryUsage()));
 			console.log(test.toString());
 		});
 		// 'all_complete' fires when all tests have finished.
