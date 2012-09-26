@@ -10,20 +10,21 @@
 	var doT = {
 		version: '0.2.0',
 		templateSettings: {
-			evaluate:    /\{\{([\s\S]+?)\}\}/g,
-			interpolate: /\{\{=([\s\S]+?)\}\}/g,
-			encode:      /\{\{!([\s\S]+?)\}\}/g,
-			use:         /\{\{#([\s\S]+?)\}\}/g,
-			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			evaluate:		/\{\{([\s\S]+?)\}\}/g,
+			interpolate:	/\{\{=([\s\S]+?)\}\}/g,
+			encode:			/\{\{!([\s\S]+?)\}\}/g,
+			use:			/\{\{#([\s\S]+?)\}\}/g,
+			define:			/\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+			conditional:	/\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+			iterate:		/\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			iteratefor:		/\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			varname: 'it',
 			strip: true,
 			append: true,
 			with:	true
 		},
-		template: undefined, //fn, compile template
-		compile:  undefined  //fn, for express
+		template:	undefined, //fn, compile template
+		compile:	undefined, //fn, for express
 	};
 
 	var global = (function(){ return this || (0,eval)('this'); }());
@@ -77,7 +78,7 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
+		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv, inpname;
 
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
@@ -106,6 +107,14 @@
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","
 					+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
+			})
+			.replace(c.iteratefor || skip, function(m, iterate, vname, iname) {
+				if (!iterate) return "';} } out+='";
+				sid+=1;
+				inpname = "iter"+sid;
+				return "';var "+inpname+"="+iterate+";if("+inpname+"){var "+vname+";"
+					+"for("+iname+" in "+inpname+"){"
+					+vname+"="+inpname+"["+iname+"];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + ";out+='";
