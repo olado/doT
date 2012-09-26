@@ -18,6 +18,7 @@
 			conditional:	/\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:		/\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			iteratefor:		/\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			render:			/\{\{@([\S]+?)\(([\s\S]+?)\)\}\}/g,
 			varname: 'it',
 			strip: true,
 			append: true,
@@ -25,7 +26,12 @@
 		},
 		template:	undefined, //fn, compile template
 		compile:	undefined, //fn, for express
+		getCached:	undefined,
+		setCached:	undefined,
+		addCached:	undefined,
+		render:		undefined,
 	};
+	var cache = {};
 
 	var global = (function(){ return this || (0,eval)('this'); }());
 
@@ -116,6 +122,9 @@
 					+"for("+iname+" in "+inpname+"){"
 					+vname+"="+inpname+"["+iname+"];out+='";
 			})
+			.replace(c.render || skip, function(m, tmpl, args) {
+				return "'+doT.render('"+tmpl+(args ? "',"+unescape(args) : '')+")+'"
+			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + ";out+='";
 			})
@@ -136,4 +145,29 @@
 	doT.compile = function(tmpl, def) {
 		return doT.template(tmpl, null, def);
 	};
+	
+	doT.getCached = function() {return cache};
+	doT.setCached = function(fns) {cache = fns};
+	doT.addCached = function(id, fn) {
+		if ('object' === typeof id)
+		{
+			for (i in id) doT.addCached(i,id[i]);
+			return;
+		}
+		cache[id] = fn
+	};
+	
+	doT.render = function(tmpl)
+	{
+		if (!cache[tmpl])
+		{
+			var src = document.getElementById(tmpl)
+			if (!src)
+				throw 'Template not found: ' + tmpl
+			doT.addCached(tmpl, doT.compile(src.innerHTML))
+		}
+		return cache[tmpl].apply(this, Array.prototype.slice.call(arguments, 1))
+	};
+	
+	
 }());
