@@ -146,9 +146,17 @@
 		return doT.template(tmpl, null, def);
 	};
 	
-	doT.getCached = function() {return cache};
-	doT.setCached = function(fns) {cache = fns};
-	doT.addCached = function(id, fn) {
+	doT.getCached = function(){return cache};
+	doT.exportCached = function()
+	{
+		var str = ""
+		for (var id in cache)
+			str+=',"'+id+'":'+cache[id].toString()
+		return '{'+str.substring(1)+'}'
+	}
+	doT.setCached = function(fns){cache = fns};
+	doT.addCached = function(id, fn)
+	{
 		if ('object' === typeof id)
 		{
 			for (i in id) doT.addCached(i,id[i]);
