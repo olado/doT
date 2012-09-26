@@ -20,7 +20,7 @@
 			varname: 'it',
 			strip: true,
 			append: true,
-			selfcontained: false
+			with:	true
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
@@ -113,10 +113,8 @@
 			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
 			.replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '')
 			.replace(/(\s|;|}|^|{)out\+=''\+/g,'$1out+=');
-
-		if (needhtmlencode && c.selfcontained) {
-			str = "var encodeHTML=(" + encodeHTMLSource.toString() + "());" + str;
-		}
+		if(c.with)
+			str = "with("+c.varname+"){"+str+"}"
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
