@@ -84,7 +84,7 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv, inpname;
+		var cse = c.append ? startend.append : startend.split, str, sid=0, indv, inpname;
 
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
@@ -99,7 +99,6 @@
 				return cse.start + unescape(code) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
-				needhtmlencode = true;
 				return cse.startencode + unescape(code) + cse.end;
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
