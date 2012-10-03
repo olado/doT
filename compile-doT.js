@@ -2,6 +2,10 @@
 
 var fs = require( 'fs' )
 var path = require( 'path' )
+var argv = require( 'optimist' )
+	.default({ base: '' })
+	.alias({ base: 'b' })
+	.argv
 
 //var doT = require( 'doT' )
 var DIR = path.dirname( path.dirname( process.argv[1] ) )
@@ -11,20 +15,20 @@ var readDone = 0
 var readAll = 0
 var allStarted = false
 
-process.argv.forEach( function( val, i ) {
-	if ( 2 > i ) return;
-	
-	var item = val
+argv._.forEach( function( val, i ) { readItem( val ) } )
+allStarted = true
+
+function readItem( item )
+{
 	if ( fs.statSync( item ).isDirectory() )
 	{
 		var dir = item
-		fs.readdirSync( dir ).forEach( function( item ){ readFile( path.join( dir, item ) ) } )
+		fs.readdirSync( dir ).forEach( function( item ){ readItem( path.join( dir, item ) ) } )
 	} else
 	{
 		readFile( item )
 	}
-} )
-allStarted = true
+}
 
 function readFile( file )
 {
@@ -37,6 +41,8 @@ function readFile( file )
 		} else
 		{
 			var id = path.basename( file, path.extname( file ) )
+			if ( argv.base )
+				id = path.relative( argv.base, path.dirname( file ) ).replace( /\//g, '.' ) + '.' + id
 			var f = doT.compile( data )
 			doT.addCached( id, f )
 		}
