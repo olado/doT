@@ -42,9 +42,18 @@ function readFile( file )
 		{
 			var id = path.basename( file, path.extname( file ) )
 			if ( argv.base )
-				id = path.relative( argv.base, path.dirname( file ) ).replace( /\//g, '.' ) + '.' + id
-			var f = doT.compile( data )
-			doT.addCached( id, f )
+			{
+				var rel = path.relative( argv.base, path.dirname( file ) ).replace( /\//g, '.' )
+				rel && ( id = rel + '.' + id )
+			}
+			try
+			{
+				var f = doT.compile( data );
+				doT.addCached( id, f )
+			} catch( err )
+			{
+				process.stderr.write( 'Error compiling file "' + file + '": ' + err + '\n' )
+			}
 		}
 		
 		++readDone
