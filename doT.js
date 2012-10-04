@@ -136,8 +136,7 @@
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
-			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
-			throw e;
+			throw e + ' in ' + str;
 		}
 	};
 
