@@ -168,12 +168,11 @@
 		if (!cache[tmpl])
 		{
 			var src = document.getElementById(tmpl)
-			if (!src)
+			if (!src || !src.type || 'text/x-dot-tmpl' != src.type)
 				throw 'Template not found: ' + tmpl
 			doT.addCached(tmpl, doT.compile(src.innerHTML))
 		}
 		return cache[tmpl].apply(this, Array.prototype.slice.call(arguments, 1))
 	};
-	
 	
 }());
