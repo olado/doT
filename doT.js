@@ -18,7 +18,7 @@
 			conditional:	/\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:		/\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			iteratefor:		/\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-			render:			/\{\{@([\S]+?)\(([\s\S]+?)\)\}\}/g,
+			render:			/\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
 			varname: 'it',
 			strip: true,
 			append: true,
@@ -122,7 +122,7 @@
 					+vname+"="+inpname+"["+iname+"];out+='";
 			})
 			.replace(c.render || skip, function(m, tmpl, args) {
-				return "'+doT.render('"+tmpl+(args ? "',"+unescape(args) : '')+")+'"
+				return "'+doT.render('"+tmpl+"'"+(args ? ","+unescape(args) : '')+")+'"
 			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + ";out+='";
