@@ -117,7 +117,7 @@
 				if (!iterate) return "';} } out+='";
 				sid+=1;
 				inpname = "iter"+sid;
-				return "';var "+inpname+"="+iterate+";if("+inpname+"){var "+vname+";"
+				return "';var "+inpname+"="+iterate+";if("+inpname+"){var "+vname+","+iname+";"
 					+"for("+iname+" in "+inpname+"){"
 					+vname+"="+inpname+"["+iname+"];out+='";
 			})
