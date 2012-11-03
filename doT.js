@@ -77,7 +77,7 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
+		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv, fn;
 
 		if (c.use || c.define) {
 			var olddef = global.def; global.def = def || {}; // workaround minifiers
@@ -118,7 +118,9 @@
 			str = "var encodeHTML=(" + encodeHTMLSource.toString() + "());" + str;
 		}
 		try {
-			return new Function(c.varname, str);
+			fn = new Function(c.varname, str);
+			fn.str = str;
+			return fn;
 		} catch (e) {
 			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
 			throw e;
