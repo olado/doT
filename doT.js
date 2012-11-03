@@ -20,7 +20,8 @@
 			varname: 'it',
 			strip: true,
 			append: true,
-			selfcontained: false
+			selfcontained: false,
+			emptycheck: false
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
@@ -75,6 +76,30 @@
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
 	}
 
+	function emptyCheck(c, code){
+
+		return !c.emptycheck? code : code.replace(/\w+\.\w+/g, function(code){
+		
+			var i=0,
+				p,
+				arr=code.split('.'),
+				ret=['view']
+				;
+
+			if (arr[0] === c.varname) arr.shift();
+
+			while ( p = arr.shift() ){
+				i = ret.push(ret[i] + '.' + p) - 1;
+			};
+
+			ret.shift();
+
+			return ret.join('&&')+'||""';
+		})
+		// prefix any single occurances of variables, eg: {{foo}}
+		.replace(/(?!\W?\w+\.|\.\w+)(^|\W)(\w+)(\W|$)/g, c.varname+'.$2');
+	}
+
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
@@ -89,11 +114,11 @@
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
 			.replace(/'|\\/g, '\\$&')
 			.replace(c.interpolate || skip, function(m, code) {
-				return cse.start + unescape(code) + cse.end;
+				return cse.start + emptyCheck(c, unescape(code)) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
 				needhtmlencode = true;
-				return cse.startencode + unescape(code) + cse.end;
+				return cse.startencode + emptyCheck(c, unescape(code)) + cse.end;
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
