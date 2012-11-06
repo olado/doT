@@ -20,9 +20,10 @@ Created in search of the fastest and concise JavaScript templating function with
 
 \+ extra:
 
-- autoloading from dom elements
+- autoloading from dom elements & files (or custom functions)
 - caching
 - exporting/importing cached templates
+- dynamic includes
 
 ##Docs
 ###Native Docs, live playground and samples:
@@ -35,13 +36,39 @@ doT.addCached(id, tmplFunc)
 doT.setCached(cacheObj)
 doT.getCached() // returns cache object
 doT.exportCached() // returns cache object as string
-doT.render(tmplName, [args, ...]) /*render cached template or try autoloading.
-Throws exception if no matching tmpl found.
-Autoload selects DOM element by id = tmplName. Type should be text/x-dot-tmpl (see example below). */
+doT.render(tmplName, [args, ...])
+// or
+dot.render({ name: tmplName, args: argsArray })
+/*render cached template or try autoloading.
+Throws exception if no matching tmpl found.*/
 ```
+
+####Autoloading
+You can set `doT.autoload` to you own function(tmplName) or use one of `doT.autoloadDOM(opts)` (default) or `doT.autoloadFS(opts)`.
+
+`doT.autoloadDOM(opts)` currently doesn't support any options. It looks for DOM element with `id = tmplName` and `type = "text/x-dot-tmpl"`.
+
+`doT.autoloadFS(opts)` used for serverside templating. You should specify options:
+
+- `fs` - filesystem module
+- `root` - path to templates directory
+
+```javascript
+doT.autoload = doT.autoloadFS({
+	fs: fs,
+	root: '/path/to/dir'
+})
+```
+It swaps dots with slashes so `some.deep.file` template will be looked for in `/path/to/dir/some/deep/file.tmpl`.
 
 ####tmpls
 `{{@tmplName([args, ...])}}` turns into `doT.render('tmplName'[, args, ...])`.
+
+Note! To use it in serverside templates you should add `doT` to global scope like this
+```javascript
+var doT = require( 'doT' )
+global.doT = doT
+```
 
 `{{:obj :val:key}} ... {{:}}` iterates through `obj` with `for .. in` construction.
 
@@ -52,8 +79,49 @@ Autoload selects DOM element by id = tmplName. Type should be text/x-dot-tmpl (s
 ```
 Should show 'From tmpl1: 1; From tmpl2: 2'
 
+####Dynamic includes
+Instead of having split `header.tmpl` & `footer.tmpl` and including it in every template, you can have `html.tmpl`:
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>doT</title>
+	</head>
+	<body>
+{{@@content()}}
+	</body>
+</html>
+```
+and render it like this
+```javascript
+doT.render( 'html', {
+	items: [ 1, 2, 3 ],
+	'_dynamic': {
+		'content': { name: 'first' }
+	}
+} )
+
+// or
+doT.render( 'html', {
+	'_dynamic': {
+		'content': {
+			name: 'second',
+			args: [{ item: {value: 'value'} }]
+		}
+	}
+} )
+```
+If no args specified current arguments are used. So
+
+- in first case `{{@@content()}}` equals to `{{=doT.render({name: 'first', args: arguments}}`.
+- in second: `{{=doT.render(it._dynamic[ 'content' ])}}` and `second` template would be used.
+
 ####compile options
 Also compile-time option 'with' available (default to true). It wraps function body in 'with' construction which allows use properties directly (without it. prefix).
+
+- `true` sets doT.templateSettings.varname as argument for with
+- you can specify your own argument
+- `false` disables it
 
 **Warning!** Be careful with this option, cause 'with' will fail if you run tmpl function with no (or less then specified) args.
 
