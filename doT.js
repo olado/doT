@@ -19,10 +19,12 @@
 			iterate:		/\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			iteratefor:		/\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			render:			/\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
+			includeDynamic:	/\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
 			varname: 'it',
 			strip: true,
 			append: true,
-			with:	true
+			with:	true,
+			dynamicList: 'it._dynamic'
 		},
 		template:	undefined, //fn, compile template
 		compile:	undefined, //fn, for express
@@ -123,6 +125,10 @@
 				return "';var "+inpname+"="+iterate+";if("+inpname+"){var "+vname+","+iname+";"
 					+"for("+iname+" in "+inpname+"){"
 					+vname+"="+inpname+"["+iname+"];out+='";
+			})
+			.replace(c.includeDynamic || skip, function(m, tmpl, args) {
+				return "';var tmpl="+c.dynamicList+"['"+unescape(tmpl)+"'];"
+					+"out+=doT.render({name:tmpl.name, args:tmpl.args || arguments})+'"
 			})
 			.replace(c.render || skip, function(m, tmpl, args) {
 				return "'+doT.render('"+tmpl+"'"+(args ? ","+unescape(args) : '')+")+'"
