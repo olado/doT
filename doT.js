@@ -26,10 +26,13 @@
 		},
 		template:	undefined, //fn, compile template
 		compile:	undefined, //fn, for express
-		getCached:	undefined,
+		getCached:	undefined, //methods for cache managment
 		setCached:	undefined,
 		addCached:	undefined,
-		render:		undefined,
+		render:		undefined, //render using cache
+		autoload:	undefined, //autoloads template text
+		autoloadDOM:	undefined, //some autoload implementations
+		autoloadFS:	undefined
 	};
 	var cache = {};
 
@@ -167,12 +170,37 @@
 	{
 		if (!cache[tmpl])
 		{
-			var src = document.getElementById(tmpl)
-			if (!src || !src.type || 'text/x-dot-tmpl' != src.type)
+			var src = doT.autoload(tmpl)
+			if (false === src)
 				throw 'Template not found: ' + tmpl
-			doT.addCached(tmpl, doT.compile(src.innerHTML))
+			doT.addCached(tmpl, doT.compile(src))
 		}
 		return cache[tmpl].apply(this, Array.prototype.slice.call(arguments, 1))
 	};
 	
+	doT.autoloadDOM = function( opts )
+	{
+		return function( name )
+		{
+			var src = document.getElementById( name )
+			if ( !src || !src.type || 'text/x-dot-tmpl' != src.type )
+				return false
+			return src.innerHTML
+		}
+	};
+	
+	doT.autoloadFS = function( opts )
+	{
+		return function( name )
+		{
+			try
+			{
+				return opts.fs.readFileSync(
+					opts.root + '/' +  name.replace( '.', '/' ) + '.tmpl'
+				)
+			} catch (e) { return false }
+		}
+	};
+	
+	doT.autoload = doT.autoloadDOM();
 }());
