@@ -168,14 +168,15 @@
 	
 	doT.render = function(tmpl)
 	{
-		if (!cache[tmpl])
+		('object' !== typeof tmpl) && (tmpl = { name: tmpl })
+		if (!cache[tmpl.name])
 		{
-			var src = doT.autoload(tmpl)
+			var src = doT.autoload(tmpl.name)
 			if (false === src)
-				throw 'Template not found: ' + tmpl
-			doT.addCached(tmpl, doT.compile(src))
+				throw 'Template not found: ' + tmpl.name
+			doT.addCached(tmpl.name, doT.compile(src))
 		}
-		return cache[tmpl].apply(this, Array.prototype.slice.call(arguments, 1))
+		return cache[tmpl.name].apply(this, tmpl.args || Array.prototype.slice.call(arguments, 1))
 	};
 	
 	doT.autoloadDOM = function( opts )
