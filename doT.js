@@ -135,7 +135,7 @@
 			.replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '')
 			.replace(/(\s|;|}|^|{)out\+=''\+/g,'$1out+=');
 		if(c.with)
-			str = "with("+c.varname+"){"+str+"}"
+			str = "with("+(true === c.with ? c.varname : c.with)+"){"+str+"}"
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
