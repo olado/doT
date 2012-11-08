@@ -19,7 +19,7 @@
 			define:			/\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			varname:		'it',
 			strip:			true,
-			with:			true,
+			with:			false,
 			dynamicList:	'it._dynamic',
 			startend:		startend.append
 		},
@@ -89,20 +89,20 @@
 				+ vname+ "=" + inpname + "[" + iname + "];out+='";
 		}
 	}
-	tags.includeDynamic = {
+	tags.xx_includeDynamic = {
 		regex: /\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
 		func: function(m, tmpl, args) {
 			return "';var tmpl=" + doT.templateSettings.dynamicList + "['" + unescape(tmpl) + "'];"
 				+ "out+=doT.render({name:tmpl.name, args:tmpl.args || arguments})+'"
 		}
 	}
-	tags.render = {
+	tags.xy_render = {
 		regex: /\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
 		func: function(m, tmpl, args) {
 			return "'+doT.render('" + tmpl + "'" + (args ? "," + unescape(args) : '') + ")+'"
 		}
 	}
-	tags.evaluate = {
+	tags.zz_evaluate = {
 		regex: /\{\{([\s\S]+?)\}\}/g,
 		func: function(m, code) {
 			return "';" + unescape(code) + ";out+='";
@@ -133,6 +133,7 @@
 	function unescape(code) {
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
 	}
+	doT.unescape = unescape
 
 	// template compilation
 	function resolveDefs(c, block, def) {
@@ -170,8 +171,9 @@
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,'')
 				: str)
 			.replace(/'|\\/g, '\\$&')
-		for ( var tagname in doT.tags )
-			str = str.replace( doT.tags[ tagname ].regex, doT.tags[ tagname ].func )
+		var taglist = Object.keys(doT.tags).sort()
+		for ( var t_id in taglist )
+			str = str.replace( doT.tags[ taglist[ t_id ] ].regex, doT.tags[ taglist[ t_id ] ].func )
 		str = ("var out='" + str + "';return out;")
 			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
 			.replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '')
