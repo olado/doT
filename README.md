@@ -30,7 +30,46 @@ Created in search of the fastest and concise JavaScript templating function with
 http://olado.github.com/doT
 
 ###Extra features docs
-####API
+####Before you continue
+All described features did NOT make doT slower. There is `benchmark` folder, try
+`compileBench.js` and `templatesBench.js` yourself. All commits before
+`28de83c` contain doT-original tests.
+
+####differences in configuration
+- You can not specify per template settings in `doT.template()` call (don't you want?).
+- You still can set it directly to `doT.templateSettings` before every call you want.
+- There is no `templateSettings.append` property.
+Instead of this set `doT.templateSettings.startend` directly to one of
+`doT.startend.append` (default), `doT.startend.split` or define your one.
+
+####Add, modify and remove tags
+Now it's much easier to modify or add new tags in your templates.
+I moved all tag's definitions into `doT.tags` object:
+
+```javascript
+doT.tags.tagname = {
+	regex: /your regex/,
+	func: function(...){...} // to pass 2nd param to String.replace 
+}
+```
+Take a look at existing tags defenitions and you can easily define your new one
+or modify existing. Just change one of properties of `doT.tags`.
+
+Tags are parsed in order of their names, so you'd better set 'evaluate' (`{{ code }}`) tag's name
+to something like z_evaluate to avoid it's regex matching other tags ( like `{{? cond. }}` or `{{~arr :val}}`).
+
+Indeed one can easily implement http://mustache.github.com/ or other template engine.
+
+Compile time tags stay untouched. Change their regexes in `doT.templateSettings`.
+All other regexes are moved to `doT.tags`.
+
+####Caching
+There are transparent caching and autoloading.
+You can use autoloading in browser from DOM elements or in node from files.
+
+Also you can compile templates into JSONP file to load them all together ready for use.
+
+####extra API
 ```javascript
 doT.addCached(id, tmplFunc)
 doT.setCached(cacheObj)
@@ -116,6 +155,7 @@ If no args specified current arguments are used. So
 - in first case `{{@@content()}}` equals to `{{=doT.render({name: 'first', args: arguments}}`.
 - in second: `{{=doT.render(it._dynamic[ 'content' ])}}` and `second` template would be used.
 
+You can specify field wich contains information about dynamic tamplates in `doT.templateSettings.dynamicList` (default to `_dynamic`).
 ####compile options
 Also compile-time option 'with' available (default to true). It wraps function body in 'with' construction which allows use properties directly (without it. prefix).
 
