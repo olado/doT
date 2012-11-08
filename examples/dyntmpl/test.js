@@ -1,7 +1,7 @@
 #!/usr/bin/env js
 
 var fs = require( 'fs' )
-var doT = require( '../doT.js' )
+var doT = require( '../../doT.js' )
 global.doT = doT
 doT.autoload = doT.autoloadFS({
 	fs: fs,
