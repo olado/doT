@@ -8,8 +8,8 @@
 	"use strict";
 	
 	var startend = {
-		append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
-		split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML("}
+		append: { start: "'+(",      end: ")+'",      startencode: "'+doT.eh(" },
+		split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=doT.eh("}
 	}
 	
 	var doT = {
@@ -25,6 +25,8 @@
 		},
 		startend:	startend,
 		tags:		{},
+		encodeHTML:	undefined, //escapes html strings
+		eh:			undefined, //shortcut
 		template:	undefined, //fn, compile template
 		compile:	undefined, //fn, for express
 		getCached:	undefined, //methods for cache managment
@@ -128,7 +130,8 @@
 			return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : code;
 		};
 	}
-	global.encodeHTML = encodeHTMLSource();
+	doT.encodeHTML = encodeHTMLSource();
+	doT.eh = doT.encodeHTML;
 
 	function unescape(code) {
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
