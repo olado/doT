@@ -19,7 +19,7 @@
 			define:			/\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			varname:		'it',
 			strip:			true,
-			with:			false,
+			with:			true,
 			dynamicList:	'it._dynamic',
 			startend:		startend.append
 		},

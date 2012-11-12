@@ -71,6 +71,7 @@
 		jslitmus = require('./jslitmus.js');
 		doU = require('./templating/doU.js');
 		doT = require('./templating/doT.js');
+		doT.templateSettings.with = false;
 		var passOne = 0;
 		console.log("*** Small template length: " + snippet.length);
 		testsetup(snippet);
@@ -106,6 +107,7 @@
 
 	function runTestsInBrowser() {
 		jslitmus = window.jslitmus;doU = window.doU;doT = window.doT;
+		doT.templateSettings.with = false;
 
 		var resultTmpl = doT.template("<h3>Template length : {{=it.size}} </h3>	<img src='{{=it.url}}'/>");
 		var currentSet = document.getElementById('small');
