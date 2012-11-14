@@ -11,19 +11,31 @@ var argv = require( 'optimist' )
 var DIR = path.dirname( path.dirname( process.argv[1] ) )
 var doT = require( DIR + '/misc/js/doT.js' )
 
-var readDone = 0
-var readAll = 0
-var allStarted = false
+var asyncCalls = 0
 
 argv._.forEach( function( val, i ) { readItem( val ) } )
-allStarted = true
+function asyncAfterAll() { process.stdout.write( doT.exportCached() ) }
+
+function asyncStarted() { asyncCalls += 1 }
+function asyncDone()
+{
+	asyncCalls -= 1
+	if ( 0 == asyncCalls )
+		asyncAfterAll()
+}
 
 function readItem( item )
 {
 	if ( fs.statSync( item ).isDirectory() )
 	{
-		var dir = item
-		fs.readdirSync( dir ).forEach( function( item ){ readItem( path.join( dir, item ) ) } )
+		asyncStarted()
+		fs.readdir( item, function( err, files ) {
+			if ( err )
+				process.stderr.write( err )
+			else
+				files.forEach( function( file ){ readItem( path.join( item, file ) ) } )
+			asyncDone()
+		} )
 	} else
 	{
 		readFile( item )
@@ -32,7 +44,7 @@ function readItem( item )
 
 function readFile( file )
 {
-	++readAll
+	asyncStarted()
 	fs.readFile( file, function( err, data )
 	{
 		if ( err )
@@ -55,9 +67,6 @@ function readFile( file )
 				process.stderr.write( 'Error compiling file "' + file + '": ' + err + '\n' )
 			}
 		}
-		
-		++readDone
-		if ( allStarted && readDone == readAll )
-			process.stdout.write( doT.exportCached() )
+		asyncDone()
 	} )
 }
