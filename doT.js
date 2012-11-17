@@ -76,7 +76,13 @@
 	}
 
 	doT.template = function(tmpl, c, def) {
-		c = c || doT.templateSettings;
+		c = c || {};
+		for (var fld in doT.templateSettings) {
+			if (doT.templateSettings.hasOwnProperty(fld)) {
+				c[fld] = (c[fld] === undefined) ? doT.templateSettings[fld] : c[fld];
+			}
+		}
+		c.varname = c.argnames || c.varname;
 		var cse = c.append ? startend.append : startend.split, str, needhtmlencode, sid=0, indv;
 
 		if (c.use || c.define) {
