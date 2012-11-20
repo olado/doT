@@ -25,3 +25,10 @@ Note about doU.js:
 License:
     doT is an open source component of http://bebedo.com
     doT is licensed under the MIT License. (See LICENSE-DOT)
+
+This fork:
+1. Supports passing a subset of compile options to doT.template().
+   Don't have to pass them all to change one; options not passed default to values in doT.templateSettings.
+2. Adds an alias for 'argnames' as a compile option, mapping it to varname.
+   That name seems more appropriate to me, since it defines the arguments (plural) passed into the compiled function.
+   Preserves backwards compatibility, by honoring either the original 'varname', or the new 'argnames' option.
