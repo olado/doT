@@ -26,20 +26,27 @@ function asyncDone()
 
 function readItem( item )
 {
-	if ( fs.statSync( item ).isDirectory() )
-	{
-		asyncStarted()
-		fs.readdir( item, function( err, files ) {
-			if ( err )
-				process.stderr.write( err )
-			else
-				files.forEach( function( file ){ readItem( path.join( item, file ) ) } )
-			asyncDone()
-		} )
-	} else
-	{
-		readFile( item )
-	}
+	asyncStarted()
+	fs.stat( item, function( err, stat ) {
+		if ( err )
+		{
+			process.stderr.write( err )
+		} else if ( stat.isDirectory() )
+		{
+			asyncStarted()
+			fs.readdir( item, function( err, files ) {
+				if ( err )
+					process.stderr.write( err )
+				else
+					files.forEach( function( file ){ readItem( path.join( item, file ) ) } )
+				asyncDone()
+			} )
+		} else
+		{
+			readFile( item )
+		}
+		asyncDone()
+	} )
 }
 
 function readFile( file )
