@@ -137,6 +137,7 @@ doT.render( 'html', {
 	items: [ 1, 2, 3 ],
 	'_dynamic': {
 		'content': { name: 'first' }
+		//content: 'first'	// same result for now
 	}
 } )
 
