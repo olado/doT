@@ -94,8 +94,11 @@
 	tags.xx_includeDynamic = {
 		regex: /\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
 		func: function(m, tmpl, args) {
-			return "';var tmpl=" + doT.templateSettings.dynamicList + "['" + unescape(tmpl) + "'];"
-				+ "out+=doT.render({name:tmpl.name, args:tmpl.args || arguments})+'"
+			sid += 1;
+			var vname = 'tmpl' + sid;
+			return "';var " + vname + "=" + doT.templateSettings.dynamicList + "['" + unescape(tmpl) + "'];"
+				+ "if ('string' === typeof " + vname + ") " + vname + "={name:" + vname + "};"
+				+ "out+=doT.render({name:" + vname + ".name, args:" + vname + ".args || arguments})+'"
 		}
 	}
 	tags.xy_render = {
