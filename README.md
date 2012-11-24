@@ -157,6 +157,22 @@ If no args specified current arguments are used. So
 - in second: `{{=doT.render(it._dynamic[ 'content' ])}}` and `second` template would be used.
 
 You can specify field wich contains information about dynamic tamplates in `doT.templateSettings.dynamicList` (default to `_dynamic`).
+
+**Tips**
+
+I prefer keep data ('pure data', no matter where do you use it) and options (template specific data) separate for templates. Look at this like at the shell command: you pass data and options - instructions how to process this data. That's because one usually has data as JSON object from DB or somewhere else, and there should be no need to change this object before templating.
+
+Even I think it's better way to use 2 arguments for template functions:
+```javascript
+doT.templateSettings.varname = 'it, op'
+doT.templateSettings.dynamicList = 'op.dynamic'
+
+var opt = {dynamic: {content: {name: 'tmplname'}}}
+var str = doT.render(tmplId, data, options)
+```
+
+I'll try to find out method to make it more essentual and flexible.
+
 ####compile options
 Also compile-time option 'with' available (default to true). It wraps function body in 'with' construction which allows use properties directly (without it. prefix).
 
