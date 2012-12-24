@@ -42,7 +42,7 @@ Added parameters support in partials:
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
 ## Author:
-	Laura Doktorova @olado
+Laura Doktorova @olado
 
 ## License:
-    doT is licensed under the MIT License. (See LICENSE-DOT)
+doT is licensed under the MIT License. (See LICENSE-DOT)
