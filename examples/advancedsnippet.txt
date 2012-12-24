@@ -81,4 +81,39 @@ Array iterators
 	{{=k}}
 {{~}}
 
+{{ function children(it) { }}
+
+{{?it.Nodes.length}}
+<ul>
+    {{~ it.Nodes :p}}
+    <li>
+        {{=p.title}}
+		{{children(p);}}
+    </li>
+    {{~}}
+</ul>
+{{?}}
+
+{{ } }}
+
+{{ children( {Nodes:[ {title:"1.1", Nodes:[ {title:"1.1.1", Nodes:[]}, {title:"1.1.2", Nodes:[]}] }, { title:"1.2", Nodes:[]}, { title:"1.3", Nodes:[]}], title:"1" } ); }}
+
+
+{{##def.block:param:
+	<div>{{=param}}</div>
+#}}
+
+{{##def.block1:param:
+	<div>{{=param.a}}</div>
+#}}
+
+
+{{#(def.block:'text' || '') + def.block:5}}
+
+{{#def.block:it.f3 || ''}}
+
+{{#def.block:"lala tralala" || ''}}
+
+{{#def.block1:{a:1, b:2} || ''}}
+
 The end

@@ -1,0 +1,33 @@
+{
+  "name": "dot",
+  "description": "Concise and fast javascript templating compatible with nodejs and other javascript environments",
+  "keywords": [
+    "template",
+    "fast",
+    "simple",
+    "templating"
+  ],
+  "version": "1.0.0",
+  "main": "index",
+  "bin": {
+    "dottojs": "./bin/dottojs"
+  },
+  "homepage": "http://github.com/olado/doT",
+  "repository": "git://github.com/olado/doT.git",
+  "author": "Laura Doktorova <ldoktorova@gmail.com>",
+  "engines": [
+    "node >=0.2.6"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "commander": "*",
+    "uglify-js": "*",
+    "mkdirp": "*",
+    "mocha":"*",
+    "jshint":"*"
+  }
+}

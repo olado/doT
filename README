@@ -2,7 +2,7 @@ Created in search of the fastest and concise JavaScript templating function with
 
 doT.js is fast, small and has no dependencies.
 
-Features:
+## Features:
     custom delimiters
     runtime evaluation
     runtime interpolation
@@ -15,13 +15,30 @@ Features:
     streaming friendly
     use it as logic-less or with logic, it is up to you
 
-Docs, live playground and samples:
+## Docs, live playground and samples:
     http://olado.github.com/doT
 
-Note about doU.js:
+    (todo: update docs with new features added in version 1.0.0)
+
+## New in version 1.0.0:
+
+Compile tool to compile dot templates into js (thanks to @Katahdin https://github.com/Katahdin/dot-packer):
+	./bin/dottojs -s examples/views -d out/views
+
+Node module now supports auto-compilation of dot templates from specified path: (see index.js)
+	var dots = require("dot").process({ path: "./views"});
+
+Added parameters support in partials:
+	{{##def.macro:param:
+		<div>{{=param.foo}}</div>
+	#}}
+
+	{{#def.macro:myvariable}}
+
+## Notes:
     doU.js is here only so that legacy external tests do not break. Use doT.js.
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
-License:
+## License:
     doT is an open source component of http://bebedo.com
     doT is licensed under the MIT License. (See LICENSE-DOT)
