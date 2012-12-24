@@ -23,12 +23,15 @@ doT.js is fast, small and has no dependencies.
 ## New in version 1.0.0:
 
 Compile tool to compile dot templates into js (thanks to @Katahdin https://github.com/Katahdin/dot-packer ):
+
 	./bin/dottojs -s examples/views -d out/views
 
 Node module now supports auto-compilation of dot templates from specified path: (see index.js)
+
 	var dots = require("dot").process({ path: "./views"});
 
 Added parameters support in partials:
+
 	{{##def.macro:param:
 		<div>{{=param.foo}}</div>
 	#}}
