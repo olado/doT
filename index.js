@@ -132,3 +132,31 @@ InstallDots.prototype.compileAll = function() {
 	}
 	return this.__rendermodule;
 };
+
+
+
+/* Express framework 3.0.x support (http://expressjs.com) */
+
+doT.__express = function (path, options, callback) {
+	var template, 
+		string,
+		c = options.c || null,
+		def = options.def || {};
+
+	fs.readFile(path, function (err, data) {
+		if (err) {
+			return callback(err);
+		}
+
+		// Don't break the app if doT throws
+		try {
+			template = doT.template(data, c, def);
+		} catch(err) {
+			return callback(err);
+		}
+		
+		string = template(options);
+
+		return callback(null, string);
+	});	
+};
