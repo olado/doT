@@ -11,7 +11,8 @@
  * can be accessed as renderer.filename
  * Files with .jst extension are compiled into .js files. Produced .js file can be
  * loaded as a commonJS, AMD module, or just installed into a global variable
- * (default is set to _render). All inline defines defined in the .jst file are
+ * (default is set to window.render).
+ * All inline defines defined in the .jst file are
  * compiled into separate functions and are available via _render.filename.definename
  *
  * Basic usage:
@@ -39,7 +40,7 @@ function InstallDots(o) {
 	if (this.__path[this.__path.length-1] !== '/') this.__path += '/';
 	this.__destination	= o.destination || this.__path;
 	if (this.__destination[this.__destination.length-1] !== '/') this.__destination += '/';
-	this.__global		= o.global || "_render";
+	this.__global		= o.global || "window.render";
 	this.__rendermodule	= o.rendermodule || {};
 	this.__settings 	= o.templateSettings ? copy(o.templateSettings, copy(doT.templateSettings)) : undefined;
 	this.__includes		= {};
@@ -52,7 +53,7 @@ InstallDots.prototype.compileToFile = function(path, template, def) {
 		, settings = this.__settings || doT.templateSettings
 		, compileoptions = copy(settings)
 		, defaultcompiled = doT.template(template, settings, defs)
-		, exports = "dot:" + modulename
+		, exports = []
 		, compiled = ""
 		, fn;
 
@@ -69,16 +70,24 @@ InstallDots.prototype.compileToFile = function(path, template, def) {
 			}
 			if (fn) {
 				compiled += fn.toString().replace('anonymous', property);
-				exports += ',' + property + ":" + property;
+				exports.push(property);
 			}
 		}
 	}
 	compiled += defaultcompiled.toString().replace('anonymous', modulename);
 	fs.writeFileSync(path, "(function(){" + compiled
-		+ "var itself={" + exports
-		+ "};if(typeof module!=='undefined' && module.exports) module.exports=itself;else if(typeof define==='function')define(function(){return itself;});else {"
+		+ "var itself=" + modulename + ";"
+		+ addexports(exports)
+		+ "if(typeof module!=='undefined' && module.exports) module.exports=itself;else if(typeof define==='function')define(function(){return itself;});else {"
 		+ this.__global + "=" + this.__global + "||{};" + this.__global + "['" + modulename + "']=itself;}}());");
 };
+
+function addexports(exports) {
+	for (var ret ='', i=0; i< exports.length; i++) {
+		ret += "itself." + exports[i]+ "=" + exports[i]+";";
+	}
+	return ret;
+}
 
 function copy(o, to) {
 	to = to || {};

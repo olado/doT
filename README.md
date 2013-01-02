@@ -33,9 +33,9 @@ Added parameters support in partials:
 
 	{{#def.macro:myvariable}}
 
-Compile tool to compile dot templates into js (thanks to @Katahdin https://github.com/Katahdin/dot-packer ):
+Compile tool to compile dot templates into js files (thanks to @Katahdin https://github.com/Katahdin/dot-packer ):
 
-	./bin/dottojs -s examples/views -d out/views
+	./bin/dot-packer -s examples/views -d out/views
 
 ## Notes:
     doU.js is here only so that legacy external tests do not break. Use doT.js.

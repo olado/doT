@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* Continuation of https://github.com/Katahdin/dot-packer */
 
 var program = require('commander'),
 	dot = require('../');
@@ -8,7 +9,7 @@ program
 	.usage('dottojs')
 	.option('-s, --source [value]', 'source folder/file path')
 	.option('-d, --dest [value]', 'destination folder')
-	.option('-g, --global [value]', 'the global variable to install the templates in',"_render")
+	.option('-g, --global [value]', 'the global variable to install the templates in',"window.render")
 	.option('-p, --package [value]', 'if specified, package all templates from destination folder into specified file')
 	.parse(process.argv);
 
