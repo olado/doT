@@ -10,7 +10,7 @@
   "version": "1.0.0",
   "main": "index",
   "bin": {
-    "dottojs": "./bin/dottojs"
+    "dottojs": "./bin/dot-packer"
   },
   "homepage": "http://github.com/olado/doT",
   "repository": "git://github.com/olado/doT.git",
