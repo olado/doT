@@ -37,6 +37,8 @@ Compile tool to compile dot templates into js files (thanks to @Katahdin https:/
 
 	./bin/dot-packer -s examples/views -d out/views
 
+Added support for the Express framework (http://expressjs.com) in the node module.
+
 ## Notes:
     doU.js is here only so that legacy external tests do not break. Use doT.js.
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
