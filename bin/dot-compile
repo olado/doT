@@ -1,0 +1,14 @@
+#!/usr/bin/env js
+var argv = require('optimist').default({
+  base: ''
+}).alias({
+  base: 'b'
+}).argv
+argv.files = argv._
+
+require(__dirname + '/../dot-compile')(argv, function(err, data){
+  if (err)
+    process.stderr.write(err)
+  else
+    process.stdout.write(data)
+})

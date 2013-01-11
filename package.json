@@ -1,0 +1,34 @@
+{
+  "name": "doT",
+  "version": "0.9.0",
+  "description": "fast & powerfull template engine",
+  "main": "doT.js",
+  "bin": {
+    "dot-compile": "bin/dot-compile"
+  },
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "optimist": "~0.3.4",
+    "flow": "~0.2.2"
+  },
+  "devDependencies": {
+    "coffee-script": "*",
+    "uglify-js": "*"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/printercu/doT.git"
+  },
+  "keywords": [
+    "template",
+    "templating"
+  ],
+  "author": "Laura Doktorova <ldoktorova@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
