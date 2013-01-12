@@ -84,6 +84,97 @@
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
 	}
 
+	// return union of any number of arrays
+	var _union = doT.union = function(array){
+		var argsLength = arguments.length,
+			result = [],
+			thisArray = [],
+			thisArrayLength = 0,
+			i = 0,
+			j = 0;
+		for(i; i < argsLength; i++){
+			thisArray = arguments[i];
+			thisArrayLength = thisArray.length;
+			j = 0;
+			for(j; j < thisArrayLength; j++){
+				if(result.indexOf(thisArray[j]) < 0){
+					result.push(thisArray[j]);
+				}
+			}
+		}
+		return result;
+	}
+
+	// Given a string, returns an array of properties on c.varname
+	// input: 'it.age === 0', 'it'
+	// output: [age]
+	// TODO: recursively check for..in
+	var _getVariables = doT.getVariables = function(str, varname){
+		var words = (typeof str === 'undefined') ? [] : str.split(/\s/g),
+			len = words.length,
+			vars = [],
+			prop,
+			i = 0;
+		for(i; i < len; i++){
+			// check to see if it has the var
+			if(words[i].indexOf(varname + '.') >= 0){
+				// grab everything after variable + dot
+				var splitByVar = words[i].split(varname + '.');
+				if(splitByVar.length > 1){
+					// get first chunk that matches valid javascript variable characters
+					prop = splitByVar[1].match(/[a-zA-Z_$][0-9a-zA-Z_$]*/i)[0];
+					// only add if doesn't exist already
+					if(vars.indexOf(prop) < 0){
+						vars.push(prop);
+					}
+				}
+			}
+		}
+		return vars;
+	};
+
+	doT.getDependencies = function(tmpl, c, def){
+		c = c || doT.templateSettings;
+		var deps = [],
+			cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
+			str = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
+
+		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
+					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
+			.replace(/'|\\/g, '\\$&')
+			.replace(c.interpolate || skip, function(m, code) {
+				deps = _union(deps, _getVariables(code, c.varname));
+				return cse.start + unescape(code) + cse.end;
+			})
+			.replace(c.encode || skip, function(m, code) {
+				//console.log('encode: ' + code);
+				deps = _union(deps, _getVariables(code, c.varname));
+				needhtmlencode = true;
+				return cse.start + unescape(code) + cse.endencode;
+			})
+			.replace(c.conditional || skip, function(m, elsecase, code) {
+				//console.log('conditional: ' + code);
+				deps = _union(deps, _getVariables(code, c.varname));
+				return elsecase ?
+					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
+					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
+			})
+			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
+				//console.log('iterate: ' + iterate);
+				deps = _union(deps, _getVariables(iterate, c.varname));
+				if (!iterate) return "';} } out+='";
+				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
+				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"+vname+"=arr"+sid+"["+indv+"+=1];out+='";
+			})
+			.replace(c.evaluate || skip, function(m, code) {
+				//console.log('evaluate: ' + code);
+				deps = _union(deps, _getVariables(code, c.varname));
+				return "';" + unescape(code) + "out+='";
+			}));
+
+			return deps;
+	};
+
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
