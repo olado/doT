@@ -249,7 +249,7 @@
       t_name = taglist[t_id];
       str = str.replace(doT.tags[t_name].regex, doT.tags[t_name].func);
     }
-    str = ("    var out_stack = [], contents = {}, many_contents = false,      current_out = '_content', out = '" + str + "';    return many_contents ? contents : out;  ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
+    str = ("    var out_stack = [], contents = {}, many_contents = false,      current_out = '_content', out = '" + str + "';    if (!many_contents)      return out;    contents[current_out] = out;    return contents;  ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
     if (c["with"]) {
       str = "with(" + (true === c["with"] ? c.varname : c["with"]) + ") {" + str + "}";
     }

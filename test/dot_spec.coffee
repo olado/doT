@@ -46,6 +46,6 @@ describe "doT", ->
   describe 'content_for', ->
     it 'returns map', ->
       assert.deepEqual {_content: 'content end', title: 'title', footer: 'footer'},
-        doT.compile('{{>title}}{{=val2}}{{>}}{{=val1}}{{>footer}}{{=val3}}{{>}} end')(
+        doT.compile('{{>title}}{{=val2}}{{>}}{{=val1}}{{>footer}}{{=val3}}{{>}}{{? false}}{{?}} end')(
           val1: 'content', val2: 'title', val3: 'footer'
         )

@@ -199,7 +199,10 @@ doT.compile = (tmpl, def) ->
   str = "
     var out_stack = [], contents = {}, many_contents = false,
       current_out = '_content', out = '#{str}';
-    return many_contents ? contents : out;
+    if (!many_contents)
+      return out;
+    contents[current_out] = out;
+    return contents;
   "
     .replace( /\n/g, '\\n' )
     .replace( /\t/g, '\\t' )
