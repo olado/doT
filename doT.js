@@ -12,18 +12,18 @@
 (function() {
   "use strict";
 
-  var cache, doT, encodeHTMLSource, resolveDefs, sid, skip, startend, tags, unescape;
+  var cache, doT, resolveDefs, sid, skip, startend, tags, unescape;
 
   startend = {
     append: {
       start: "'+(",
       end: ")+'",
-      startencode: "'+doT.eh("
+      endEncode: ").encodeHTML()+'"
     },
     split: {
       start: "';out+=(",
       end: ");out+='",
-      startencode: "';out+=doT.eh("
+      endEncode: ").encodeHTML();out+='"
     }
   };
 
@@ -64,7 +64,7 @@
     func: function(m, code) {
       var cse;
       cse = doT.templateSettings.startend;
-      return cse.startencode + unescape(code) + cse.end;
+      return cse.start + unescape(code) + cse.endEncode;
     }
   };
 
@@ -160,9 +160,9 @@
 
   }
 
-  encodeHTMLSource = function() {
-    var encodeHTMLRules, matchHTML;
-    encodeHTMLRules = {
+  (function() {
+    var match, rules;
+    rules = {
       "&": "&#38;",
       "<": "&#60;",
       ">": "&#62;",
@@ -170,21 +170,13 @@
       "'": '&#39;',
       "/": '&#47;'
     };
-    matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
-    return function(code) {
-      if (code) {
-        return code.toString().replace(matchHTML, function(m) {
-          return encodeHTMLRules[m] || m;
-        });
-      } else {
-        return code;
-      }
+    match = /&(?!#?\w+;)|<|>|"|'|\//g;
+    return String.prototype.encodeHTML = function() {
+      return this.replace(match, function(m) {
+        return rules[m] || m;
+      });
     };
-  };
-
-  doT.encodeHTML = encodeHTMLSource();
-
-  doT.eh = doT.encodeHTML;
+  })();
 
   unescape = function(code) {
     return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');

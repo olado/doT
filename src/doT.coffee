@@ -11,12 +11,12 @@ startend =
   append:
     start:  "'+("
     end:    ")+'"
-    startencode: "'+doT.eh("
+    endEncode:  ").encodeHTML()+'"
   split:
     start:  "';out+=("
     end:    ");out+='"
-    startencode: "';out+=doT.eh("
-  
+    endEncode: ").encodeHTML();out+='"
+
 doT =
   version:  '0.2.0'
   templateSettings:
@@ -46,7 +46,7 @@ tags.encode =
   regex: /\{\{!([\s\S]+?)\}\}/g
   func: (m, code) ->
     cse = doT.templateSettings.startend
-    cse.startencode + unescape(code) + cse.end
+    cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
   regex: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g
@@ -134,20 +134,14 @@ if (typeof module != 'undefined' && module.exports)
 else if (typeof define == 'function' && define.amd)
   define -> doT
 else
-  #@doT = doT
+  @doT = doT
 
-# helpers
-encodeHTMLSource = ->
-  encodeHTMLRules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
-  matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g
-  (code) ->
-    if code
-      code.toString().replace( matchHTML, (m) -> encodeHTMLRules[m] || m )
-    else
-      code
-
-doT.encodeHTML = encodeHTMLSource()
-doT.eh = doT.encodeHTML # shortcut
+# String::encodeHTML
+(->
+  rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
+  match = /&(?!#?\w+;)|<|>|"|'|\//g
+  String::encodeHTML = -> @replace( match, (m) -> rules[m] || m )
+)()
 
 unescape = (code) ->
   code.replace( /\\('|\\)/g, "$1" ).replace( /[\r\t\n]/g, ' ' )
@@ -199,7 +193,6 @@ doT.compile = (tmpl, def) ->
     str = str.replace doT.tags[ t_name ].regex, ->
       doT.tags[ t_name ].func.apply compile_params, arguments
 
-  # won't brake anything if the
   str = (
     if compile_params.multiple_contents
       str = "
@@ -243,7 +236,7 @@ doT.addCached = (id, fn) ->
       doT.addCached i, f
     return
   cache[id] = fn
-  
+
 # doT.render() for transparent autoloding & caching
 doT.render = (tmpl) ->
   ('object' != typeof tmpl) && (tmpl = { name: tmpl })
