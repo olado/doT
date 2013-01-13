@@ -73,10 +73,18 @@
       return data.files.forEach(function(val, i) {
         return readItem(val, _this.MULTI());
       });
-    }, function() {
-      if (finalcb) {
-        return finalcb(null, doT.exportCached());
+    }, function(results) {
+      var r, _i, _len;
+      if (!finalcb) {
+        return;
       }
+      for (_i = 0, _len = results.length; _i < _len; _i++) {
+        r = results[_i];
+        if (r[0]) {
+          return finalcb(r[0], doT.exportCached());
+        }
+      }
+      return finalcb(null, doT.exportCached());
     });
   };
 

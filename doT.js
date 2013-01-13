@@ -252,7 +252,7 @@
     try {
       return new Function(c.varname, str);
     } catch (e) {
-      throw "" + e + " in " + str;
+      throw new Error("" + e + " in \"" + str + "\"");
     }
   };
 
@@ -296,7 +296,7 @@
     if (!cache[tmpl.name]) {
       src = doT.autoload(tmpl.name);
       if (false === src) {
-        throw "Template not found: " + tmpl.name;
+        throw new Error("Template not found: " + tmpl.name);
       }
       doT.addCached(tmpl.name, doT.compile(src));
     }

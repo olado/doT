@@ -57,5 +57,9 @@ module.exports = (data, finalcb) ->
 
   flow.exec(
     -> data.files.forEach ( val, i ) => readItem val, @MULTI()
-    -> finalcb(null, doT.exportCached()) if finalcb
+    (results) ->
+      return unless finalcb
+      for r in results
+        return finalcb r[0], doT.exportCached() if r[0]
+      finalcb null, doT.exportCached()
   )
