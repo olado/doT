@@ -15,7 +15,8 @@
   },
   "devDependencies": {
     "coffee-script": "*",
-    "uglify-js": "*"
+    "uglify-js": "*",
+    "mocha": "*"
   },
   "scripts": {
     "test": "test"

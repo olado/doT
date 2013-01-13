@@ -97,7 +97,7 @@
       sid += 1;
       indv = iname || 'i' + sid;
       iterate = unescape(iterate);
-      return "';var arr" + sid + " = " + iterate + ";if( arr" + sid + " ) {  var " + vname + ", " + indv + " = -1, l" + sid + " = arr" + sid + ".length-1;  while( " + indv + " < l" + sid + " ){    " + vname + " = arr" + sid + "[" + indv + " += 1];    out += '";
+      return "';      var arr" + sid + " = " + iterate + ";      if( arr" + sid + " ) {        var " + vname + ", " + indv + " = -1, l" + sid + " = arr" + sid + ".length-1;        while( " + indv + " < l" + sid + " ){          " + vname + " = arr" + sid + "[" + indv + " += 1];          out += '";
     }
   };
 
@@ -110,7 +110,18 @@
       }
       sid += 1;
       inpname = 'iter' + sid;
-      return "';var " + inpname + " = " + iterate + ";if ( " + inpname + " ) {  var " + vname + ", " + iname + ";  for (" + iname + " in " + inpname + " ) {    " + vname + " = " + inpname + "[ " + iname + " ];    out += '";
+      return "';      var " + inpname + " = " + iterate + ";      if ( " + inpname + " ) {        var " + vname + ", " + iname + ";        for (" + iname + " in " + inpname + " ) {          " + vname + " = " + inpname + "[ " + iname + " ];          out += '";
+    }
+  };
+
+  tags.content_for = {
+    regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g,
+    func: function(m, id) {
+      if (id) {
+        return "';      many_contents = true;      contents[current_out] = out;      out_stack.push(current_out);      current_out='" + (unescape(id)) + "'.trim();      out = contents[current_out] = '";
+      } else {
+        return "';      contents[current_out] = out;      out = contents[current_out = out_stack.pop()] += '";
+      }
     }
   };
 
@@ -120,7 +131,7 @@
       var vname;
       sid += 1;
       vname = 'tmpl' + sid;
-      return "';var " + vname + " = " + doT.templateSettings.dynamicList + "[ '" + (unescape(tmpl)) + "' ];if ('string' === typeof " + vname + ") " + vname + " = {name: " + vname + "};out += doT.render({name: " + vname + ".name, args: " + vname + ".args || arguments}) + '";
+      return "';      var " + vname + " = " + doT.templateSettings.dynamicList + "[ '" + (unescape(tmpl)) + "' ];      if ('string' === typeof " + vname + ") " + vname + " = {name: " + vname + "};      out += doT.render({name: " + vname + ".name, args: " + vname + ".args || arguments}) + '";
     }
   };
 
@@ -145,7 +156,7 @@
       return doT;
     });
   } else {
-    this.doT = doT;
+
   }
 
   encodeHTMLSource = function() {
@@ -181,21 +192,42 @@
   doT.unescape = unescape;
 
   resolveDefs = function(c, block, def) {
-    return (typeof block === 'string' ? block : block.toString()).replace(c.define || skip, function(m, code, assign, value) {
-      if (0 === code.indexOf('def.')) {
-        code = code.substring;
+    return (typeof block === "string" ? block : block.toString()).replace(c.define || skip, function(m, code, assign, value) {
+      if (code.indexOf("def.") === 0) {
+        code = code.substring(4);
       }
       if (!(code in def)) {
-        if (':' === assign) {
-          def[code] = value;
+        if (assign === ":") {
+          if (c.defineParams) {
+            value.replace(c.defineParams, function(m, param, v) {
+              return def[code] = {
+                arg: param,
+                text: v
+              };
+            });
+          }
+          if (!(code in def)) {
+            def[code] = value;
+          }
         } else {
-          eval("def['" + code + "']=" + value);
+          new Function("def", "def['" + code + "']=" + value)(def);
         }
       }
-      return '';
+      return "";
     }).replace(c.use || skip, function(m, code) {
       var v;
-      v = eval(code);
+      if (c.useParams) {
+        code = code.replace(c.useParams, function(m, s, d, param) {
+          var rw;
+          if (def[d] && def[d].arg && param) {
+            rw = (d + ":" + param).replace(/'|\\/g, "_");
+            def.__exp = def.__exp || {};
+            def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])" + def[d].arg + "([^\\w$])", "g"), "$1" + param + "$2");
+            return s + ("def.__exp['" + rw + "']");
+          }
+        });
+      }
+      v = new Function("def", "return " + code)(def);
       if (v) {
         return resolveDefs(c, v, def);
       } else {
@@ -204,19 +236,10 @@
     });
   };
 
-  doT.template = function(tmpl, def) {
-    var c, olddef, str, t_id, t_name, taglist;
+  doT.compile = function(tmpl, def) {
+    var c, str, t_id, t_name, taglist;
     c = doT.templateSettings;
-    str;
-
-    if (c.use || c.define) {
-      olddef = global.def;
-      global.def = def || {};
-      str = resolveDefs(c, tmpl, global.def);
-      global.def = olddef;
-    } else {
-      str = tmpl;
-    }
+    str = c.use || c.define ? resolveDefs(c, tmpl, def || {}) : tmpl;
     if (c.strip) {
       str = str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, ' ').replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '');
     }
@@ -226,7 +249,7 @@
       t_name = taglist[t_id];
       str = str.replace(doT.tags[t_name].regex, doT.tags[t_name].func);
     }
-    str = ("var out='" + str + "';return out;").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
+    str = ("    var out_stack = [], contents = {}, many_contents = false,      current_out = '_content', out = '" + str + "';    return many_contents ? contents : out;  ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
     if (c["with"]) {
       str = "with(" + (true === c["with"] ? c.varname : c["with"]) + ") {" + str + "}";
     }
@@ -236,6 +259,8 @@
       throw "" + e + " in " + str;
     }
   };
+
+  doT.template = doT.compile;
 
   doT.getCached = function() {
     return cache;
@@ -267,7 +292,7 @@
     return cache[id] = fn;
   };
 
-  doT.render = function(tmpl, cb) {
+  doT.render = function(tmpl) {
     var src;
     ('object' !== typeof tmpl) && (tmpl = {
       name: tmpl
@@ -302,6 +327,10 @@
         return false;
       }
     };
+  };
+
+  doT.autoloadFail = function() {
+    return false;
   };
 
   doT.autoload = doT.autoloadDOM();

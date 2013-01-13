@@ -71,12 +71,12 @@ tags.iterate =
     indv = iname || 'i' + sid
     iterate = unescape iterate
     return "';
-var arr#{sid} = #{iterate};
-if( arr#{sid} ) {
-  var #{vname}, #{indv} = -1, l#{sid} = arr#{sid}.length-1;
-  while( #{indv} < l#{sid} ){
-    #{vname} = arr#{sid}[#{indv} += 1];
-    out += '"
+      var arr#{sid} = #{iterate};
+      if( arr#{sid} ) {
+        var #{vname}, #{indv} = -1, l#{sid} = arr#{sid}.length-1;
+        while( #{indv} < l#{sid} ){
+          #{vname} = arr#{sid}[#{indv} += 1];
+          out += '"
 
 tags.iterateFor =
   regex: /\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g
@@ -86,12 +86,27 @@ tags.iterateFor =
     sid += 1;
     inpname = 'iter' + sid;
     return "';
-var #{inpname} = #{iterate};
-if ( #{inpname} ) {
-  var #{vname}, #{iname};
-  for (#{iname} in #{inpname} ) {
-    #{vname} = #{inpname}[ #{iname} ];
-    out += '"
+      var #{inpname} = #{iterate};
+      if ( #{inpname} ) {
+        var #{vname}, #{iname};
+        for (#{iname} in #{inpname} ) {
+          #{vname} = #{inpname}[ #{iname} ];
+          out += '"
+
+tags.content_for =
+  regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g
+  func: (m, id) ->
+    if id
+      "';
+      many_contents = true;
+      contents[current_out] = out;
+      out_stack.push(current_out);
+      current_out='#{unescape(id)}'.trim();
+      out = contents[current_out] = '"
+    else
+      "';
+      contents[current_out] = out;
+      out = contents[current_out = out_stack.pop()] += '"
 
 tags.xx_includeDynamic =
   regex: /\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g
@@ -99,9 +114,9 @@ tags.xx_includeDynamic =
     sid += 1
     vname = 'tmpl' + sid
     return "';
-var #{vname} = #{doT.templateSettings.dynamicList}[ '#{unescape(tmpl)}' ];
-if ('string' === typeof #{vname}) #{vname} = {name: #{vname}};
-out += doT.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
+      var #{vname} = #{doT.templateSettings.dynamicList}[ '#{unescape(tmpl)}' ];
+      if ('string' === typeof #{vname}) #{vname} = {name: #{vname}};
+      out += doT.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
 
 tags.xy_render =
   regex: /\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g
@@ -119,7 +134,7 @@ if (typeof module != 'undefined' && module.exports)
 else if (typeof define == 'function' && define.amd)
   define -> doT
 else
-  @doT = doT
+  #@doT = doT
 
 # helpers
 encodeHTMLSource = ->
@@ -140,40 +155,52 @@ doT.unescape = unescape
 
 # template compilation
 resolveDefs = (c, block, def) ->
-  (if typeof block == 'string' then block else block.toString())
-    .replace c.define || skip, (m, code, assign, value) ->
-      if 0 == code.indexOf 'def.'
-        code = code.substring 
-      unless code of def
-        if ':' == assign
-          def[code] = value
-        else
-          eval "def['#{code}']=#{value}"
-      ''
-    .replace c.use || skip, (m, code) ->
-      v = eval code
-      if v then resolveDefs c, v, def else v
+  (
+    (if (typeof block is "string") then block else block.toString())
+  ).replace(c.define or skip, (m, code, assign, value) ->
+    code = code.substring(4)  if code.indexOf("def.") is 0
+    unless code of def
+      if assign is ":"
+        if c.defineParams
+          value.replace c.defineParams, (m, param, v) ->
+            def[code] =
+              arg: param
+              text: v
 
-doT.template = (tmpl, def) ->
+        def[code] = value  unless code of def
+      else
+        new Function("def", "def['" + code + "']=" + value) def
+    ""
+  ).replace c.use or skip, (m, code) ->
+    if c.useParams
+      code = code.replace(c.useParams, (m, s, d, param) ->
+        if def[d] and def[d].arg and param
+          rw = (d + ":" + param).replace(/'|\\/g, "_")
+          # gtksourceview '
+          def.__exp = def.__exp or {}
+          def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])#{def[d].arg}([^\\w$])", "g"), "$1#{param}$2")
+          s + "def.__exp['#{rw}']"
+      )
+    v = new Function("def", "return " + code)(def)
+    (if v then resolveDefs(c, v, def) else v)
+
+doT.compile = (tmpl, def) ->
   c = doT.templateSettings
-  str
+  str = if (c.use || c.define) then resolveDefs(c, tmpl, def || {}) else tmpl
 
-  if c.use || c.define
-    olddef = global.def
-    global.def = def || {} # workaround minifiers
-    str = resolveDefs c, tmpl, global.def
-    global.def = olddef
-  else
-    str = tmpl
-    
   if c.strip
     str = str.replace( /(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ' )
       .replace( /\r|\n|\t|\/\*[\s\S]*?\*\//g, '' )
   str = str.replace /'|\\/g, '\\$&'
+  # gtksourceview '
   taglist = Object.keys(doT.tags).sort()
   for t_id, t_name of taglist
     str = str.replace doT.tags[ t_name ].regex, doT.tags[ t_name ].func
-  str = "var out='#{str}';return out;"
+  str = "
+    var out_stack = [], contents = {}, many_contents = false,
+      current_out = '_content', out = '#{str}';
+    return many_contents ? contents : out;
+  "
     .replace( /\n/g, '\\n' )
     .replace( /\t/g, '\\t' )
     .replace( /\r/g, '\\r' )
@@ -186,6 +213,9 @@ doT.template = (tmpl, def) ->
     new Function c.varname, str
   catch e
     throw "#{e} in #{str}"
+
+# backward compability
+doT.template = doT.compile
 
 # cache functions
 doT.getCached = -> cache
@@ -203,7 +233,7 @@ doT.addCached = (id, fn) ->
   cache[id] = fn
   
 # doT.render() for transparent autoloding & caching
-doT.render = (tmpl, cb) ->
+doT.render = (tmpl) ->
   ('object' != typeof tmpl) && (tmpl = { name: tmpl })
   if !cache[tmpl.name]
     src = doT.autoload tmpl.name
@@ -226,6 +256,8 @@ doT.autoloadFS = ( opts ) ->
       opts.fs.readFileSync "#{opts.root}/#{name.replace( '.', '/' )}.tmpl"
     catch e
       false
+
+doT.autoloadFail = () -> false
 
 doT.autoload = doT.autoloadDOM();
 
