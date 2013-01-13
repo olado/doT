@@ -57,5 +57,5 @@ module.exports = (data, finalcb) ->
 
   flow.exec(
     -> data.files.forEach ( val, i ) => readItem val, @MULTI()
-    -> finalcb(null, doT.exportCached())
+    -> finalcb(null, doT.exportCached()) if finalcb
   )

@@ -74,7 +74,9 @@
         return readItem(val, _this.MULTI());
       });
     }, function() {
-      return finalcb(null, doT.exportCached());
+      if (finalcb) {
+        return finalcb(null, doT.exportCached());
+      }
     });
   };
 

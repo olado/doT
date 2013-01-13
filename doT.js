@@ -157,7 +157,7 @@
       return doT;
     });
   } else {
-
+    this.doT = doT;
   }
 
   (function() {

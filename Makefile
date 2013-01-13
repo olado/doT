@@ -3,20 +3,23 @@ UGLIFY  := $(BIN)/uglifyjs
 COFFEE  := $(BIN)/coffee
 MOCHA   := $(BIN)/mocha
 
-TARGETS := doT.js dot-compile.js dot-express.js
+TARGETS := doT.js compile.js express.js
+UGLIFIED:= doT.min.js
 
 all: uglify
 
-uglify: compile
-	$(UGLIFY) -o doT.min.js doT.js
+uglify: compile $(UGLIFIED)
 
 compile: $(TARGETS)
 
 %.js: src/%.coffee
 	$(COFFEE) -co ./ "$<"
 
+%.min.js: %.js
+	$(UGLIFY) -o "$@" "$<"
+
 clean:
-	rm -f $(TARGETS) *.min.js
+	rm -f $(TARGETS) $(UGLIFIED)
 
 test: compile
 	$(MOCHA)
