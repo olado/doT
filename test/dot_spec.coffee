@@ -15,7 +15,6 @@ describe "doT", ->
       assert.equal "<div>http:&#47;&#47;abc.com</div>", tmpl foo: "http://abc.com"
       assert.equal "<div></div>", tmpl {}
 
-
   describe "defines", ->
     it "should render define", ->
       str = "{{##def.tmp:<div>{{!it.foo || ''}}</div>#}}{{#def.tmp}}"

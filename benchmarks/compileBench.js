@@ -16,11 +16,11 @@
 
 	function testsetup(snippet) {
 
-		jslitmus.test('doU.js', function() {
+		jslitmus.test('doT.orig.js', function() {
 			doU.template(snippet);
 		});
 
-		jslitmus.test('doU.js - looping', function(count) {
+		jslitmus.test('doT.orig.js - looping', function(count) {
 			while (count--) {
 				doU.template(snippet);
 			}
@@ -40,7 +40,7 @@
 	function runTests() {
 		//var util = require('util');
 		jslitmus = require('./jslitmus.js');
-		doU = require('./templating/doU.js');
+		doU = require('./templating/doT.orig.js');
 		doT = require('./templating/doT.js');
 		doT.templateSettings.with = false;
 		var passOne = 0;
