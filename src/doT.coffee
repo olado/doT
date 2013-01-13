@@ -96,9 +96,9 @@ tags.iterateFor =
 tags.content_for =
   regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g
   func: (m, id) ->
+    @multiple_contents = true
     if id
       "';
-      many_contents = true;
       contents[current_out] = out;
       out_stack.push(current_out);
       current_out='#{unescape(id)}'.trim();
@@ -187,6 +187,7 @@ resolveDefs = (c, block, def) ->
 doT.compile = (tmpl, def) ->
   c = doT.templateSettings
   str = if (c.use || c.define) then resolveDefs(c, tmpl, def || {}) else tmpl
+  compile_params = {}
 
   if c.strip
     str = str.replace( /(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ' )
@@ -195,15 +196,23 @@ doT.compile = (tmpl, def) ->
   # gtksourceview '
   taglist = Object.keys(doT.tags).sort()
   for t_id, t_name of taglist
-    str = str.replace doT.tags[ t_name ].regex, doT.tags[ t_name ].func
-  str = "
-    var out_stack = [], contents = {}, many_contents = false,
-      current_out = '_content', out = '#{str}';
-    if (!many_contents)
-      return out;
-    contents[current_out] = out;
-    return contents;
-  "
+    str = str.replace doT.tags[ t_name ].regex, ->
+      doT.tags[ t_name ].func.apply compile_params, arguments
+
+  # won't brake anything if the
+  str = (
+    if compile_params.multiple_contents
+      str = "
+        var out_stack = [], contents = {}, current_out = '_content';
+        var out = '#{str}';
+        contents[current_out] = out;
+        return contents;
+      "
+    else
+      " var out = '#{str}';
+        return out;
+      "
+    )
     .replace( /\n/g, '\\n' )
     .replace( /\t/g, '\\t' )
     .replace( /\r/g, '\\r' )

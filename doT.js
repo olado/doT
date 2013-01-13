@@ -117,8 +117,9 @@
   tags.content_for = {
     regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g,
     func: function(m, id) {
+      this.multiple_contents = true;
       if (id) {
-        return "';      many_contents = true;      contents[current_out] = out;      out_stack.push(current_out);      current_out='" + (unescape(id)) + "'.trim();      out = contents[current_out] = '";
+        return "';      contents[current_out] = out;      out_stack.push(current_out);      current_out='" + (unescape(id)) + "'.trim();      out = contents[current_out] = '";
       } else {
         return "';      contents[current_out] = out;      out = contents[current_out = out_stack.pop()] += '";
       }
@@ -237,9 +238,10 @@
   };
 
   doT.compile = function(tmpl, def) {
-    var c, str, t_id, t_name, taglist;
+    var c, compile_params, str, t_id, t_name, taglist;
     c = doT.templateSettings;
     str = c.use || c.define ? resolveDefs(c, tmpl, def || {}) : tmpl;
+    compile_params = {};
     if (c.strip) {
       str = str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, ' ').replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '');
     }
@@ -247,9 +249,11 @@
     taglist = Object.keys(doT.tags).sort();
     for (t_id in taglist) {
       t_name = taglist[t_id];
-      str = str.replace(doT.tags[t_name].regex, doT.tags[t_name].func);
+      str = str.replace(doT.tags[t_name].regex, function() {
+        return doT.tags[t_name].func.apply(compile_params, arguments);
+      });
     }
-    str = ("    var out_stack = [], contents = {}, many_contents = false,      current_out = '_content', out = '" + str + "';    if (!many_contents)      return out;    contents[current_out] = out;    return contents;  ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
+    str = (compile_params.multiple_contents ? str = "        var out_stack = [], contents = {}, current_out = '_content';        var out = '" + str + "';        contents[current_out] = out;        return contents;      " : " var out = '" + str + "';        return out;      ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
     if (c["with"]) {
       str = "with(" + (true === c["with"] ? c.varname : c["with"]) + ") {" + str + "}";
     }
