@@ -204,7 +204,7 @@
                 code = unescape(fnParam);
                 if(doT.helpers){
                     if(doT.helpers[fn]){
-                        code = doT.helpers[fn].toString();
+                        code = doT.helpers[fn].toString().replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,'');
                     }else{
                         console.log('Could not find helper method ' + fn + ' for code: ' + code);
                     }
