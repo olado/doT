@@ -11,6 +11,7 @@
 			evaluate:    /\{\{([\s\S]+?\}?)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
+			helper:      /\{\{@([\s\S]+?)\}\}/g,
 			use:         /\{\{#([\s\S]+?)\}\}/g,
 			useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
 			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
@@ -22,6 +23,7 @@
 			append:		true,
 			selfcontained: false
 		},
+		helpers: undefined,
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
 	};
@@ -175,6 +177,11 @@
 			return deps;
 	};
 
+    doT.registerHelper = function(name, fn){
+        if(typeof doT.helpers === 'undefined') doT.helpers = {};
+        doT.helpers[name] = fn;
+    };
+
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
@@ -190,6 +197,21 @@
 				needhtmlencode = true;
 				return cse.start + unescape(code) + cse.endencode;
 			})
+            .replace(c.helper || skip, function(m, code){
+                var splitCode = unescape(code).split(' '),
+                    fn = splitCode[0],
+                    fnParam = splitCode[1];
+                code = unescape(fnParam);
+                if(doT.helpers){
+                    if(doT.helpers[fn]){
+                        code = doT.helpers[fn].toString();
+                    }else{
+                        console.log('Could not find helper method ' + fn + ' for code: ' + code);
+                    }
+                }
+                cse.end = ')(' + fnParam + ')+\'';
+                return cse.start + code + cse.end;
+            })
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
 					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
@@ -204,7 +226,7 @@
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + "out+='";
 			})
-			+ "';return out;")
+			+ "'; return out;")
 			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
 			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, '')
 			.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
