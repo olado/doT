@@ -2,70 +2,81 @@
 (function() {
 
   module.exports = function(data, finalcb) {
-    var doT, flow, fs, path, readFile, readItem;
+    var any_error, child, doT, flow, fs, path, readFile, readItem;
     fs = require('fs');
     path = require('path');
     flow = require('flow');
     doT = require('./doT.js');
+    child = require('child_process');
+    any_error = function(results) {
+      var r, _i, _len;
+      for (_i = 0, _len = results.length; _i < _len; _i++) {
+        r = results[_i];
+        if (r[0]) {
+          return r[0];
+        }
+      }
+      return null;
+    };
     readItem = function(item, callback) {
       return flow.exec(function() {
         return fs.stat(item, this);
       }, function(err, stat) {
-        var cb;
+        var item_cb;
         if (err) {
-          process.stderr.write(err);
           return this(err);
-        } else if (stat.isDirectory()) {
-          cb = this;
-          return flow.exec(function() {
-            return fs.readdir(item, this);
-          }, function(err, files) {
-            var _this = this;
-            if (err) {
-              process.stderr.write(err);
-              return this(err);
-            } else {
-              return files.forEach(function(file) {
-                return readItem(path.join(item, file), _this.MULTI());
-              });
-            }
-          }, function() {
-            return cb(null);
-          });
-        } else {
+        }
+        if (!stat.isDirectory()) {
           return readFile(item, this);
         }
-      }, function() {
-        return callback(null);
+        item_cb = this;
+        return flow.exec(function() {
+          return fs.readdir(item, this);
+        }, function(err, files) {
+          var _this = this;
+          if (err) {
+            return this.MULTI(err);
+          }
+          return files.forEach(function(file) {
+            return readItem(path.join(item, file), _this.MULTI());
+          });
+        }, function(results) {
+          return item_cb(any_error(results));
+        });
+      }, function(err) {
+        return callback(err);
       });
     };
     readFile = function(file, callback) {
       return flow.exec(function() {
-        return fs.readFile(file, this);
-      }, function(err, text) {
-        var f, id, rel;
-        if (err) {
-          process.stderr.write("Error reading file '" + file + "': '" + err + "\n");
-          return this(err);
+        if (file.match(/.haml$/)) {
+          child.exec("haml '" + file + "'", this);
+          return file = path.basename(file, '.haml');
         } else {
-          id = path.basename(file, path.extname(file));
-          if (data.base) {
-            rel = path.relative(data.base, path.dirname(file)).replace(/\//g, '.');
-            if (rel) {
-              id = "" + rel + "." + id;
-            }
-          }
-          try {
-            f = doT.compile(text);
-            doT.addCached(id, f);
-            return this(null, f);
-          } catch (e) {
-            process.stderr.write("Error compiling file '" + file + "': '" + e + "'\n");
-            return this(e);
+          return fs.readFile(file, this);
+        }
+      }, function(err, text) {
+        var dot_err, f, id, rel;
+        if (err) {
+          return this(err);
+        }
+        id = path.basename(file, path.extname(file));
+        if (data.base) {
+          rel = path.relative(data.base, path.dirname(file)).replace(/\//g, '.');
+          if (rel) {
+            id = "" + rel + "." + id;
           }
         }
-      }, function() {
-        return callback(null);
+        f = dot_err = null;
+        try {
+          f = doT.compile(text);
+          doT.addCached(id, f);
+        } catch (e) {
+          dot_err = e;
+        }
+        return this(dot_err, f);
+      }, function(err, f) {
+        return callback(err, f);
       });
     };
     return flow.exec(function() {
@@ -74,17 +85,10 @@
         return readItem(val, _this.MULTI());
       });
     }, function(results) {
-      var r, _i, _len;
       if (!finalcb) {
         return;
       }
-      for (_i = 0, _len = results.length; _i < _len; _i++) {
-        r = results[_i];
-        if (r[0]) {
-          return finalcb(r[0], doT.exportCached());
-        }
-      }
-      return finalcb(null, doT.exportCached());
+      return finalcb(any_error(results), doT.exportCached());
     });
   };
 
