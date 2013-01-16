@@ -2,11 +2,11 @@
 (function() {
 
   module.exports = function(data, finalcb) {
-    var any_error, child, doT, flow, fs, path, readFile, readItem;
+    var any_error, child, doT, flow, fs, path, readFile, readItem, _ref;
     fs = require('fs');
     path = require('path');
     flow = require('flow');
-    doT = require('./doT.js');
+    doT = (_ref = data.doT) != null ? _ref : require('./doT.js');
     child = require('child_process');
     any_error = function(results) {
       var r, _i, _len;

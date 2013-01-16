@@ -2,7 +2,7 @@ module.exports = (data, finalcb) ->
   fs    = require 'fs'
   path  = require 'path'
   flow  = require 'flow'
-  doT   = require './doT.js'
+  doT   = data.doT ? require './doT.js'
   child = require 'child_process'
 
   any_error = (results) ->
