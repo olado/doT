@@ -6,16 +6,16 @@
     {
         "input_file"        : "/boilerplate_template.html",
         "output_file_dir"   : "app/src/template/sections/",
-        "output_file_name"  : "{{@className it.name}}_template.html"
+        "output_file_name"  : "<%@className it.name%>_template.html"
     },
     {
         "input_file"        : "/boilerplate_view.js",
         "output_file_dir"   : "app/src/views/sections/",
-        "output_file_name"  : "{{@className it.name}}View.js"
+        "output_file_name"  : "<%@className it.name%>View.js"
     },
     {
         "input_file"        : "/boilerplate_style.scss",
         "output_file_dir"   : "app/sass/sections/",
-        "output_file_name"  : "_{{@className it.name}}.scss"
+        "output_file_name"  : "_<%@className it.name%>.scss"
     }]
 }

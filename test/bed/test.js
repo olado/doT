@@ -3,10 +3,10 @@ define([
     'underscore',
     'backbone',
     'views/BaseView',
-    'hbs!template/{{@className it.name}}_template'
+    'hbs!template/<%@className it.name%>_template'
 ], function($, _, Backbone, BaseView, myTemplate){
 
-    var {{@className it.name}}Boilerplate = BaseView.extend({
+    var <%@className it.name%>Boilerplate = BaseView.extend({
 
         events: {
             // events here
@@ -15,7 +15,7 @@ define([
 
         vent: {}, // event map passed in
 
-        className: {{@className it.name}},
+        className: <%@className it.name%>,
 
         initialize: function( options ){
 
@@ -40,9 +40,8 @@ define([
             return this;
         }
 
-
     });
 
-    return {{@className it.name}}Boilerplate;
+    return <%@className it.name%>Boilerplate;
 
 });
