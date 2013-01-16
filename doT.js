@@ -204,12 +204,11 @@
                 code = unescape(fnParam);
                 if(doT.helpers){
                     if(doT.helpers[fn]){
-                        code = doT.helpers[fn].toString().replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,'');
+                        code = doT.helpers[fn].toString().replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,'') + ')(' + fnParam;
                     }else{
                         console.log('Could not find helper method ' + fn + ' for code: ' + code);
                     }
                 }
-                cse.end = ')(' + fnParam + ')+\'';
                 return cse.start + code + cse.end;
             })
 			.replace(c.conditional || skip, function(m, elsecase, code) {
