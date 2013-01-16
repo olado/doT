@@ -24,14 +24,16 @@ describe "doT", ->
       assert.equal "<div></div>", tmpl {}
 
   describe 'cached', ->
-    doT.autoload = doT.autoloadFail
-    doT.addCached 'layout1', doT.compile '<html>{{@@content(it)}}</html>'
-    doT.addCached 'layout2', doT.compile '<xml>{{@@content(it)}}</xml>'
-    doT.addCached 'body1', doT.compile 'data1'
-    doT.addCached 'body2', doT.compile 'data2 {{@partial(it)}}'
-    doT.addCached 'partial', doT.compile 'partial'
     include1 = '_dynamic': 'content': 'name': 'body1'
     include2 = '_dynamic': 'content': 'name': 'body2'
+
+    beforeEach ->
+      doT.autoload = doT.autoloadFail
+      doT.addCached 'layout1', doT.compile '<html>{{@@content(it)}}</html>'
+      doT.addCached 'layout2', doT.compile '<xml>{{@@content(it)}}</xml>'
+      doT.addCached 'body1', doT.compile 'data1'
+      doT.addCached 'body2', doT.compile 'data2 {{@partial(it)}}'
+      doT.addCached 'partial', doT.compile 'partial'
 
     it "should render partial", ->
       assert.equal 'data2 partial', doT.render 'body2', {}
