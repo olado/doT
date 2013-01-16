@@ -51,12 +51,12 @@
       return flow.exec(function() {
         if (file.match(/.haml$/)) {
           child.exec("haml '" + file + "'", this);
-          return file = path.basename(file, '.haml');
+          return file = file.slice(0, -5);
         } else {
           return fs.readFile(file, this);
         }
       }, function(err, text) {
-        var dot_err, f, id, rel;
+        var f, id, rel;
         if (err) {
           return this(err);
         }
@@ -67,14 +67,13 @@
             id = "" + rel + "." + id;
           }
         }
-        f = dot_err = null;
         try {
           f = doT.compile(text);
           doT.addCached(id, f);
         } catch (e) {
-          dot_err = e;
+          return this(e);
         }
-        return this(dot_err, f);
+        return this(null, f);
       }, function(err, f) {
         return callback(err, f);
       });

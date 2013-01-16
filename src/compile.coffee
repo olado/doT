@@ -32,9 +32,10 @@ module.exports = (data, finalcb) ->
   readFile = (file, callback) ->
     flow.exec(
       ->
+        #TODO: prefilters
         if file.match /.haml$/
           child.exec "haml '#{file}'", @
-          file = path.basename file, '.haml'
+          file = file.slice 0, -5
         else
           fs.readFile file, @
       (err, text) ->
@@ -44,13 +45,12 @@ module.exports = (data, finalcb) ->
           rel = path.relative(data.base, path.dirname file)
             .replace /\//g, '.'
           id = "#{rel}.#{id}" if rel
-        f = dot_err = null
         try
           f = doT.compile text
           doT.addCached id, f
         catch e
-          dot_err = e
-        @ dot_err, f
+          return @ e
+        @ null, f
       (err, f) ->
         callback err, f
     )
