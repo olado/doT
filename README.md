@@ -173,6 +173,23 @@ var str = doT.render(tmplId, data, options)
 
 I'll try to find out method to make it more essentual and flexible.
 
+####content_for
+for tmpl:
+```
+{{>title}{{=one}} stuff{{>}}
+more
+{{>footer}}{{=two}} stuff{{>}}
+and {{=three}}
+```
+`doT.render(str).compile({one: 'some', two: 'other', three: 'more'})` will return
+```
+{
+  _content: "more\nand more",
+  title: 'some stuff',
+  footer: 'other stuff'
+}
+```
+
 ####compile options
 Also compile-time option 'with' available (default to true). It wraps function body in 'with' construction which allows use properties directly (without it. prefix).
 
@@ -182,7 +199,7 @@ Also compile-time option 'with' available (default to true). It wraps function b
 
 **Warning!** Be careful with this option, cause 'with' will fail if you run tmpl function with no (or less then specified) args.
 
-####compile-doT.js [-b/--base dir] path[...]
+####compile.js [-b/--base dir] path[...]
 Compiles templates from files in cache object.
 If path is directory it will walk it through recursively.
 
@@ -192,9 +209,7 @@ For `-b root root/t1.tmpl root/t2.tmpl root/dir1/dir2/t1.tmpl` ids would be `[t1
 
 It requires `optimist` module, so install it before use.
 
-##Note about doU.js:
-doU.js is here only so that legacy external tests do not break. Use doT.js.
-doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
+**HAML!** If you have `haml` executable in your PATH `.haml` files will be passed through it before compilation!
 
 ##License:
 - doT is an open source component of http://bebedo.com
