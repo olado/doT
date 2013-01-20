@@ -21,7 +21,8 @@
 			varname:	'it',
 			strip:		true,
 			append:		true,
-			selfcontained: false
+			selfcontained: false,
+			alsoNegate: [] // will count as 'false' in a conditional
 		},
 		helpers: undefined,
 		template: undefined, //fn, compile template
@@ -213,8 +214,8 @@
             })
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
-					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
-					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
+					(code ? "';}else if(" + unescape(code) + " && " + JSON.stringify(c.alsoNegate) + ".indexOf(" + unescape(code) + ") === -1){out+='" : "';}else{out+='") :
+					(code ? "';if(" + unescape(code) + " && " + JSON.stringify(c.alsoNegate) + ".indexOf(" + unescape(code) + ") === -1){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
