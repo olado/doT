@@ -10,12 +10,12 @@
 startend =
   append:
     start:  "'+("
-    end:    ")+'"
-    endEncode:  ").encodeHTML()+'"
+    end:    "|| '')+'"
+    endEncode:  "|| '').encodeHTML()+'"
   split:
     start:  "';out+=("
-    end:    ");out+='"
-    endEncode: ").encodeHTML();out+='"
+    end:    "|| '');out+='"
+    endEncode: "|| '').encodeHTML();out+='"
 
 doT =
   version:  '0.2.0'

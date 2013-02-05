@@ -17,13 +17,13 @@
   startend = {
     append: {
       start: "'+(",
-      end: ")+'",
-      endEncode: ").encodeHTML()+'"
+      end: "|| '')+'",
+      endEncode: "|| '').encodeHTML()+'"
     },
     split: {
       start: "';out+=(",
-      end: ");out+='",
-      endEncode: ").encodeHTML();out+='"
+      end: "|| '');out+='",
+      endEncode: "|| '').encodeHTML();out+='"
     }
   };
 
