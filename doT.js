@@ -17,6 +17,10 @@
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			literal:     /\{\{@([\s\S]+?)@\}\}/g,
+			litRestore:  /~L~(\d+)~/g,
+			litReplPre:  '~L~',
+			litReplPost: '~',
 			varname:	'it',
 			strip:		true,
 			append:		true,
@@ -49,7 +53,12 @@
 	}, skip = /$^/;
 
 	function resolveDefs(c, block, def) {
+		var lits = [], litNum = 0;
 		return ((typeof block === 'string') ? block : block.toString())
+		.replace(c.literal || skip, function(m, literal) {
+			lits[litNum] = m;
+			return c.litReplPre + (litNum++) + c.litReplPost;	
+		})
 		.replace(c.define || skip, function(m, code, assign, value) {
 			if (code.indexOf('def.') === 0) {
 				code = code.substring(4);
@@ -77,6 +86,10 @@
 			});
 			var v = new Function("def", "return " + code)(def);
 			return v ? resolveDefs(c, v, def) : v;
+		})
+		.replace(litNum ? c.litRestore : skip, function(m, numStr) {
+			var num = parseInt(numStr);
+			return num < litNum ? lits[num] : m;
 		});
 	}
 
@@ -87,11 +100,16 @@
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
-			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
+			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl,
+			lits = [], litNum = 0;
 
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
-					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
+			.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
 			.replace(/'|\\/g, '\\$&')
+			.replace(c.literal || skip, function(m, literal) {
+				lits[litNum] = literal;
+				return c.litReplPre + (litNum++) + c.litReplPost;	
+			})
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;
 			})
@@ -112,6 +130,10 @@
 			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + "out+='";
+			})
+			.replace(litNum ? c.litRestore : skip, function(m, numStr) {
+				var num = parseInt(numStr);
+				return num < litNum ? lits[num] : m;
 			})
 			+ "';return out;")
 			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
