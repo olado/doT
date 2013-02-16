@@ -16,14 +16,14 @@
 
   startend = {
     append: {
-      start: "'+(",
-      end: "|| '')+'",
-      endEncode: "|| '').encodeHTML()+'"
+      start: "' + ((",
+      end: ") || '') + '",
+      endEncode: ") || '').encodeHTML() + '"
     },
     split: {
-      start: "';out+=(",
-      end: "|| '');out+='",
-      endEncode: "|| '').encodeHTML();out+='"
+      start: "'; out += ((",
+      end: ") || ''); out += '",
+      endEncode: ") || '').encodeHTML(); out += '"
     }
   };
 
