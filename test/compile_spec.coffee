@@ -16,6 +16,16 @@ describe 'compile', ->
         assert.notEqual err, null
         done()
 
+    it 'should invoke callback if empty fileset is given', (done) ->
+      compile files: [], (err, data) ->
+        assert.equal err, null
+        done()
+
+    it 'should invoke callback with if there is empty folder', (done) ->
+      compile files: ["#{dir}/tmpl/empty"], (err, data) ->
+        assert.equal err, null
+        done()
+
     it 'should compile file', (done) ->
       compile files: ["#{dir}/tmpl/one.tmpl"], (err, data) ->
         assert.equal err, null

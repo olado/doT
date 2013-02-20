@@ -2,28 +2,33 @@ module.exports = (data, finalcb) ->
   fs    = require 'fs'
   path  = require 'path'
   flow  = require 'flow'
-  doT   = data.doT ? require './doT.js'
+  doT   = data.doT ? require './doT'
   child = require 'child_process'
 
-  any_error = (results) ->
+  # wait till it apears in release
+  flow.anyError = (results) ->
     for r in results
       return r[0] if r[0]
     null
 
   readItem = (item, callback) ->
     flow.exec(
-      -> fs.stat item, @
+      ->
+        fs.stat item, @
       (err, stat) ->
         return @ err if err
         return readFile item, @ unless stat.isDirectory()
         item_cb = @
         flow.exec(
-          -> fs.readdir item, @
+          ->
+            fs.readdir item, @
           (err, files) ->
-            return @MULTI err if err
-            files.forEach (file) =>
+            return @MULTI() err if err
+            for file in files
               readItem path.join(item, file), @MULTI()
-          (results) -> item_cb any_error results
+            @MULTI() null
+          (results) ->
+            item_cb flow.anyError results
         )
       (err) ->
         callback err
@@ -42,9 +47,8 @@ module.exports = (data, finalcb) ->
         return @ err if err
         id = path.basename file, path.extname file
         if data.base
-          rel = path.relative(data.base, path.dirname file)
-            .replace /\//g, '.'
-          id = "#{rel}.#{id}" if rel
+          rel = path.relative(data.base, path.dirname file).replace /\//g, '.'
+          id  = "#{rel}.#{id}" if rel
         try
           f = doT.compile text
           doT.addCached id, f
@@ -56,8 +60,11 @@ module.exports = (data, finalcb) ->
     )
 
   flow.exec(
-    -> data.files.forEach ( val, i ) => readItem val, @MULTI()
+    ->
+      for file in data.files
+        readItem file, @MULTI()
+      @MULTI() null
     (results) ->
       return unless finalcb
-      finalcb any_error(results), doT.exportCached()
+      finalcb flow.anyError(results), doT.exportCached()
   )

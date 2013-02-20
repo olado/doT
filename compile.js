@@ -2,13 +2,13 @@
 (function() {
 
   module.exports = function(data, finalcb) {
-    var any_error, child, doT, flow, fs, path, readFile, readItem, _ref;
+    var child, doT, flow, fs, path, readFile, readItem, _ref;
     fs = require('fs');
     path = require('path');
     flow = require('flow');
-    doT = (_ref = data.doT) != null ? _ref : require('./doT.js');
+    doT = (_ref = data.doT) != null ? _ref : require('./doT');
     child = require('child_process');
-    any_error = function(results) {
+    flow.anyError = function(results) {
       var r, _i, _len;
       for (_i = 0, _len = results.length; _i < _len; _i++) {
         r = results[_i];
@@ -33,15 +33,17 @@
         return flow.exec(function() {
           return fs.readdir(item, this);
         }, function(err, files) {
-          var _this = this;
+          var file, _i, _len;
           if (err) {
-            return this.MULTI(err);
+            return this.MULTI()(err);
           }
-          return files.forEach(function(file) {
-            return readItem(path.join(item, file), _this.MULTI());
-          });
+          for (_i = 0, _len = files.length; _i < _len; _i++) {
+            file = files[_i];
+            readItem(path.join(item, file), this.MULTI());
+          }
+          return this.MULTI()(null);
         }, function(results) {
-          return item_cb(any_error(results));
+          return item_cb(flow.anyError(results));
         });
       }, function(err) {
         return callback(err);
@@ -79,15 +81,18 @@
       });
     };
     return flow.exec(function() {
-      var _this = this;
-      return data.files.forEach(function(val, i) {
-        return readItem(val, _this.MULTI());
-      });
+      var file, _i, _len, _ref1;
+      _ref1 = data.files;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        file = _ref1[_i];
+        readItem(file, this.MULTI());
+      }
+      return this.MULTI()(null);
     }, function(results) {
       if (!finalcb) {
         return;
       }
-      return finalcb(any_error(results), doT.exportCached());
+      return finalcb(flow.anyError(results), doT.exportCached());
     });
   };
 
