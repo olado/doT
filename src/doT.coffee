@@ -223,7 +223,10 @@ doT.compile = (tmpl, def) ->
 doT.template = doT.compile
 
 # cache functions
-doT.getCached = -> cache
+doT.getCached = (tmpl) ->
+  return cache unless tmpl
+  throw new Error "Template not found: #{tmpl}" unless cache[tmpl]
+  cache[tmpl]
 doT.setCached = (fns) -> cache = fns
 doT.exportCached = ->
   str = ""

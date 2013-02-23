@@ -258,8 +258,14 @@
 
   doT.template = doT.compile;
 
-  doT.getCached = function() {
-    return cache;
+  doT.getCached = function(tmpl) {
+    if (!tmpl) {
+      return cache;
+    }
+    if (!cache[tmpl]) {
+      throw new Error("Template not found: " + tmpl);
+    }
+    return cache[tmpl];
   };
 
   doT.setCached = function(fns) {
