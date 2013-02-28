@@ -10,6 +10,7 @@ Features:
     partials support
     conditionals support
     array iterators
+    object iterators
     encoding
     control whitespace - strip or preserve
     streaming friendly

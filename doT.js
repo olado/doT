@@ -17,6 +17,7 @@
 			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			forin:       /\{\{@(@)?\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			varname: 'it',
 			strip: true,
 			append: true,
@@ -105,6 +106,13 @@
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
+			})
+			.replace(c.forin || skip, function (m, own, iterate, vname, kname) {
+				if (!iterate) return "';} } " + (own ? "} " : "") + "out+='";
+				sid += 1; iterate = unescape(iterate);
+				return "';var obj" + sid + "=" + iterate + ";if(obj" + sid + "){var " + kname + "," + vname + ";for(" + kname + " in obj" + sid + "){"
+					+ (own ? "if(obj" + sid + ".hasOwnProperty(" + kname + ")){ " : "")
+					+ vname + "=obj" + sid + "[" + kname + "];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + "out+='";

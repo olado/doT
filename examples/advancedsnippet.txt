@@ -81,4 +81,14 @@ Array iterators
 	{{=k}}
 {{~}}
 
+Object iterators
+{{@ {one: 1, two: 2, three: 3} :val :key}}
+	{{=key}} = {{=val}}
+{{@}}
+
+Iterate only own properties
+{{@@ (function(){ function O(){this.four = 4;} O.prototype={one: 1, two: 2, three: 3}; return new O;})() :val :key}}
+	{{=key}} = {{=val}}
+{{@@}}
+
 The end
