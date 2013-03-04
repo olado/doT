@@ -9,13 +9,13 @@
 
 startend =
   append:
-    start:  "' + (("
-    end:    ") || '') + '"
-    endEncode:  ") || '').encodeHTML() + '"
+    start:  "' + ("
+    end:    ") + '"
+    endEncode:  ").encodeHTML() + '"
   split:
-    start:  "'; out += (("
-    end:    ") || ''); out += '"
-    endEncode: ") || '').encodeHTML(); out += '"
+    start:  "'; out += ("
+    end:    "); out += '"
+    endEncode: ").encodeHTML(); out += '"
 
 doT =
   version:  '0.2.0'
@@ -37,19 +37,19 @@ skip  = /$^/
 # tags definition
 tags = doT.tags
 tags.interpolate =
-  regex: /\{\{=([\s\S]+?)\}\}/g
+  regex: /\{\{\s*=([\s\S]*?)\}\}/g
   func: (m, code) ->
     cse = doT.templateSettings.startend
     cse.start + unescape(code) + cse.end
 
 tags.encode =
-  regex: /\{\{!([\s\S]+?)\}\}/g
+  regex: /\{\{\s*!([\s\S]*?)\}\}/g
   func: (m, code) ->
     cse = doT.templateSettings.startend
     cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
-  regex: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g
+  regex: /\{\{\s*\?(\?)?\s*([\w$][\s\S]*?)?\}\}/g
   func: (m, elsecase, code) ->
     if elsecase
       if code
@@ -63,28 +63,27 @@ tags.conditional =
         "'; } out += '"
 
 tags.iterate =
-  regex: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g
-  func: (m, iterate, vname, iname) ->
+  regex: /\{\{\s*~\s*(?:(\S+?)\s*\:\s*([\w$]+)\s*(?:=>\s*([\w$]+))?\s*)?\}\}/g
+  func: (m, iterate, iname, vname) ->
     if !iterate
       return "'; } } out += '"
-    sid += 1
-    indv = iname || 'i' + sid
+    [vname, iname] = [iname, "i#{++sid}"] unless vname
     iterate = unescape iterate
     return "';
       var arr#{sid} = #{iterate};
       if( arr#{sid} ) {
-        var #{vname}, #{indv} = -1, l#{sid} = arr#{sid}.length-1;
-        while( #{indv} < l#{sid} ){
-          #{vname} = arr#{sid}[#{indv} += 1];
+        var #{vname}, #{iname} = -1, l#{sid} = arr#{sid}.length-1;
+        while( #{iname} < l#{sid} ){
+          #{vname} = arr#{sid}[#{iname} += 1];
           out += '"
 
 tags.iterateFor =
-  regex: /\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g
-  func: (m, iterate, vname, iname) ->
+  regex: /\{\{\s*:\s*(?:(\S+?)\s*\:\s*([\w$]+)\s*(?:=>\s*([\w$]+))?\s*)?\}\}/g
+  func: (m, iterate, iname, vname) ->
     if !iterate
       return "'; } } out += '"
-    sid += 1;
-    inpname = 'iter' + sid;
+    inpname = "i#{++sid}"
+    [vname, iname] = [iname, "i#{++sid}"] unless vname
     return "';
       var #{inpname} = #{iterate};
       if ( #{inpname} ) {
@@ -94,14 +93,14 @@ tags.iterateFor =
           out += '"
 
 tags.content_for =
-  regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g
+  regex: /\{\{\s*>([\s\S]*?)\}\}/g
   func: (m, id) ->
     @multiple_contents = true
     if id
       "';
       contents[current_out] = out;
       out_stack.push(current_out);
-      current_out='#{unescape(id)}'.trim();
+      current_out='#{unescape(id).trim()}';
       out = contents[current_out] = '"
     else
       "';
@@ -109,7 +108,7 @@ tags.content_for =
       out = contents[current_out = out_stack.pop()] += '"
 
 tags.xx_includeDynamic =
-  regex: /\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g
+  regex: /\{\{\s*@@\s*(\S+?)\(([\s\S]*?)\)\s*\}\}/g
   func: (m, tmpl, args) ->
     sid += 1
     vname = 'tmpl' + sid
@@ -119,19 +118,19 @@ tags.xx_includeDynamic =
       out += doT.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
 
 tags.xy_render =
-  regex: /\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g
+  regex: /\{\{\s*@\s*(\S+?)\(([\s\S]*?)\)\s*\}\}/g
   func: (m, tmpl, args) ->
     "' + doT.render( '#{tmpl}' #{if args then ",#{unescape(args)}" else ''} ) + '"
 
 tags.zz_evaluate =
-  regex: /\{\{([\s\S]+?)\}\}/g
+  regex: /\{\{([\s\S]*?)\}\}/g
   func: (m, code) ->
     "'; #{unescape(code)}; out += '"
 
 # register in global scope
-if (typeof module != 'undefined' && module.exports)
+if module?.exports
   module.exports = doT
-else if (typeof define == 'function' && define.amd)
+else if define?.amd
   define -> doT
 else
   @doT = doT

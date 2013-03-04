@@ -24,10 +24,28 @@ Created in search of the fastest and concise JavaScript templating function with
 - caching
 - exporting/importing cached templates
 - dynamic includes
+- type any spaces you want inside tags
+- written with coffee
 
 ##Docs
 ###Native Docs, live playground and samples:
 http://olado.github.com/doT
+
+###Incompability
+```
+original doT style:
+{{~varname :value}}
+{{~varname :value:key}}
+
+old iterateFor style:
+{{:varname :key:value}}
+
+Current style:
+{{~varname :value}}
+{{:varname :value}}
+{{~varname :key => value}}
+{{:varname :key => value}}
+```
 
 ###Extra features docs
 ####Before you continue

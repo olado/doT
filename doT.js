@@ -16,14 +16,14 @@
 
   startend = {
     append: {
-      start: "' + ((",
-      end: ") || '') + '",
-      endEncode: ") || '').encodeHTML() + '"
+      start: "' + (",
+      end: ") + '",
+      endEncode: ").encodeHTML() + '"
     },
     split: {
-      start: "'; out += ((",
-      end: ") || ''); out += '",
-      endEncode: ") || '').encodeHTML(); out += '"
+      start: "'; out += (",
+      end: "); out += '",
+      endEncode: ").encodeHTML(); out += '"
     }
   };
 
@@ -51,7 +51,7 @@
   tags = doT.tags;
 
   tags.interpolate = {
-    regex: /\{\{=([\s\S]+?)\}\}/g,
+    regex: /\{\{\s*=([\s\S]*?)\}\}/g,
     func: function(m, code) {
       var cse;
       cse = doT.templateSettings.startend;
@@ -60,7 +60,7 @@
   };
 
   tags.encode = {
-    regex: /\{\{!([\s\S]+?)\}\}/g,
+    regex: /\{\{\s*!([\s\S]*?)\}\}/g,
     func: function(m, code) {
       var cse;
       cse = doT.templateSettings.startend;
@@ -69,7 +69,7 @@
   };
 
   tags.conditional = {
-    regex: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+    regex: /\{\{\s*\?(\?)?\s*([\w$][\s\S]*?)?\}\}/g,
     func: function(m, elsecase, code) {
       if (elsecase) {
         if (code) {
@@ -88,38 +88,41 @@
   };
 
   tags.iterate = {
-    regex: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-    func: function(m, iterate, vname, iname) {
-      var indv;
+    regex: /\{\{\s*~\s*(?:(\S+?)\s*\:\s*([\w$]+)\s*(?:=>\s*([\w$]+))?\s*)?\}\}/g,
+    func: function(m, iterate, iname, vname) {
+      var _ref;
       if (!iterate) {
         return "'; } } out += '";
       }
-      sid += 1;
-      indv = iname || 'i' + sid;
+      if (!vname) {
+        _ref = [iname, "i" + (++sid)], vname = _ref[0], iname = _ref[1];
+      }
       iterate = unescape(iterate);
-      return "';      var arr" + sid + " = " + iterate + ";      if( arr" + sid + " ) {        var " + vname + ", " + indv + " = -1, l" + sid + " = arr" + sid + ".length-1;        while( " + indv + " < l" + sid + " ){          " + vname + " = arr" + sid + "[" + indv + " += 1];          out += '";
+      return "';      var arr" + sid + " = " + iterate + ";      if( arr" + sid + " ) {        var " + vname + ", " + iname + " = -1, l" + sid + " = arr" + sid + ".length-1;        while( " + iname + " < l" + sid + " ){          " + vname + " = arr" + sid + "[" + iname + " += 1];          out += '";
     }
   };
 
   tags.iterateFor = {
-    regex: /\{\{:\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-    func: function(m, iterate, vname, iname) {
-      var inpname;
+    regex: /\{\{\s*:\s*(?:(\S+?)\s*\:\s*([\w$]+)\s*(?:=>\s*([\w$]+))?\s*)?\}\}/g,
+    func: function(m, iterate, iname, vname) {
+      var inpname, _ref;
       if (!iterate) {
         return "'; } } out += '";
       }
-      sid += 1;
-      inpname = 'iter' + sid;
+      inpname = "i" + (++sid);
+      if (!vname) {
+        _ref = [iname, "i" + (++sid)], vname = _ref[0], iname = _ref[1];
+      }
       return "';      var " + inpname + " = " + iterate + ";      if ( " + inpname + " ) {        var " + vname + ", " + iname + ";        for (" + iname + " in " + inpname + " ) {          " + vname + " = " + inpname + "[ " + iname + " ];          out += '";
     }
   };
 
   tags.content_for = {
-    regex: /\{\{>\s*([\s\S]*?)\s*\}\}/g,
+    regex: /\{\{\s*>([\s\S]*?)\}\}/g,
     func: function(m, id) {
       this.multiple_contents = true;
       if (id) {
-        return "';      contents[current_out] = out;      out_stack.push(current_out);      current_out='" + (unescape(id)) + "'.trim();      out = contents[current_out] = '";
+        return "';      contents[current_out] = out;      out_stack.push(current_out);      current_out='" + (unescape(id).trim()) + "';      out = contents[current_out] = '";
       } else {
         return "';      contents[current_out] = out;      out = contents[current_out = out_stack.pop()] += '";
       }
@@ -127,7 +130,7 @@
   };
 
   tags.xx_includeDynamic = {
-    regex: /\{\{@@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
+    regex: /\{\{\s*@@\s*(\S+?)\(([\s\S]*?)\)\s*\}\}/g,
     func: function(m, tmpl, args) {
       var vname;
       sid += 1;
@@ -137,22 +140,22 @@
   };
 
   tags.xy_render = {
-    regex: /\{\{@([\S]+?)\([\s]*([\s\S]*?)[\s]*\)\}\}/g,
+    regex: /\{\{\s*@\s*(\S+?)\(([\s\S]*?)\)\s*\}\}/g,
     func: function(m, tmpl, args) {
       return "' + doT.render( '" + tmpl + "' " + (args ? "," + (unescape(args)) : '') + " ) + '";
     }
   };
 
   tags.zz_evaluate = {
-    regex: /\{\{([\s\S]+?)\}\}/g,
+    regex: /\{\{([\s\S]*?)\}\}/g,
     func: function(m, code) {
       return "'; " + (unescape(code)) + "; out += '";
     }
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
     module.exports = doT;
-  } else if (typeof define === 'function' && define.amd) {
+  } else if (typeof define !== "undefined" && define !== null ? define.amd : void 0) {
     define(function() {
       return doT;
     });
@@ -160,23 +163,25 @@
     this.doT = doT;
   }
 
-  (function() {
-    var match, rules;
-    rules = {
-      "&": "&#38;",
-      "<": "&#60;",
-      ">": "&#62;",
-      '"': '&#34;',
-      "'": '&#39;',
-      "/": '&#47;'
-    };
-    match = /&(?!#?\w+;)|<|>|"|'|\//g;
-    return String.prototype.encodeHTML = function() {
-      return this.replace(match, function(m) {
-        return rules[m] || m;
-      });
-    };
-  })();
+  if (!String.prototype.encodeHTML) {
+    (function() {
+      var match, rules;
+      rules = {
+        "&": "&#38;",
+        "<": "&#60;",
+        ">": "&#62;",
+        '"': '&#34;',
+        "'": '&#39;',
+        "/": '&#47;'
+      };
+      match = /&(?!#?\w+;)|<|>|"|'|\//g;
+      return String.prototype.encodeHTML = function() {
+        return this.replace(match, function(m) {
+          return rules[m] || m;
+        });
+      };
+    })();
+  }
 
   unescape = function(code) {
     return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');

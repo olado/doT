@@ -50,3 +50,59 @@ describe "doT", ->
         doT.compile('{{>title}}{{=val2}}{{>}}{{=val1}}{{>footer}}{{=val3}}{{>}}{{? false}}{{?}} end')(
           val1: 'content', val2: 'title', val3: 'footer'
         )
+
+  describe 'syntax', ->
+    describe 'interpolate tag', ->
+      it 'without spaces', ->
+        assert.equal 'a', doT.compile('{{=it}}') 'a'
+      it 'with some spaces', ->
+        assert.equal 'b', doT.compile('{{ =it }}') 'b'
+      it  'with a lot spaces', ->
+        assert.equal 'c', doT.compile('{{ = it }}') 'c'
+
+    describe 'encode tag', ->
+      it 'without spaces', ->
+        assert.equal '<'.encodeHTML(), doT.compile('{{!it}}') '<'
+      it 'with some spaces', ->
+        assert.equal '>'.encodeHTML(), doT.compile('{{ !it }}') '>'
+      it 'with a lot spaces', ->
+        assert.equal '<<'.encodeHTML(), doT.compile('{{ ! it }}') '<<'
+
+    describe 'conditional tag', ->
+      it 'without spaces', ->
+        assert.equal 'a', doT.compile('{{?it}}a{{?}}') true
+      it 'with spaces', ->
+        assert.equal 'b', doT.compile('{{ ? it }}b{{ ? }}') true
+      it 'elsecase', ->
+        assert.equal 'c', doT.compile('{{ ?it }}a{{ ?? }}c{{?}}') false
+      it 'else-elsecase', ->
+        assert.equal 'd', doT.compile('{{ ? it }}a{{ ?? false }}b{{ ?? }}d{{ ? }}') false
+
+    describe 'iterate tag', ->
+      it 'without spaces & key', ->
+        assert.equal 'abc', doT.compile('{{~it:x}}{{=x}}{{~}}') ['a','b','c']
+      it 'without spaces, with key', ->
+        assert.equal '0a1b2c', doT.compile('{{~it:x=>y}}{{=x}}{{=y}}{{~}}') ['a','b','c']
+      it 'with spaces, without key', ->
+        assert.equal 'abc', doT.compile('{{ ~ it : x }}{{=x}}{{ ~ }}') ['a','b','c']
+      it 'with spaces & key', ->
+        assert.equal '0a1b2c', doT.compile('{{ ~ it : x => y }}{{=x}}{{=y}}{{ ~ }}') ['a','b','c']
+
+    describe 'iterateFor tag', ->
+      it 'without spaces & key', ->
+        assert.equal '123', doT.compile('{{:it:x}}{{=x}}{{:}}') a: 1, b: 2, c: 3
+      it 'without spaces, with key', ->
+        assert.equal 'a1b2c3', doT.compile('{{:it:x=>y}}{{=x}}{{=y}}{{:}}') a: 1, b: 2, c: 3
+      it 'with spaces, without key', ->
+        assert.equal '123', doT.compile('{{ : it : x }}{{=x}}{{ : }}') a: 1, b: 2, c: 3
+      it 'with spaces & key', ->
+        assert.equal 'a1b2c3', doT.compile('{{ : it : x => y }}{{=x}}{{=y}}{{ : }}') a: 1, b: 2, c: 3
+
+    it 'tags combination', ->
+      assert.equal 'abcdef', doT.compile('{{
+          =a }}{{
+          !b }}{{
+          ?true }}c{{?}}{{
+          ~d:x}}{{=x}}{{~}}{{
+          :e:x}}{{=x}}{{:}}{{
+          var v = f}}{{=v}}') a: 'a', b: 'b', c: 'c', d: ['d'], e: {key: 'e'}, f: 'f'
