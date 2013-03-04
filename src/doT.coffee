@@ -136,12 +136,12 @@ else if (typeof define == 'function' && define.amd)
 else
   @doT = doT
 
-# String::encodeHTML
-(->
-  rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
-  match = /&(?!#?\w+;)|<|>|"|'|\//g
-  String::encodeHTML = -> @replace( match, (m) -> rules[m] || m )
-)()
+unless String::encodeHTML
+  (->
+    rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
+    match = /&(?!#?\w+;)|<|>|"|'|\//g
+    String::encodeHTML = -> @replace( match, (m) -> rules[m] || m )
+  )()
 
 unescape = (code) ->
   code.replace( /\\('|\\)/g, "$1" ).replace( /[\r\t\n]/g, ' ' )
