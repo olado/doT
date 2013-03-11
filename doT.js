@@ -122,7 +122,12 @@
 			str = "String.prototype.encodeHTML=(" + encodeHTMLSource.toString() + "());" + str;
 		}
 		try {
-			return new Function(c.varname, str);
+			var varname = new RegExp(c.varname + '\\.?', 'g');
+			if(varname.test(str)) {
+				return new Function(c.varname, str);
+			} else {
+				return new Function('', str);
+			}
 		} catch (e) {
 			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
 			throw e;
