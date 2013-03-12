@@ -99,6 +99,10 @@ describe "doT", ->
         assert.equal '123', doT.compile('{{ : it : x }}{{=x}}{{ : }}') a: 1, b: 2, c: 3
       it 'with spaces & key', ->
         assert.equal 'a1b2c3', doT.compile('{{ : it : x => y }}{{=x}}{{=y}}{{ : }}') a: 1, b: 2, c: 3
+      it 'iterates through inline object', ->
+        assert.equal 'test', doT.compile('{{:{x:"test"} :k => v}}{{=v}}{{:}}') {}
+      it 'iterates through complex inline object but without spaces', ->
+        assert.equal 'test', doT.compile('{{: {x:"test",y:{z:{}}} :k => v}}{{=v}}{{break}}{{:}}') {}
 
     it 'tags combination', ->
       assert.equal 'abcdef', doT.compile('{{
