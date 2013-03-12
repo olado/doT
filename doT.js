@@ -69,7 +69,7 @@
   };
 
   tags.conditional = {
-    regex: /\{\{\s*\?(\?)?\s*([\w$][\s\S]*?)?\}\}/g,
+    regex: /\{\{\s*\?(\?)?\s*([\s\S]*?)\}\}/g,
     func: function(m, elsecase, code) {
       if (elsecase) {
         if (code) {

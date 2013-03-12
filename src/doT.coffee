@@ -49,7 +49,7 @@ tags.encode =
     cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
-  regex: /\{\{\s*\?(\?)?\s*([\w$][\s\S]*?)?\}\}/g
+  regex: /\{\{\s*\?(\?)?\s*([\s\S]*?)\}\}/g
   func: (m, elsecase, code) ->
     if elsecase
       if code

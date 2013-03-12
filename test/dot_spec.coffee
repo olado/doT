@@ -77,6 +77,8 @@ describe "doT", ->
         assert.equal 'c', doT.compile('{{ ?it }}a{{ ?? }}c{{?}}') false
       it 'else-elsecase', ->
         assert.equal 'd', doT.compile('{{ ? it }}a{{ ?? false }}b{{ ?? }}d{{ ? }}') false
+      it 'inverse condition', ->
+        assert.equal 'e', doT.compile('{{ ? !it }}e{{ ? }}') false
 
     describe 'iterate tag', ->
       it 'without spaces & key', ->
