@@ -60,7 +60,30 @@ All described features did NOT make doT slower. There is `benchmark` folder, try
 Instead of this set `doT.templateSettings.startend` directly to one of
 `doT.startend.append` (default), `doT.startend.split` or define your one.
 
-####Add, modify and remove tags
+#### Extend it!
+Template compilation consist of serial mangles: resolving defines, processing tags,
+wrapping it into function's body and, finally, making it js function.
+
+And you have easy access to all of this steps! `doT.mangles` is an object that
+contains functions to be called while mangling template from string to function.
+Every function executes in `doT.templateSettings` context, accepts 2 args: current
+template value and object with compile time variables. Here is an mangle definition
+that wraps function into `with` construction if `doT.templateSettings.with` is set to smth.
+
+```coffee
+mangles['80_with'] = (str, compileParams) ->
+  return str unless @with
+  "with(#{if true == @with then @varname else @with}) {#{str}}"
+```
+
+This functions are called in alphabetical order of their keys. So this function
+will be executed first(it stores original template on input):
+
+```coffee
+doT.mangles["00_test"] = (str, params) -> params.origTmpl = str
+```
+
+##### Add, modify and remove tags
 Now it's much easier to modify or add new tags in your templates.
 I moved all tag's definitions into `doT.tags` object:
 

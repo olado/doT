@@ -12,7 +12,7 @@
 (function() {
   "use strict";
 
-  var cache, doT, resolveDefs, sid, skip, startend, tags, unescape;
+  var cache, doT, mangles, resolveDefs, sid, skip, startend, tags, unescape;
 
   startend = {
     append: {
@@ -39,6 +39,7 @@
       startend: startend.append
     },
     startend: startend,
+    mangles: {},
     tags: {}
   };
 
@@ -153,6 +154,113 @@
     }
   };
 
+  mangles = doT.mangles;
+
+  mangles['05_define'] = resolveDefs = function(block, compileParams) {
+    var c, def;
+    if (!(this.use || this.define)) {
+      return str;
+    }
+    c = this;
+    def = compileParams.def || {};
+    return block.toString().replace(c.define || skip, function(m, code, assign, value) {
+      if (code.indexOf("def.") === 0) {
+        code = code.substring(4);
+      }
+      if (!(code in def)) {
+        if (assign === ":") {
+          if (c.defineParams) {
+            value.replace(c.defineParams, function(m, param, v) {
+              return def[code] = {
+                arg: param,
+                text: v
+              };
+            });
+          }
+          if (!(code in def)) {
+            def[code] = value;
+          }
+        } else {
+          new Function("def", "def['" + code + "'] = " + value)(def);
+        }
+      }
+      return "";
+    }).replace(c.use || skip, function(m, code) {
+      var v;
+      if (c.useParams) {
+        code = code.replace(c.useParams, function(m, s, d, param) {
+          var rw;
+          if (def[d] && def[d].arg && param) {
+            rw = (d + ":" + param).replace(/'|\\/g, "_");
+            def.__exp = def.__exp || {};
+            def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])" + def[d].arg + "([^\\w$])", "g"), "$1" + param + "$2");
+            return s + ("def.__exp['" + rw + "']");
+          }
+        });
+      }
+      v = new Function("def", "return " + code)(def);
+      if (v) {
+        return resolveDefs.call(c, v, compileParams);
+      } else {
+        return v;
+      }
+    });
+  };
+
+  mangles['10_strip'] = function(str, compileParams) {
+    if (!this.strip) {
+      return str;
+    }
+    return str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, ' ').replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '');
+  };
+
+  mangles['20_escape_quotes'] = function(str, compileParams) {
+    return str.replace(/'|\\/g, '\\$&');
+  };
+
+  mangles['50_tags'] = function(str, compileParams) {
+    var t_id, t_name, taglist;
+    taglist = Object.keys(doT.tags).sort();
+    for (t_id in taglist) {
+      t_name = taglist[t_id];
+      str = str.replace(doT.tags[t_name].regex, function() {
+        return doT.tags[t_name].func.apply(compileParams, arguments);
+      });
+    }
+    return str;
+  };
+
+  mangles['70_escape_spaces'] = function(str, compileParams) {
+    return str.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r');
+  };
+
+  mangles['80_cleanup'] = function(str, compileParams) {
+    return str.replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\s*\+\s*''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
+  };
+
+  mangles['80_function_basics'] = function(str, compileParams) {
+    if (compileParams.multiple_contents) {
+      return "      var out_stack = [], contents = {}, current_out = '_content';      var out = '" + str + "';      contents[current_out] = out;      return contents;    ";
+    } else {
+      return " var out = '" + str + "';      return out;    ";
+    }
+  };
+
+  mangles['80_with'] = function(str, compileParams) {
+    if (!this["with"]) {
+      return str;
+    }
+    return "with(" + (true === this["with"] ? this.varname : this["with"]) + ") {" + str + "}";
+  };
+
+  mangles['95_functionize'] = function(str, compileParams) {
+    try {
+      return new Function(this.varname, str);
+    } catch (e) {
+      throw new Error("" + e + " in \"" + str + "\"");
+    }
+  };
+
   if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
     module.exports = doT;
   } else if (typeof define !== "undefined" && define !== null ? define.amd : void 0) {
@@ -189,76 +297,17 @@
 
   doT.unescape = unescape;
 
-  resolveDefs = function(c, block, def) {
-    return (typeof block === "string" ? block : block.toString()).replace(c.define || skip, function(m, code, assign, value) {
-      if (code.indexOf("def.") === 0) {
-        code = code.substring(4);
-      }
-      if (!(code in def)) {
-        if (assign === ":") {
-          if (c.defineParams) {
-            value.replace(c.defineParams, function(m, param, v) {
-              return def[code] = {
-                arg: param,
-                text: v
-              };
-            });
-          }
-          if (!(code in def)) {
-            def[code] = value;
-          }
-        } else {
-          new Function("def", "def['" + code + "']=" + value)(def);
-        }
-      }
-      return "";
-    }).replace(c.use || skip, function(m, code) {
-      var v;
-      if (c.useParams) {
-        code = code.replace(c.useParams, function(m, s, d, param) {
-          var rw;
-          if (def[d] && def[d].arg && param) {
-            rw = (d + ":" + param).replace(/'|\\/g, "_");
-            def.__exp = def.__exp || {};
-            def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])" + def[d].arg + "([^\\w$])", "g"), "$1" + param + "$2");
-            return s + ("def.__exp['" + rw + "']");
-          }
-        });
-      }
-      v = new Function("def", "return " + code)(def);
-      if (v) {
-        return resolveDefs(c, v, def);
-      } else {
-        return v;
-      }
-    });
-  };
-
   doT.compile = function(tmpl, def) {
-    var c, compile_params, str, t_id, t_name, taglist;
-    c = doT.templateSettings;
-    str = c.use || c.define ? resolveDefs(c, tmpl, def || {}) : tmpl;
-    compile_params = {};
-    if (c.strip) {
-      str = str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, ' ').replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '');
+    var compile_params, m_id, m_name, mangles_list;
+    compile_params = {
+      def: def
+    };
+    mangles_list = Object.keys(doT.mangles).sort();
+    for (m_id in mangles_list) {
+      m_name = mangles_list[m_id];
+      tmpl = doT.mangles[m_name].call(doT.templateSettings, tmpl, compile_params);
     }
-    str = str.replace(/'|\\/g, '\\$&');
-    taglist = Object.keys(doT.tags).sort();
-    for (t_id in taglist) {
-      t_name = taglist[t_id];
-      str = str.replace(doT.tags[t_name].regex, function() {
-        return doT.tags[t_name].func.apply(compile_params, arguments);
-      });
-    }
-    str = (compile_params.multiple_contents ? str = "        var out_stack = [], contents = {}, current_out = '_content';        var out = '" + str + "';        contents[current_out] = out;        return contents;      " : " var out = '" + str + "';        return out;      ").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r').replace(/(\s|;|}|^|{)out\+='';/g, '$1').replace(/\+''/g, '').replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=');
-    if (c["with"]) {
-      str = "with(" + (true === c["with"] ? c.varname : c["with"]) + ") {" + str + "}";
-    }
-    try {
-      return new Function(c.varname, str);
-    } catch (e) {
-      throw new Error("" + e + " in \"" + str + "\"");
-    }
+    return tmpl;
   };
 
   doT.template = doT.compile;

@@ -28,6 +28,7 @@ doT =
     dynamicList:  'it._dynamic'
     startend:     startend.append
   startend: startend
+  mangles:  {}
   tags:     {}
 
 cache = {}
@@ -127,6 +128,94 @@ tags.zz_evaluate =
   func: (m, code) ->
     "'; #{unescape(code)}; out += '"
 
+# mangles definition
+mangles = doT.mangles
+mangles['05_define'] = resolveDefs = (block, compileParams) ->
+  return str unless @use || @define
+  c   = @
+  def = compileParams.def || {}
+  block.toString()
+  .replace c.define or skip, (m, code, assign, value) ->
+    code = code.substring(4)  if code.indexOf("def.") is 0
+    unless code of def
+      if assign is ":"
+        if c.defineParams
+          value.replace c.defineParams, (m, param, v) ->
+            def[code] =
+              arg: param
+              text: v
+        def[code] = value  unless code of def
+      else
+        new Function("def", "def['#{code}'] = #{value}") def
+    ""
+  .replace c.use or skip, (m, code) ->
+    if c.useParams
+      code = code.replace(c.useParams, (m, s, d, param) ->
+        if def[d] and def[d].arg and param
+          rw = (d + ":" + param).replace(/'|\\/g, "_")
+          # gtksourceview '
+          def.__exp = def.__exp or {}
+          def.__exp[rw] = def[d].text.replace(
+            new RegExp "(^|[^\\w$])#{def[d].arg}([^\\w$])", "g"
+            "$1#{param}$2"
+          )
+          s + "def.__exp['#{rw}']"
+      )
+    v = new Function("def", "return " + code)(def)
+    if v then resolveDefs.call c, v, compileParams else v
+
+mangles['10_strip'] = (str, compileParams) ->
+  return str unless @strip
+  str
+  .replace( /(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ' )
+  .replace( /\r|\n|\t|\/\*[\s\S]*?\*\//g, '' )
+
+mangles['20_escape_quotes'] = (str, compileParams) ->
+  str.replace /'|\\/g, '\\$&'
+  # gtksourceview '
+
+mangles['50_tags'] = (str, compileParams) ->
+  taglist = Object.keys(doT.tags).sort()
+  for t_id, t_name of taglist
+    str = str.replace doT.tags[ t_name ].regex, ->
+      doT.tags[ t_name ].func.apply compileParams, arguments
+  str
+
+mangles['70_escape_spaces'] = (str, compileParams) ->
+  str
+  .replace( /\n/g, '\\n' )
+  .replace( /\t/g, '\\t' )
+  .replace( /\r/g, '\\r' )
+
+mangles['80_cleanup'] = (str, compileParams) ->
+  str
+  .replace( /(\s|;|}|^|{)out\+='';/g, '$1' )
+  .replace( /\s*\+\s*''/g, '' )
+  .replace( /(\s|;|}|^|{)out\+=''\+/g, '$1out+=' )
+
+mangles['80_function_basics'] = (str, compileParams) ->
+  if compileParams.multiple_contents
+    "
+      var out_stack = [], contents = {}, current_out = '_content';
+      var out = '#{str}';
+      contents[current_out] = out;
+      return contents;
+    "
+  else
+    " var out = '#{str}';
+      return out;
+    "
+
+mangles['80_with'] = (str, compileParams) ->
+  return str unless @with
+  "with(#{if true == @with then @varname else @with}) {#{str}}"
+
+mangles['95_functionize'] = (str, compileParams) ->
+  try
+    new Function @varname, str
+  catch e
+    throw new Error "#{e} in \"#{str}\""
+
 # register in global scope
 if module?.exports
   module.exports = doT
@@ -147,76 +236,12 @@ unescape = (code) ->
 doT.unescape = unescape
 
 # template compilation
-resolveDefs = (c, block, def) ->
-  (
-    (if (typeof block is "string") then block else block.toString())
-  ).replace(c.define or skip, (m, code, assign, value) ->
-    code = code.substring(4)  if code.indexOf("def.") is 0
-    unless code of def
-      if assign is ":"
-        if c.defineParams
-          value.replace c.defineParams, (m, param, v) ->
-            def[code] =
-              arg: param
-              text: v
-
-        def[code] = value  unless code of def
-      else
-        new Function("def", "def['" + code + "']=" + value) def
-    ""
-  ).replace c.use or skip, (m, code) ->
-    if c.useParams
-      code = code.replace(c.useParams, (m, s, d, param) ->
-        if def[d] and def[d].arg and param
-          rw = (d + ":" + param).replace(/'|\\/g, "_")
-          # gtksourceview '
-          def.__exp = def.__exp or {}
-          def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])#{def[d].arg}([^\\w$])", "g"), "$1#{param}$2")
-          s + "def.__exp['#{rw}']"
-      )
-    v = new Function("def", "return " + code)(def)
-    (if v then resolveDefs(c, v, def) else v)
-
 doT.compile = (tmpl, def) ->
-  c = doT.templateSettings
-  str = if (c.use || c.define) then resolveDefs(c, tmpl, def || {}) else tmpl
-  compile_params = {}
-
-  if c.strip
-    str = str.replace( /(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ' )
-      .replace( /\r|\n|\t|\/\*[\s\S]*?\*\//g, '' )
-  str = str.replace /'|\\/g, '\\$&'
-  # gtksourceview '
-  taglist = Object.keys(doT.tags).sort()
-  for t_id, t_name of taglist
-    str = str.replace doT.tags[ t_name ].regex, ->
-      doT.tags[ t_name ].func.apply compile_params, arguments
-
-  str = (
-    if compile_params.multiple_contents
-      str = "
-        var out_stack = [], contents = {}, current_out = '_content';
-        var out = '#{str}';
-        contents[current_out] = out;
-        return contents;
-      "
-    else
-      " var out = '#{str}';
-        return out;
-      "
-    )
-    .replace( /\n/g, '\\n' )
-    .replace( /\t/g, '\\t' )
-    .replace( /\r/g, '\\r' )
-    .replace( /(\s|;|}|^|{)out\+='';/g, '$1' )
-    .replace( /\+''/g, '' )
-    .replace( /(\s|;|}|^|{)out\+=''\+/g, '$1out+=' )
-  if c.with
-    str = "with(#{if true == c.with then c.varname else c.with}) {#{str}}"
-  try
-    new Function c.varname, str
-  catch e
-    throw new Error "#{e} in \"#{str}\""
+  compile_params = def: def
+  mangles_list = Object.keys(doT.mangles).sort()
+  for m_id, m_name of mangles_list
+    tmpl = doT.mangles[ m_name ].call doT.templateSettings, tmpl, compile_params
+  tmpl
 
 # backward compability
 doT.template = doT.compile
@@ -267,4 +292,3 @@ doT.autoloadFS = ( opts ) ->
 doT.autoloadFail = () -> false
 
 doT.autoload = doT.autoloadDOM();
-
