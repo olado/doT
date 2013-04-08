@@ -15,7 +15,7 @@ compile: $(TARGETS)
 	$(COFFEE) -co ./ "$<"
 
 %.min.js: %.js
-	$(UGLIFY) -o "$@" "$<"
+	$(UGLIFY) -m -o "$@" "$<"
 
 clean:
 	rm -f $(TARGETS) $(UGLIFIED)
