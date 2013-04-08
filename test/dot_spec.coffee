@@ -44,6 +44,27 @@ describe "doT", ->
       assert.equal '<xml>data1</xml>', doT.render 'layout2', include1
       assert.equal '<xml>data2 partial</xml>', doT.render 'layout2', include2
 
+    describe '#getCached', ->
+      it 'should return template function', ->
+        assert.equal 'data1', doT.getCached('body1') {}
+      it 'should return object with template functions', ->
+        assert.equal 'data1', doT.getCached().body1 {}
+
+    describe '#setCached', ->
+      it 'should set all cached functions', ->
+        cache = doT.getCached()
+        doT.setCached {}
+        assert.throws -> doT.render 'body1', {}
+        doT.setCached cache
+        assert.equal 'data1', doT.render 'body1', {}
+
+    describe '#exportCached', ->
+      it 'should export js object with template functions', ->
+        str = doT.exportCached()
+        obj = null
+        eval "obj = #{str}"
+        assert.equal 'data1', obj.body1 {}
+
   describe 'content_for', ->
     it 'returns map', ->
       assert.deepEqual {_content: 'content end', title: 'title', footer: 'footer'},

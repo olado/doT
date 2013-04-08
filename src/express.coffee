@@ -1,13 +1,8 @@
-dot = require 'doT'
-
-module.exports = dot
-
 (->
-  @compile = dot.render
-
-  @__express: (filename, options, cb) ->
+  @compile = @render
+  @__express = (filename, options, cb) =>
     try
-      cb null, dot.render
+      cb null, @render
     catch err
       cb err
-).call dot
+).call module.exports = require 'doT'

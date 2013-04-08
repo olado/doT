@@ -10,7 +10,7 @@
 
 
 (function() {
-  "use strict";
+  'use strict';
 
   var cache, doT, mangles, resolveDefs, sid, skip, startend, tags, unescape;
 
@@ -48,6 +48,40 @@
   sid = 0;
 
   skip = /$^/;
+
+  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
+    module.exports = doT;
+  } else if (typeof define !== "undefined" && define !== null ? define.amd : void 0) {
+    define(function() {
+      return doT;
+    });
+  } else {
+    this.doT = doT;
+  }
+
+  if (!String.prototype.encodeHTML) {
+    (function() {
+      var match, rules;
+      rules = {
+        "&": "&#38;",
+        "<": "&#60;",
+        ">": "&#62;",
+        '"': '&#34;',
+        "'": '&#39;',
+        "/": '&#47;'
+      };
+      match = /&(?!#?\w+;)|<|>|"|'|\//g;
+      return String.prototype.encodeHTML = function() {
+        return this.replace(match, function(m) {
+          return rules[m] || m;
+        });
+      };
+    })();
+  }
+
+  doT.unescape = unescape = function(code) {
+    return code.replace(/\\('|\\)/g, '$1').replace(/[\r\t\n]/g, ' ');
+  };
 
   tags = doT.tags;
 
@@ -184,7 +218,7 @@
           new Function("def", "def['" + code + "'] = " + value)(def);
         }
       }
-      return "";
+      return '';
     }).replace(c.use || skip, function(m, code) {
       var v;
       if (c.useParams) {
@@ -261,42 +295,6 @@
     }
   };
 
-  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
-    module.exports = doT;
-  } else if (typeof define !== "undefined" && define !== null ? define.amd : void 0) {
-    define(function() {
-      return doT;
-    });
-  } else {
-    this.doT = doT;
-  }
-
-  if (!String.prototype.encodeHTML) {
-    (function() {
-      var match, rules;
-      rules = {
-        "&": "&#38;",
-        "<": "&#60;",
-        ">": "&#62;",
-        '"': '&#34;',
-        "'": '&#39;',
-        "/": '&#47;'
-      };
-      match = /&(?!#?\w+;)|<|>|"|'|\//g;
-      return String.prototype.encodeHTML = function() {
-        return this.replace(match, function(m) {
-          return rules[m] || m;
-        });
-      };
-    })();
-  }
-
-  unescape = function(code) {
-    return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
-  };
-
-  doT.unescape = unescape;
-
   doT.compile = function(tmpl, def) {
     var compile_params, m_id, m_name, mangles_list;
     compile_params = {
@@ -333,7 +331,7 @@
       f = cache[id];
       str += ",\"" + id + "\": " + (f.toString());
     }
-    return "{" + (str.substring(1)) + "}";
+    return "{" + str.slice(1) + "}";
   };
 
   doT.addCached = function(id, fn) {
@@ -350,9 +348,11 @@
 
   doT.render = function(tmpl) {
     var src;
-    ('object' !== typeof tmpl) && (tmpl = {
-      name: tmpl
-    });
+    if ('object' !== typeof tmpl) {
+      tmpl = {
+        name: tmpl
+      };
+    }
     if (!cache[tmpl.name]) {
       src = doT.autoload(tmpl.name);
       if (false === src) {
@@ -367,11 +367,10 @@
     return function(name) {
       var src;
       src = document.getElementById(name);
-      if (!src || !src.type || 'text/x-dot-tmpl' !== src.type) {
+      if ((src != null ? src.type : void 0) !== 'text/x-dot-tmpl') {
         return false;
-      } else {
-        return src.innerHTML;
       }
+      return src.innerHTML;
     };
   };
 

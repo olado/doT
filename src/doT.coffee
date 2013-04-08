@@ -5,7 +5,7 @@
   doT.js is an open source component of http://bebedo.com
   Licensed under the MIT license.
 ###
-"use strict";
+'use strict'
 
 startend =
   append:
@@ -34,6 +34,23 @@ doT =
 cache = {}
 sid   = 0 # sequental id for variable names
 skip  = /$^/
+
+# register in global scope
+if module?.exports
+  module.exports = doT
+else if define?.amd
+  define -> doT
+else
+  @doT = doT
+
+unless String::encodeHTML
+  do ->
+    rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
+    match = /&(?!#?\w+;)|<|>|"|'|\//g
+    String::encodeHTML = -> @replace match, (m) -> rules[m] || m
+
+doT.unescape = unescape = (code) ->
+  code.replace(/\\('|\\)/g, '$1').replace /[\r\t\n]/g, ' '
 
 # tags definition
 tags = doT.tags
@@ -147,7 +164,7 @@ mangles['05_define'] = resolveDefs = (block, compileParams) ->
         def[code] = value  unless code of def
       else
         new Function("def", "def['#{code}'] = #{value}") def
-    ""
+    ''
   .replace c.use or skip, (m, code) ->
     if c.useParams
       code = code.replace(c.useParams, (m, s, d, param) ->
@@ -178,7 +195,7 @@ mangles['50_tags'] = (str, compileParams) ->
   taglist = Object.keys(doT.tags).sort()
   for t_id, t_name of taglist
     str = str.replace doT.tags[ t_name ].regex, ->
-      doT.tags[ t_name ].func.apply compileParams, arguments
+      doT.tags[t_name].func.apply compileParams, arguments
   str
 
 mangles['70_escape_spaces'] = (str, compileParams) ->
@@ -216,31 +233,12 @@ mangles['95_functionize'] = (str, compileParams) ->
   catch e
     throw new Error "#{e} in \"#{str}\""
 
-# register in global scope
-if module?.exports
-  module.exports = doT
-else if define?.amd
-  define -> doT
-else
-  @doT = doT
-
-unless String::encodeHTML
-  (->
-    rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
-    match = /&(?!#?\w+;)|<|>|"|'|\//g
-    String::encodeHTML = -> @replace( match, (m) -> rules[m] || m )
-  )()
-
-unescape = (code) ->
-  code.replace( /\\('|\\)/g, "$1" ).replace( /[\r\t\n]/g, ' ' )
-doT.unescape = unescape
-
 # template compilation
 doT.compile = (tmpl, def) ->
   compile_params = def: def
   mangles_list = Object.keys(doT.mangles).sort()
   for m_id, m_name of mangles_list
-    tmpl = doT.mangles[ m_name ].call doT.templateSettings, tmpl, compile_params
+    tmpl = doT.mangles[m_name].call doT.templateSettings, tmpl, compile_params
   tmpl
 
 # backward compability
@@ -254,9 +252,8 @@ doT.getCached = (tmpl) ->
 doT.setCached = (fns) -> cache = fns
 doT.exportCached = ->
   str = ""
-  for id, f of cache
-    str += ",\"#{id}\": #{f.toString()}"
-  "{#{str.substring(1)}}"
+  str += ",\"#{id}\": #{f.toString()}" for id, f of cache
+  "{#{str[1..]}}"
 doT.addCached = (id, fn) ->
   if 'object' == typeof id
     for i, f of id
@@ -266,29 +263,27 @@ doT.addCached = (id, fn) ->
 
 # doT.render() for transparent autoloding & caching
 doT.render = (tmpl) ->
-  ('object' != typeof tmpl) && (tmpl = { name: tmpl })
+  tmpl = name: tmpl unless 'object' == typeof tmpl
   if !cache[tmpl.name]
     src = doT.autoload tmpl.name
     if false == src
       throw new Error "Template not found: #{tmpl.name}"
     doT.addCached tmpl.name, doT.compile src
-  cache[tmpl.name].apply( this, tmpl.args || Array.prototype.slice.call( arguments, 1 ) )
+  cache[tmpl.name].apply this, tmpl.args || Array::slice.call arguments, 1
 
-doT.autoloadDOM = ( opts ) ->
-  ( name ) ->
+doT.autoloadDOM = (opts) ->
+  (name) ->
     src = document.getElementById name
-    if !src || !src.type || 'text/x-dot-tmpl' != src.type
-      false
-    else
-      src.innerHTML
+    return false unless src?.type is 'text/x-dot-tmpl'
+    src.innerHTML
 
-doT.autoloadFS = ( opts ) ->
-  ( name ) ->
+doT.autoloadFS = (opts) ->
+  (name) ->
     try
-      opts.fs.readFileSync "#{opts.root}/#{name.replace( '.', '/' )}.tmpl"
+      opts.fs.readFileSync "#{opts.root}/#{name.replace('.', '/')}.tmpl"
     catch e
       false
 
-doT.autoloadFail = () -> false
+doT.autoloadFail = -> false
 
 doT.autoload = doT.autoloadDOM();

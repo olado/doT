@@ -1,7 +1,6 @@
 BIN     := node_modules/.bin
 UGLIFY  := $(BIN)/uglifyjs
 COFFEE  := $(BIN)/coffee
-MOCHA   := $(BIN)/mocha
 
 TARGETS := doT.js compile.js express.js
 UGLIFIED:= doT.min.js
@@ -22,4 +21,4 @@ clean:
 	rm -f $(TARGETS) $(UGLIFIED)
 
 test: compile
-	$(MOCHA)
+	npm test

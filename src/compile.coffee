@@ -1,9 +1,10 @@
+fs    = require 'fs'
+path  = require 'path'
+flow  = require 'flow'
+child = require 'child_process'
+
 module.exports = (data, finalcb) ->
-  fs    = require 'fs'
-  path  = require 'path'
-  flow  = require 'flow'
   doT   = data.doT ? require './doT'
-  child = require 'child_process'
 
   # wait till it apears in release
   flow.anyError = (results) ->
@@ -24,8 +25,7 @@ module.exports = (data, finalcb) ->
             fs.readdir item, @
           (err, files) ->
             return @MULTI() err if err
-            for file in files
-              readItem path.join(item, file), @MULTI()
+            readItem path.join(item, file), @MULTI() for file in files
             @MULTI() null
           (results) ->
             item_cb flow.anyError results
@@ -61,8 +61,7 @@ module.exports = (data, finalcb) ->
 
   flow.exec(
     ->
-      for file in data.files
-        readItem file, @MULTI()
+      readItem file, @MULTI() for file in data.files
       @MULTI() null
     (results) ->
       return unless finalcb
