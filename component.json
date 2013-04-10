@@ -1,0 +1,17 @@
+{
+  "name": "doT",
+  "description": "Concise and fast javascript templating compatible with nodejs and other javascript environments",
+  "version": "1.0.0",
+  "author": "Laura Doktorova <ldoktorova@gmail.com>",
+  "keywords": [
+    "template",
+    "fast",
+    "simple",
+    "templating"
+  ],
+  "license": "MIT",
+  "scripts": [
+    "doT.js"
+  ],
+  "repo": "https://raw.github.com/cayasso/doT"
+}
