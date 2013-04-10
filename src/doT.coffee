@@ -18,10 +18,7 @@ startend =
     endEncode: ").encodeHTML(); out += '"
 
 doT =
-  version:  '0.2.0'
   templateSettings:
-    use:          /\{\{#([\s\S]+?)\}\}/g
-    define:       /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
     varname:      'it'
     strip:        true
     with:         true
@@ -31,9 +28,8 @@ doT =
   mangles:  {}
   tags:     {}
 
-cache = {}
 sid   = 0 # sequental id for variable names
-skip  = /$^/
+re_skip  = /$^/
 
 # register in global scope
 if module?.exports
@@ -57,13 +53,13 @@ tags = doT.tags
 tags.interpolate =
   regex: /\{\{\s*=([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = doT.templateSettings.startend
+    cse = @doT.startend
     cse.start + unescape(code) + cse.end
 
 tags.encode =
   regex: /\{\{\s*!([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = doT.templateSettings.startend
+    cse = @doT.startend
     cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
@@ -147,12 +143,12 @@ tags.zz_evaluate =
 
 # mangles definition
 mangles = doT.mangles
-mangles['05_define'] = resolveDefs = (block, compileParams) ->
-  return str unless @use || @define
+mangles['05_define'] = doT.resolveDefs = resolveDefs = (block, compileParams) ->
+  return str unless resolveDefs.use || resolveDefs.define
   c   = @
   def = compileParams.def || {}
   block.toString()
-  .replace c.define or skip, (m, code, assign, value) ->
+  .replace resolveDefs.define or re_skip, (m, code, assign, value) ->
     code = code.substring(4)  if code.indexOf("def.") is 0
     unless code of def
       if assign is ":"
@@ -165,7 +161,7 @@ mangles['05_define'] = resolveDefs = (block, compileParams) ->
       else
         new Function("def", "def['#{code}'] = #{value}") def
     ''
-  .replace c.use or skip, (m, code) ->
+  .replace resolveDefs.use or re_skip, (m, code) ->
     if c.useParams
       code = code.replace(c.useParams, (m, s, d, param) ->
         if def[d] and def[d].arg and param
@@ -181,6 +177,9 @@ mangles['05_define'] = resolveDefs = (block, compileParams) ->
     v = new Function("def", "return " + code)(def)
     if v then resolveDefs.call c, v, compileParams else v
 
+resolveDefs.use     = /\{\{#([\s\S]+?)\}\}/g
+resolveDefs.define  = /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
+
 mangles['10_strip'] = (str, compileParams) ->
   return str unless @strip
   str
@@ -192,10 +191,11 @@ mangles['20_escape_quotes'] = (str, compileParams) ->
   # gtksourceview '
 
 mangles['50_tags'] = (str, compileParams) ->
-  taglist = Object.keys(doT.tags).sort()
+  taglist = Object.keys(@tags).sort()
   for t_id, t_name of taglist
-    str = str.replace doT.tags[ t_name ].regex, ->
-      doT.tags[t_name].func.apply compileParams, arguments
+    tag = @tags[t_name]
+    str = str.replace tag.regex, ->
+      tag.func.apply compileParams, arguments
   str
 
 mangles['70_escape_spaces'] = (str, compileParams) ->
@@ -231,59 +231,63 @@ mangles['95_functionize'] = (str, compileParams) ->
   try
     new Function @varname, str
   catch e
-    throw new Error "#{e} in \"#{str}\""
+    throw new Error "#{e} in `new Function '#{@varname}', \"#{str}\"`"
 
-# template compilation
-doT.compile = (tmpl, def) ->
-  compile_params = def: def
-  mangles_list = Object.keys(doT.mangles).sort()
-  for m_id, m_name of mangles_list
-    tmpl = doT.mangles[m_name].call doT.templateSettings, tmpl, compile_params
-  tmpl
+class DotCore
+  @version:  '1.0.0'
 
-# backward compability
-doT.template = doT.compile
+  constructor: ->
+    @autoload = @::constructor.autoloadDOM()
+    @cache    = {}
 
-# cache functions
-doT.getCached = (tmpl) ->
-  return cache unless tmpl
-  throw new Error "Template not found: #{tmpl}" unless cache[tmpl]
-  cache[tmpl]
-doT.setCached = (fns) -> cache = fns
-doT.exportCached = ->
-  str = ""
-  str += ",\"#{id}\": #{f.toString()}" for id, f of cache
-  "{#{str[1..]}}"
-doT.addCached = (id, fn) ->
-  if 'object' == typeof id
-    for i, f of id
-      doT.addCached i, f
-    return
-  cache[id] = fn
+  # template compilation
+  compile: (tmpl, compileParams) ->
+    compile_params = def: def, doT: @
+    mangles_list = Object.keys(@mangles).sort()
+    for m_id, m_name of mangles_list
+      tmpl = @mangles[m_name].call compileParams, tmpl
+    tmpl
 
-# doT.render() for transparent autoloding & caching
-doT.render = (tmpl) ->
-  tmpl = name: tmpl unless 'object' == typeof tmpl
-  if !cache[tmpl.name]
-    src = doT.autoload tmpl.name
-    if false == src
-      throw new Error "Template not found: #{tmpl.name}"
-    doT.addCached tmpl.name, doT.compile src
-  cache[tmpl.name].apply this, tmpl.args || Array::slice.call arguments, 1
+  # cache functions
+  getCached: (tmpl) ->
+    return @cache unless tmpl
+    throw new Error "Template not found: #{tmpl}" unless @cache[tmpl]
+    @cache[tmpl]
 
-doT.autoloadDOM = (opts) ->
-  (name) ->
+  setCached: (@cache) ->
+
+  exportCached: ->
+    str = ""
+    str += ",\"#{id}\": #{f.toString()}" for id, f of @cache
+    "{#{str[1..]}}"
+
+  addCached: (id, fn) ->
+    if 'object' == typeof id
+      @cache[i] = f for i, f of id
+    else
+      @cache[id] = fn
+    @
+
+  # #render() for transparent autoloding & caching
+  render: (tmpl) ->
+    tmpl = name: tmpl unless 'object' == typeof tmpl
+    fn = null
+    unless fn = @cache[tmpl.name]
+      if false == src = @autoload tmpl.name
+        throw new Error "Template not found: #{tmpl.name}"
+      @addCached tmpl.name, fn = @compile src
+    fn.apply @, tmpl.args || Array::slice.call arguments, 1
+
+  # autoload implementations
+  @autoloadDOM: (opts) -> (name) ->
     src = document.getElementById name
     return false unless src?.type is 'text/x-dot-tmpl'
     src.innerHTML
 
-doT.autoloadFS = (opts) ->
-  (name) ->
+  @autoloadFS: (opts) -> (name) ->
     try
       opts.fs.readFileSync "#{opts.root}/#{name.replace('.', '/')}.tmpl"
     catch e
       false
 
-doT.autoloadFail = -> false
-
-doT.autoload = doT.autoloadDOM();
+  @autoloadFail: -> false
