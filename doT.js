@@ -133,6 +133,9 @@
 		return doT.template(tmpl, null, def);
 	};
 
-	module.exports = doT;
+	// Adding module exports for node and component
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = doT;
+	}
 	
 })();
