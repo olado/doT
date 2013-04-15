@@ -10,8 +10,6 @@
     "templating"
   ],
   "license": "MIT",
-  "scripts": [
-    "doT.js"
-  ],
-  "repo": "https://raw.github.com/cayasso/doT"
+  "main": ["doT"],
+  "scripts": ["doT.js"]
 }
