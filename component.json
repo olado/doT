@@ -10,6 +10,6 @@
     "templating"
   ],
   "license": "MIT",
-  "main": ["doT"],
+  "main": "doT",
   "scripts": ["doT.js"]
 }
