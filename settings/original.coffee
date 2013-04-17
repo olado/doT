@@ -1,43 +1,21 @@
-###
-  doT.js
-  2011, Laura Doktorova, https://github.com/olado/doT
-  
-  doT.js is an open source component of http://bebedo.com
-  Licensed under the MIT license.
-###
 'use strict'
 
-startend =
-  append:
-    start:  "' + ("
-    end:    ") + '"
+settings =
+  mangles:      mangles = {}
+  tags:         tags    = {}
+  varname:      'it'
+  strip:        true
+  with:         true
+  dynamicList:  'it._dynamic'
+  startend:
+    start:      "' + ("
+    end:        ") + '"
     endEncode:  ").encodeHTML() + '"
-  split:
-    start:  "'; out += ("
-    end:    "); out += '"
-    endEncode: ").encodeHTML(); out += '"
 
-doT =
-  templateSettings:
-    varname:      'it'
-    strip:        true
-    with:         true
-    dynamicList:  'it._dynamic'
-    startend:     startend.append
-  startend: startend
-  mangles:  {}
-  tags:     {}
+module.exports = settings if module?.exports
 
 sid   = 0 # sequental id for variable names
 re_skip  = /$^/
-
-# register in global scope
-if module?.exports
-  module.exports = doT
-else if define?.amd
-  define -> doT
-else
-  @doT = doT
 
 unless String::encodeHTML
   do ->
@@ -45,21 +23,20 @@ unless String::encodeHTML
     match = /&(?!#?\w+;)|<|>|"|'|\//g
     String::encodeHTML = -> @replace match, (m) -> rules[m] || m
 
-doT.unescape = unescape = (code) ->
+settings.unescape = unescape = (code) ->
   code.replace(/\\('|\\)/g, '$1').replace /[\r\t\n]/g, ' '
 
 # tags definition
-tags = doT.tags
 tags.interpolate =
   regex: /\{\{\s*=([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = @doT.startend
+    cse = @startend
     cse.start + unescape(code) + cse.end
 
 tags.encode =
   regex: /\{\{\s*!([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = @doT.startend
+    cse = @startend
     cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
@@ -142,8 +119,7 @@ tags.zz_evaluate =
     "'; #{unescape(code)}; out += '"
 
 # mangles definition
-mangles = doT.mangles
-mangles['05_define'] = doT.resolveDefs = resolveDefs = (block, compileParams) ->
+mangles['05_define'] = settings.resolveDefs = resolveDefs = (block, compileParams) ->
   return str unless resolveDefs.use || resolveDefs.define
   c   = @
   def = compileParams.def || {}
@@ -183,32 +159,32 @@ resolveDefs.define  = /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
 mangles['10_strip'] = (str, compileParams) ->
   return str unless @strip
   str
-  .replace( /(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ' )
-  .replace( /\r|\n|\t|\/\*[\s\S]*?\*\//g, '' )
+  .replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ')
+  .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '')
 
 mangles['20_escape_quotes'] = (str, compileParams) ->
   str.replace /'|\\/g, '\\$&'
   # gtksourceview '
 
 mangles['50_tags'] = (str, compileParams) ->
-  taglist = Object.keys(@tags).sort()
+  taglist = Object.keys(@doT.tags).sort()
   for t_id, t_name of taglist
-    tag = @tags[t_name]
+    tag = @doT.tags[t_name]
     str = str.replace tag.regex, ->
       tag.func.apply compileParams, arguments
   str
 
 mangles['70_escape_spaces'] = (str, compileParams) ->
   str
-  .replace( /\n/g, '\\n' )
-  .replace( /\t/g, '\\t' )
-  .replace( /\r/g, '\\r' )
+  .replace(/\n/g, '\\n')
+  .replace(/\t/g, '\\t')
+  .replace(/\r/g, '\\r')
 
 mangles['80_cleanup'] = (str, compileParams) ->
   str
-  .replace( /(\s|;|}|^|{)out\+='';/g, '$1' )
-  .replace( /\s*\+\s*''/g, '' )
-  .replace( /(\s|;|}|^|{)out\+=''\+/g, '$1out+=' )
+  .replace(/(\s|;|}|^|{)out\+='';/g, '$1')
+  .replace(/\s*\+\s*''/g, '')
+  .replace(/(\s|;|}|^|{)out\+=''\+/g, '$1out+=')
 
 mangles['80_function_basics'] = (str, compileParams) ->
   if compileParams.multiple_contents
@@ -232,62 +208,3 @@ mangles['95_functionize'] = (str, compileParams) ->
     new Function @varname, str
   catch e
     throw new Error "#{e} in `new Function '#{@varname}', \"#{str}\"`"
-
-class DotCore
-  @version:  '1.0.0'
-
-  constructor: ->
-    @autoload = @::constructor.autoloadDOM()
-    @cache    = {}
-
-  # template compilation
-  compile: (tmpl, compileParams) ->
-    compile_params = def: def, doT: @
-    mangles_list = Object.keys(@mangles).sort()
-    for m_id, m_name of mangles_list
-      tmpl = @mangles[m_name].call compileParams, tmpl
-    tmpl
-
-  # cache functions
-  getCached: (tmpl) ->
-    return @cache unless tmpl
-    throw new Error "Template not found: #{tmpl}" unless @cache[tmpl]
-    @cache[tmpl]
-
-  setCached: (@cache) ->
-
-  exportCached: ->
-    str = ""
-    str += ",\"#{id}\": #{f.toString()}" for id, f of @cache
-    "{#{str[1..]}}"
-
-  addCached: (id, fn) ->
-    if 'object' == typeof id
-      @cache[i] = f for i, f of id
-    else
-      @cache[id] = fn
-    @
-
-  # #render() for transparent autoloding & caching
-  render: (tmpl) ->
-    tmpl = name: tmpl unless 'object' == typeof tmpl
-    fn = null
-    unless fn = @cache[tmpl.name]
-      if false == src = @autoload tmpl.name
-        throw new Error "Template not found: #{tmpl.name}"
-      @addCached tmpl.name, fn = @compile src
-    fn.apply @, tmpl.args || Array::slice.call arguments, 1
-
-  # autoload implementations
-  @autoloadDOM: (opts) -> (name) ->
-    src = document.getElementById name
-    return false unless src?.type is 'text/x-dot-tmpl'
-    src.innerHTML
-
-  @autoloadFS: (opts) -> (name) ->
-    try
-      opts.fs.readFileSync "#{opts.root}/#{name.replace('.', '/')}.tmpl"
-    catch e
-      false
-
-  @autoloadFail: -> false

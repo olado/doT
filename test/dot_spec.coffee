@@ -3,14 +3,14 @@ doT     = require '../doT'
 global.doT = doT
 
 describe "doT", ->
-  describe "#template()", ->
+  describe "#compile()", ->
     it "should return a function", ->
-      assert.equal "function", typeof doT.template ''
+      assert.equal "function", typeof doT.compile ''
 
   describe "#()", ->
     it "should render the template", ->
       str = "<div>{{!it.foo || ''}}</div>"
-      tmpl = doT.template str
+      tmpl = doT.compile str
       assert.equal "<div>http</div>", tmpl foo: "http"
       assert.equal "<div>http:&#47;&#47;abc.com</div>", tmpl foo: "http://abc.com"
       assert.equal "<div></div>", tmpl {}
@@ -18,7 +18,7 @@ describe "doT", ->
   describe "defines", ->
     it "should render define", ->
       str = "{{##def.tmp:<div>{{!it.foo || ''}}</div>#}}{{#def.tmp}}"
-      tmpl = doT.template str
+      tmpl = doT.compile str
       assert.equal "<div>http</div>", tmpl foo: "http"
       assert.equal "<div>http:&#47;&#47;abc.com</div>", tmpl foo: "http://abc.com"
       assert.equal "<div></div>", tmpl {}
