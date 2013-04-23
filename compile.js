@@ -6,23 +6,13 @@
 
   path = require('path');
 
-  flow = require('flow');
+  flow = require('flow-coffee');
 
   child = require('child_process');
 
   module.exports = function(data, finalcb) {
     var doT, readFile, readItem, _ref;
     doT = (_ref = data.doT) != null ? _ref : require('./doT');
-    flow.anyError = function(results) {
-      var r, _i, _len;
-      for (_i = 0, _len = results.length; _i < _len; _i++) {
-        r = results[_i];
-        if (r[0]) {
-          return r[0];
-        }
-      }
-      return null;
-    };
     readItem = function(item, callback) {
       return flow.exec(function() {
         return fs.stat(item, this);
@@ -40,15 +30,15 @@
         }, function(err, files) {
           var file, _i, _len;
           if (err) {
-            return this.MULTI()(err);
+            return this.multi()(err);
           }
           for (_i = 0, _len = files.length; _i < _len; _i++) {
             file = files[_i];
-            readItem(path.join(item, file), this.MULTI());
+            readItem(path.join(item, file), this.multi());
           }
-          return this.MULTI()(null);
-        }, function(results) {
-          return item_cb(flow.anyError(results));
+          return this.multi()(null);
+        }, function(err, results) {
+          return item_cb(err);
         });
       }, function(err) {
         return callback(err);
@@ -90,14 +80,11 @@
       _ref1 = data.files;
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         file = _ref1[_i];
-        readItem(file, this.MULTI());
+        readItem(file, this.multi());
       }
-      return this.MULTI()(null);
-    }, function(results) {
-      if (!finalcb) {
-        return;
-      }
-      return finalcb(flow.anyError(results), doT.exportCached());
+      return this.multi()(null);
+    }, function(err, results) {
+      return typeof finalcb === "function" ? finalcb(err, doT.exportCached()) : void 0;
     });
   };
 

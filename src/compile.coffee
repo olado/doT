@@ -1,16 +1,10 @@
 fs    = require 'fs'
 path  = require 'path'
-flow  = require 'flow'
+flow  = require 'flow-coffee'
 child = require 'child_process'
 
 module.exports = (data, finalcb) ->
   doT   = data.doT ? require './doT'
-
-  # wait till it apears in release
-  flow.anyError = (results) ->
-    for r in results
-      return r[0] if r[0]
-    null
 
   readItem = (item, callback) ->
     flow.exec(
@@ -24,11 +18,11 @@ module.exports = (data, finalcb) ->
           ->
             fs.readdir item, @
           (err, files) ->
-            return @MULTI() err if err
-            readItem path.join(item, file), @MULTI() for file in files
-            @MULTI() null
-          (results) ->
-            item_cb flow.anyError results
+            return @multi() err if err
+            readItem path.join(item, file), @multi() for file in files
+            @multi() null
+          (err, results) ->
+            item_cb err
         )
       (err) ->
         callback err
@@ -61,9 +55,8 @@ module.exports = (data, finalcb) ->
 
   flow.exec(
     ->
-      readItem file, @MULTI() for file in data.files
-      @MULTI() null
-    (results) ->
-      return unless finalcb
-      finalcb flow.anyError(results), doT.exportCached()
+      readItem file, @multi() for file in data.files
+      @multi() null
+    (err, results) ->
+      finalcb? err, doT.exportCached()
   )

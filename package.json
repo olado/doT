@@ -1,6 +1,6 @@
 {
   "name": "doT",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "fast & powerfull template engine",
   "main": "doT.js",
   "bin": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "optimist": "~0.3.4",
-    "flow": "~0.2.2"
+    "flow-coffee": "~0.2.0"
   },
   "devDependencies": {
     "coffee-script": "*",
