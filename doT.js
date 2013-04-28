@@ -20,7 +20,8 @@
 			varname:	'it',
 			strip:		true,
 			append:		true,
-			selfcontained: false
+			selfcontained: false,
+	                defineit:    /\{\{-([\w\.$]+)\s*(\:|=)([\s\S]+?)-\}\}/g
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
@@ -92,6 +93,10 @@
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
 			.replace(/'|\\/g, '\\$&')
+			.replace(c.defineit || skip, function(m, code, assign, value) {
+			    	return "';" + code+"='"+value.replace(/\'/g,"\\\'")
+				+ "';out+='";
+			})
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;
 			})
