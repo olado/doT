@@ -61,6 +61,8 @@ class DotCore
 
   @autoloadFail: -> false
 
+  autoload: @autoloadFail
+
 # register in global scope
 if module?.exports
   module.exports = DotCore

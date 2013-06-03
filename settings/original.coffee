@@ -30,13 +30,13 @@ settings.unescape = unescape = (code) ->
 tags.interpolate =
   regex: /\{\{\s*=([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = @startend
+    cse = @doT.startend
     cse.start + unescape(code) + cse.end
 
 tags.encode =
   regex: /\{\{\s*!([\s\S]*?)\}\}/g
   func: (m, code) ->
-    cse = @startend
+    cse = @doT.startend
     cse.start + unescape(code) + cse.endEncode
 
 tags.conditional =
@@ -104,7 +104,7 @@ tags.xx_includeDynamic =
     sid += 1
     vname = 'tmpl' + sid
     return "';
-      var #{vname} = #{doT.templateSettings.dynamicList}[ '#{unescape(tmpl)}' ];
+      var #{vname} = #{@doT.dynamicList}[ '#{unescape(tmpl)}' ];
       if ('string' === typeof #{vname}) #{vname} = {name: #{vname}};
       out += doT.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
 
@@ -200,11 +200,11 @@ mangles['80_function_basics'] = (str, compileParams) ->
     "
 
 mangles['80_with'] = (str, compileParams) ->
-  return str unless @with
-  "with(#{if true == @with then @varname else @with}) {#{str}}"
+  return str unless @doT.with
+  "with(#{if true == @doT.with then @doT.varname else @doT.with}) {#{str}}"
 
 mangles['95_functionize'] = (str, compileParams) ->
   try
-    new Function @varname, str
+    new Function @doT.varname, str
   catch e
     throw new Error "#{e} in `new Function '#{@varname}', \"#{str}\"`"
