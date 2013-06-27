@@ -1,8 +1,8 @@
 {
   "name": "doT",
-  "version": "0.9.1",
+  "version": "1.0.0",
   "description": "fast & powerfull template engine",
-  "main": "doT.js",
+  "main": "do_t.coffee",
   "bin": {
     "dot-compile": "bin/dot-compile"
   },

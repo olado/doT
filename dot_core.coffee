@@ -1,5 +1,3 @@
-'use strict'
-
 class DotCore
   @version:  '1.0.0'
 

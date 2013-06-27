@@ -4,7 +4,7 @@ flow  = require 'flow-coffee'
 child = require 'child_process'
 
 module.exports = (data, finalcb) ->
-  doT   = data.doT ? require './doT'
+  doT   = data.doT ? require './'
 
   readItem = (item, callback) ->
     flow.exec(

@@ -1,5 +1,3 @@
-'use strict'
-
 settings =
   mangles:      mangles = {}
   tags:         tags    = {}
@@ -12,7 +10,12 @@ settings =
     end:        ") + '"
     endEncode:  ").encodeHTML() + '"
 
-module.exports = settings if module?.exports
+if module?.exports
+  module.exports = settings
+else if define?.amd
+  define -> settings
+else if window?.DotCore
+  (DotCore.settings ||= {}).original = settings
 
 sid   = 0 # sequental id for variable names
 re_skip  = /$^/
@@ -106,12 +109,12 @@ tags.xx_includeDynamic =
     return "';
       var #{vname} = #{@doT.dynamicList}[ '#{unescape(tmpl)}' ];
       if ('string' === typeof #{vname}) #{vname} = {name: #{vname}};
-      out += doT.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
+      out += this.render({name: #{vname}.name, args: #{vname}.args || arguments}) + '"
 
 tags.xy_render =
   regex: /\{\{\s*@\s*(\S+?)\(([\s\S]*?)\)\s*\}\}/g
   func: (m, tmpl, args) ->
-    "' + doT.render( '#{tmpl}' #{if args then ",#{unescape(args)}" else ''} ) + '"
+    "' + this.render( '#{tmpl}' #{if args then ",#{unescape(args)}" else ''} ) + '"
 
 tags.zz_evaluate =
   regex: /\{\{([\s\S]*?)\}\}/g
@@ -157,7 +160,7 @@ resolveDefs.use     = /\{\{#([\s\S]+?)\}\}/g
 resolveDefs.define  = /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
 
 mangles['10_strip'] = (str, compileParams) ->
-  return str unless @strip
+  return str unless @doT.strip
   str
   .replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g , ' ')
   .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, '')

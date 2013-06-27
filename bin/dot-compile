@@ -1,4 +1,6 @@
-#!/usr/bin/env js
+#!/usr/bin/env node
+require('coffee-script')
+
 var argv = require('optimist').default({
   base: ''
 }).alias({
@@ -6,7 +8,7 @@ var argv = require('optimist').default({
 }).argv
 argv.files = argv._
 
-require(__dirname + '/../dot-compile')(argv, function(err, data){
+require(__dirname + '/../compile')(argv, function(err, data){
   if (err)
     process.stderr.write(err)
   else
