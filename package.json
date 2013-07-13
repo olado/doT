@@ -1,6 +1,6 @@
 {
   "name": "doT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "fast & powerfull template engine",
   "main": "do_t.coffee",
   "bin": {

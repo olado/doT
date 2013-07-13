@@ -51,11 +51,13 @@ class DotCore
     return false unless src?.type is 'text/x-dot-tmpl'
     src.innerHTML
 
-  @autoloadFS: (opts) -> (name) ->
-    try
-      opts.fs.readFileSync "#{opts.root}/#{name.replace('.', '/')}.tmpl"
-    catch e
-      false
+  @autoloadFS: (opts) ->
+    opts.fs ||= require 'fs'
+    (name) ->
+      try
+        opts.fs.readFileSync "#{opts.root}/#{name.replace('.', '/')}.tmpl"
+      catch e
+        false
 
   @autoloadFail: -> false
 
