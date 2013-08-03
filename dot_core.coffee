@@ -1,6 +1,4 @@
 class DotCore
-  @version:  '1.0.0'
-
   constructor: (settings = {}) ->
     @autoload = @constructor.autoloadDOM()
     @cache    = {}

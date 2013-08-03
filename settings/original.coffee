@@ -22,9 +22,9 @@ re_skip  = /$^/
 
 unless String::encodeHTML
   do ->
-    rules =  "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;'
-    match = /&(?!#?\w+;)|<|>|"|'|\//g
-    String::encodeHTML = -> @replace match, (m) -> rules[m] || m
+    rules =  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': '&quot;', "'": '&#39;'
+    match = /[&<>"']/g
+    String::encodeHTML = -> @replace match, (m) -> rules[m]
 
 settings.unescape = unescape = (code) ->
   code.replace(/\\('|\\)/g, '$1').replace /[\r\t\n]/g, ' '
