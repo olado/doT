@@ -2,7 +2,7 @@ Created in search of the fastest and concise JavaScript templating function with
 
 doT.js is fast, small and has no dependencies.
 
-## Features:
+## Features
     custom delimiters
     runtime evaluation
     runtime interpolation
@@ -15,17 +15,13 @@ doT.js is fast, small and has no dependencies.
     streaming friendly
     use it as logic-less or with logic, it is up to you
 
-## Docs, live playground and samples:
+## Docs, live playground and samples
 
 http://olado.github.com/doT (todo: update docs with new features added in version 1.0.0)
 
-## New in version 1.0.0:
+## New in version 1.0.0
 
-Node module now supports auto-compilation of dot templates from specified path: (see index.js)
-
-	var dots = require("dot").process({ path: "./views"});
-
-Added parameters support in partials:
+####Added parameters support in partials
 
 	{{##def.macro:param:
 		<div>{{=param.foo}}</div>
@@ -33,16 +29,44 @@ Added parameters support in partials:
 
 	{{#def.macro:myvariable}}
 
-Compile tool to compile dot templates into js files (thanks to @Katahdin https://github.com/Katahdin/dot-packer ):
+####Node module now supports auto-compilation of dot templates from specified path
+
+	var dots = require("dot").process({ path: "./views"});
+
+This will compile .def, .dot, .jst files found under the specified path.
+Details
+   * It ignores sub-directories.
+   * Template files can have multiple extensions at the same time.
+   * Files with .def extension can be included in other files via {{#def.name}}
+   * Files with .dot extension are compiled into functions with the same name and
+   can be accessed as renderer.filename
+   * Files with .jst extension are compiled into .js files. Produced .js file can be
+   loaded as a commonJS, AMD module, or just installed into a global variable (default is set to window.render)
+   * All inline defines defined in the .jst file are
+   compiled into separate functions and are available via _render.filename.definename
+ 
+   Basic usage:
+ ```
+        var dots = require("dot").process({path: "./views"});
+        dots.mytemplate({foo:"hello world"});
+ ```
+   The above snippet will:
+	* Compile all templates in views folder (.dot, .def, .jst)
+  	* Place .js files compiled from .jst templates into the same folder
+     	   These files can be used with require, i.e. require("./views/mytemplate")
+  	* Return an object with functions compiled from .dot templates as its properties
+  	* Render mytemplate template
+ 
+####CLI tool to compile dot templates into js files
 
 	./bin/dot-packer -s examples/views -d out/views
 
-## Notes:
+## Notes
     doU.js is here only so that legacy external tests do not break. Use doT.js.
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
-## Author:
+## Author
 Laura Doktorova @olado
 
-## License:
+## License
 doT is licensed under the MIT License. (See LICENSE-DOT)
