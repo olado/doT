@@ -24,14 +24,15 @@
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
-	};
+	}, global;
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
 	} else if (typeof define === 'function' && define.amd) {
 		define(function(){return doT;});
 	} else {
-		(function(){ return this || (0,eval)('this'); }()).doT = doT;
+		global = (function(){ return this || (0,eval)('this'); }());
+		global.doT = doT;
 	}
 
 	function encodeHTMLSource() {
