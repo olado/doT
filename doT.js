@@ -34,6 +34,14 @@
 		global = (function(){ return this || (0,eval)('this') || window; }());
 		global.doT = doT;
 	}
+	
+	function extend(o){
+		for (var p in o){
+			if (o.hasOwnProperty(p))
+				this[p] = o[p];
+		}
+		return this;
+	}
 
 	function encodeHTMLSource() {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
@@ -86,7 +94,7 @@
 	}
 
 	doT.template = function(tmpl, c, def) {
-		c = c || doT.templateSettings;
+		c = extend.call(extend.call({}, doT.templateSettings), c);
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
