@@ -8,7 +8,7 @@
 	var doT = {
 		version: '1.0.1',
 		templateSettings: {
-			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+			evaluate:    /\{\{([\s\S]+?)\}\}(?!\})/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
 			use:         /\{\{#([\s\S]+?)\}\}/g,
@@ -31,8 +31,16 @@
 	} else if (typeof define === 'function' && define.amd) {
 		define(function(){return doT;});
 	} else {
-		global = (function(){ return this || (0,eval)('this'); }());
+		global = (function(){ return this || (0,eval)('this') || window; }());
 		global.doT = doT;
+	}
+	
+	function extend(o){
+		for (var p in o){
+			if (o.hasOwnProperty(p))
+				this[p] = o[p];
+		}
+		return this;
 	}
 
 	function encodeHTMLSource() {
@@ -86,7 +94,7 @@
 	}
 
 	doT.template = function(tmpl, c, def) {
-		c = c || doT.templateSettings;
+		c = extend.call(extend.call({}, doT.templateSettings), c);
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
@@ -108,8 +116,8 @@
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
-				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
-					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
+				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1;for("+indv+" in arr"+sid+"){"
+					+vname+"=arr"+sid+"["+indv+"];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code) + "out+='";
