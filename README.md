@@ -3,7 +3,7 @@ Created in search of the fastest and concise JavaScript templating function with
 doT.js is fast, small and has no dependencies.
 
 ## Features
-    custom delimiters
+    custom delimitersd
     runtime evaluation
     runtime interpolation
     compile-time evaluation
@@ -51,6 +51,17 @@ We may to filter by any expression without context "value" if print comma:
 
 (means expression: "value, /y\d+/.test(key)"). It takes all properties of it.myObject with key which have first letter "y".
 
+####Inline one-level hash (multiline, without "}") or array (single-line, without ":") in first parameter of iterator
+	{{@ {x1: 5,
+		x2: 6,
+		x3: 7,
+		x4: it.someProperty
+	} : : key}}
+		<div>key: {{=key}} ; value: {{=value}}; </div>
+	{{@}}
+	{{@ [5, 6, 7, it.someProperty] : : key}}
+		<div>key: {{=key}} ; value: {{=value}}; </div>
+	{{@}}
 ###Not need any default parameters in iterator by Array
 	{{~ it.myObject : : key}}
 		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
@@ -58,7 +69,6 @@ We may to filter by any expression without context "value" if print comma:
 	{{~ it.myObject : value}}
 		<div>{{=value}} - value </div>
 	{{~}}
-
 ####Tests of performance for version 1.1.0
 
 (include previous tests and benchmarks of iterators)
