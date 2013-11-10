@@ -6,7 +6,7 @@
 (function(){
 	"use strict";
 
-	var doT = {
+	var doT11 = {
 		version: '1.1.0',
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g, //{{.+}}
@@ -18,7 +18,7 @@
 			defineParams:/^\s*([\w$]+):([\s\S]+)/, // .:.
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g, //{{? .* }}
 			iterate:     /\{\{~\s*(?:\}\}|(.+?)\s*\:\s*([\w$]*)\s*(?:\:\s*([\w$]*))?\s*\}\})/g, //{{~.*:.*:.*}}
-			iterHash:    /\{\{@\s*(?:\}\}|(.+?)\s*\:\s*([\w$]*)\s*(?:\:\s*([\w$]*))?\s*\:((?:[^}]|\}(?!\}))*)\s*\}\})/g, //{{@.*:.*:.*:.*}}
+			iterHash:    /\{\{@\s*(?:\}\}|(.+?)\s*\:\s*([\w$]*)\s*(?:\:\s*([\w$]*))?\s*\:?((?:[^}]|\}(?!\}))*)\s*\}\})/g, //{{@.*:.*:.*:.*}}
 			varname:	'it',
 			strip:		true,
 			append:		true,
@@ -29,12 +29,12 @@
 	}, global;
 
 	if(typeof module !=='undefined' && module.exports)
-		module.exports = doT;
+		module.exports = doT11;
 	else if(typeof define ==='function' && define.amd)
-		define(function(){return doT;});
+		define(function(){return doT11;});
 	else{
 		global = (function(){ return this || (0,eval)('this'); })(); //TODO eval
-		global.doT = doT;
+		global.doT11 = doT11;
 	}
 	function encodeHTMLSource(){
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
@@ -84,8 +84,8 @@
 	function unescape(code){
 		return code.replace(/\\('|\\)/g,'$1').replace(/[\r\t\n]/g,' ');
 	}
-	doT.template = function(tmpl, c, def){
-		c = c || doT.templateSettings;
+	doT11.template = function(tmpl, c, def){
+		c = c || doT11.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str = (c.use || c.define) ? resolveDefs(c, tmpl, def ||{}) : tmpl;
 
@@ -134,7 +134,7 @@
 			throw er;
 		}
 	};
-	doT.compile = function(tmpl, def){
-		return doT.template(tmpl, null, def);
+	doT11.compile = function(tmpl, def){
+		return doT11.template(tmpl, null, def);
 	};
 }());
