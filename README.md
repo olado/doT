@@ -62,6 +62,7 @@ We may to filter by any expression without context "value" if print comma:
 	{{@ [5, 6, 7, it.someProperty] : value : key}}
 		<div>key: {{=key}} ; value: {{=value}}; </div>
 	{{@}}
+This test [example in jsfiddle.net](http://jsfiddle.net/spmbt/6KU9Y/2/).
 ###Not need any default parameters in iterator by Array
 	{{~ it.myObject : : key}}
 		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
