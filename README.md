@@ -23,12 +23,12 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 ## New in version 1.1.0 (by author spmbt)
 
 ###doT.js iterations by objects with conditions:
-	* Iterator by object (may be just "it"):
+* Iterator by object (may be just "it"):
 
 	{{@ it.myObject : value : key}}
 		<div>{{=value }} === it.myObject[{{=it.myObject[key]}}] </div>
 	{{@}}
-	* Iterator by object with default params:
+* Iterator by object with default params:
 
 	{{@ it.myObject : value}}
 		<div>{{=value }} - value; [{{=i1}}] (default key if this iterator is first) </div>
@@ -37,7 +37,7 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 	{{@ it.myObject : : key}}
 		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
 	{{@}}
-	* Iterator by object with filter: if it need take part of object or filter by property of object, then, for example
+* Iterator by object with filter: if it need take part of object or filter by property of object, then, for example
 
 	{{@ it.myObject : value : key :.hasOwnProperty(key)}}
 		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
