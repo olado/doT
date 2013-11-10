@@ -25,23 +25,23 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 ###doT.js iterations by objects with conditions:
 * Iterator by object (may be just "it"):
 
-	{{@ it.myObject : value : key}}
-		<div>{{=value }} === it.myObject[{{=it.myObject[key]}}] </div>
-	{{@}}
+		{{@ it.myObject : value : key}}
+			<div>{{=value }} === it.myObject[{{=it.myObject[key]}}] </div>
+		{{@}}
 * Iterator by object with default params:
 
-	{{@ it.myObject : value}}
-		<div>{{=value }} - value; [{{=i1}}] (default key if this iterator is first) </div>
-	{{@}}
+		{{@ it.myObject : value}}
+			<div>{{=value }} - value; [{{=i1}}] (default key if this iterator is first) </div>
+		{{@}}
 
-	{{@ it.myObject : : key}}
-		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
-	{{@}}
+		{{@ it.myObject : : key}}
+			<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
+		{{@}}
 * Iterator by object with filter: if it need take part of object or filter by property of object, then, for example
 
-	{{@ it.myObject : value : key :.hasOwnProperty(key)}}
-		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
-	{{@}}
+		{{@ it.myObject : value : key :.hasOwnProperty(key)}}
+			<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
+		{{@}}
 
 or any single-line or multiline expression. It means: "value.hasOwnProperty(key)".
 
