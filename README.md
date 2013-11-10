@@ -56,10 +56,10 @@ We may to filter by any expression without context "value" if print comma:
 		x2: 6,
 		x3: 7,
 		x4: it.someProperty
-	} : : key}}
+	} : value : key}}
 		<div>key: {{=key}} ; value: {{=value}}; </div>
 	{{@}}
-	{{@ [5, 6, 7, it.someProperty] : : key}}
+	{{@ [5, 6, 7, it.someProperty] : value : key}}
 		<div>key: {{=key}} ; value: {{=value}}; </div>
 	{{@}}
 ###Not need any default parameters in iterator by Array
