@@ -112,7 +112,7 @@ Details
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
 ## Author
-Laura Doktorova @olado
+Laura Doktorova @olado<br>
 version 1.1 is modified by author spmbt
 
 ## License
