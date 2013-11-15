@@ -22,14 +22,39 @@ Created in search of the fastest and concise JavaScript templating function with
 
 - autoloading from dom elements & files (or custom functions)
 - caching
-- exporting/importing cached templates
+- precompiling/exporting/importing cached templates
 - dynamic includes
 - type any spaces you want inside tags
+- precompilers (haml, slim'll come soon)
 - written with coffee
 
 ##Docs
 ###Native Docs, live playground and samples:
 http://olado.github.com/doT
+
+### Major changes
+
+As of 1.0 compiler is an innstance of the `DotCore` class.
+So you can have several compilers with different settings in the single namespace.
+
+`DotCore` provides basic methods for compliling and rendering templates.
+Compiling is just a sequence of actions (`mangles`) that is applied to
+template source to produce compiled template function.
+And compilling tags is just kind of mangle. The last mangle is usually will be
+creating of function with `new Function`.
+
+So process of compiling template depends on settings of the compiler instance.
+Settings for original doT syntax are included. But you can modify them or
+define your ones. This should not be hard to write settings for Mustache or Jade for example.
+
+In node.js you would not need to change anything, because `require('doT')`
+will load `DotCore` and create an instance with default settings.
+
+But in browser you need to load `dot_core`, then settings file and then `do_t` file.
+or just compile it all together with
+```bash
+coffee --join dot.js --compile dot_core.coffee settings\original.coffee do_t.coffee
+```
 
 ###Incompability
 ```
@@ -250,7 +275,12 @@ For `-b root root/t1.tmpl root/t2.tmpl root/dir1/dir2/t1.tmpl` ids would be `[t1
 
 It requires `optimist` module, so install it before use.
 
-**HAML!** If you have `haml` executable in your PATH `.haml` files will be passed through it before compilation!
+**Precompilers!**
+`.haml` files will be passed through haml before compilation! To speedup this process you can `gem install haml-server`.
+So it'll run ruby just once for all the compiled files. Otherwise it'll run `haml %file%` for every file,
+which is slow enough for many files.
+
+I expect to add `.slim` support soon.
 
 ##License:
 - doT is an open source component of http://bebedo.com
