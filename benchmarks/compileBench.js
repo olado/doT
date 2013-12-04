@@ -20,7 +20,7 @@
 		doU = require('./templating/doU.js');
 		doT = require('./templating/doT.js');
 		doT11 = require('./templating/doT11.js');
-		doT11m = require('./templating/doT11m.js');
+		doT12 = require('./templating/doT12.js');
 		var passOne = 0;
 			console.log("*** Compilation speed test. Small templates length: "+ snippet.length +', '+ snippetByObj.length);
 			testsetup(snippet, snippetByObj);
@@ -60,7 +60,7 @@
 	else
 		window.onload = function(){ //runTestsInBrowser
 			jslitmus = window.jslitmus;
-			doU = window.doU; doT = window.doT; doT11 = window.doT11; doT11m = window.doT11m;
+			doU = window.doU; doT = window.doT; doT11 = window.doT11; doT12 = window.doT12;
 
 			var resultTmpl = doT.template("<h3>Templates length : {{=it.size}}, {{=it.size2}} </h3>	<img src='{{=it.url}}'/>");
 		var currentSet = document.getElementById('small');
@@ -79,7 +79,7 @@
 				setTimeout(function(){
 					jslitmus.clearAll();
 					currentSet = document.getElementById('large');
-						for(var i =0; i < 7; i++){
+						for(var i =0; i < 6; i++){
 							snippet += snippet;
 							snippetByObj += snippetByObj; // length = "* 2**8"
 						}
@@ -98,7 +98,10 @@ function testsetup(snippet, snippetByObj){
 		var snippetByArray = snippetByObj.replace(/@/g,'~')
 			,s;
 		console.log(doT11.compile(snippetByObj));
-		console.log(doT11.compile(s = snippet.replace(/=it\./g, '=this.').replace(/{{!it\./g, '{{!this.') ), s);
+		console.log(doT11.compile(snippet), snippet);
+	console.log('=====================')
+		console.log(doT12.compile(snippetByObj));
+		console.log(doT12.compile(snippet), snippet);
 		var snippetThis = snippet.replace(/=it\./g, '=this.').replace(/{{!it\./g, '{{!this.');
 		var data2 = [], cnt =0;
 		for(var i in data)
@@ -116,11 +119,11 @@ function testsetup(snippet, snippetByObj){
 		jslitmus.test('2.doT.js - using this [loop]', function(count){while(count--){
 			doT.template(snippetThis).call(data);
 		}});
-		jslitmus.test('3.doT11.js - using this [loop]', function(count){while(count--){
+		jslitmus.test('3.doT11 - using this [loop]', function(count){while(count--){
 			doT11.template(snippetThis).call(data);
 		}});
-		jslitmus.test('4.doT11m.js - using this [loop]', function(count){while(count--){
-			doT11m.template(snippetThis).call(data);
+		jslitmus.test('4.doT12 - using this [loop]', function(count){while(count--){
+			doT12.template(snippetThis).call(data);
 		}});
 		jslitmus.test('1.doT.js - using it', function() {
 			doT.template(snippet)(data);
@@ -128,33 +131,38 @@ function testsetup(snippet, snippetByObj){
 		jslitmus.test('2.doT.js - using it [loop]', function(count){while(count--){
 			doT.template(snippet)(data);
 		}});
-		jslitmus.test('3.doT11.js - using it [loop]', function(count){while(count--){
+		jslitmus.test('3.doT11 - using it [loop]', function(count){while(count--){
 			doT11.template(snippet)(data);
 		}});
-		jslitmus.test('4.doT11m.js - using it [loop]', function(count){while(count--){
-			doT11m.template(snippet)(data);
+		jslitmus.test('4.doT12 - using it [loop]', function(count){while(count--){
+			doT12.template(snippet)(data);
 		}});
 		doT.templateSettings.append = false; // doT with 'it' and append = false
+		doT11.templateSettings.append = false; // doT with 'it' and append = false
+		doT12.templateSettings.append = false; // doT with 'it' and append = false
 		jslitmus.test('1.doT.js - append off', function(){
 			doT.template(snippet)(data);
 		});
 		jslitmus.test('2.doT.js - append off [loop]', function(count){while(count--){
 			doT.template(snippet)(data);
 		}});
-		jslitmus.test('3.doT11.js - append off [loop]', function(count){while(count--){
+		jslitmus.test('3.doT11 - append off [loop]', function(count){while(count--){
 			doT11.template(snippet)(data);
 		}});
-		jslitmus.test('4.doT11m.js - append off [loop]', function(count){while(count--){
-			doT11.template(snippet)(data);
+		jslitmus.test('4.doT12 - append off [loop]', function(count){while(count--){
+			doT12.template(snippet)(data);
 		}});
-		jslitmus.test('doT11.js - iterator by object', function(count){while(count--){
+		jslitmus.test('doT11 - iterator by object', function(count){while(count--){
 			doT11.template(snippetByObj)(data); //iterator by root object
 		}});
-		jslitmus.test('doT11.js - iterator by Array', function(count){while(count--){
+		jslitmus.test('doT11 - iterator by Array', function(count){while(count--){
 			doT11.template(snippetByArray)(data2);
 		}});
 		jslitmus.test('doT.js - iterator by Array', function(count){while(count--){
 			doT.template(snippetByArray.replace(/it::/g,'it:val:i').replace(/it:a/g,'it:a:i'))(data2);
+		}});
+		jslitmus.test('doT12 - iterator by Array', function(count){while(count--){
+			doT12.template(snippetByArray.replace(/it::/g,'it:val:i').replace(/it:a/g,'it:a:i'))(data2);
 		}});
 	}
 })();
