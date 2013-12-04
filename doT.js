@@ -130,6 +130,10 @@
 		}
 	};
 
+  doT.compileToString = function(tmpl, def) {
+		return String(doT.compile(tmpl, def));
+	};
+
 	doT.compile = function(tmpl, def) {
 		return doT.template(tmpl, null, def);
 	};
