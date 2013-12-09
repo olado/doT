@@ -23,7 +23,7 @@ var doT = {
 		strip:		true,
 		append:		true //or split of concatenation
 		,useGlobalEncode: true
-		,globalName:'doT11m'
+		,globalName:'doT'
 	},
 	compile: function(tmpl, def){ //fn, for express
 		return doT.template(tmpl, null, def);

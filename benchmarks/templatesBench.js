@@ -1,13 +1,21 @@
 (function() {
-	var jslitmus, _, doU, doT,
+	var jslitmus, _, doU, doT, doT11, doT12,
 		data = { f1: 1, f2: 2, f3: 3, f4: "http://bebedo.com/laura"},
-		snippet = '<h1>Just static text</h1>\
+		snippet = '<h1>Just static text</h1><div>,resolveDefs = function(c, block, def){ if(block !=null){\
+				return (block +\'\').replace(c.define || skip, function(m, code, assign, value){\
+					if(code.indexOf(\'def.\') ==0) // jshint ignore:line\
+						code = code.substring(4);\
+					if(!(code in def)){\
 			<p>Here is a simple {{=it.f1}} </p>\
-			<div>test {{=it.f2}}\
+			<div>test {{=it.f2}}</div>\
 			<div>{{=it.f3}}</div>\
 			<div>{{!it.f4}}</div>\
 		</div>'
-		,snippetByObj ='<h1>Text from hash</h1><div>\
+		,snippetByObj ='<h1>Text from hash</h1><div><<<<<<<""""",resolveDefs = function(c, block, def){ if(block !=null){\
+				return (block +\'\').replace(c.define || skip, function(m, code, assign, value){\
+					if(code.indexOf(\'def.\') ==0) // jshint ignore:line\
+						code = code.substring(4);\
+					if(!(code in def)){\'\'\'\'\'>>>>>>>>\
 			{{@it::i}} <div>{{=i}}: {{=it[i]}} : </div> {{@}}\
 			{{@it:val:i}} <div>{{=i}}: {{=val}} : </div> {{@}}\
 			{{@it:a}} <div>{{=a}}: {{=a}} : </div> {{@}}\
@@ -79,7 +87,7 @@
 					setTimeout(function() {
 						jslitmus.clearAll();
 						currentSet = document.getElementById('large');
-						for(var i =0; i < 5; i++){
+						for(var i =0; i < 1; i++){
 							snippet += snippet;
 							snippetByObj += snippetByObj; // length = "* 2**8"
 						}
@@ -100,29 +108,33 @@
 			,s;
 		console.log(doT11.compile(snippetByObj));
 		console.log(doT11.compile(s = snippet.replace(/=it\./g, '=this.').replace(/{{!it\./g, '{{!this.') ), s);
+	console.log('=====================', doT12.template(snippet)(data))
+		console.log(doT12.compile(snippetByObj));
+		console.log(doT12.compile(snippet) +'', snippet);
 		var doUCompiled = doU.template(snippet)
 		// doT with 'it'
 			,doTCompiledParam = doT.template(snippet)
 			,doT11_CompiledParam = doT11.template(snippet)
-			,doT11m_CompiledParam = doT12.template(snippet)
+			,doT12_CompiledParam = doT12.template(snippet)
 			,snippetThis = snippet.replace(/=it\./g, '=this.').replace(/{{!it\./g, '{{!this.')
 		// doT with 'this'
 			,doTCompiled = doT.template(snippetThis)
 			,doT11_Compiled = doT11.template(snippetThis)
-			,doT11m_Compiled = doT12.template(snippetThis);
+			,doT12_Compiled = doT12.template(snippetThis);
 		// doT with 'it' and append = false
 		doT.templateSettings.append = false;
 		var doTCompiledNoAppend = doT.template(snippet)
 			,doT11_CompiledNoAppend = doT11.template(snippet)
-			,doT11m_CompiledNoAppend = doT12.template(snippet)
+			,doT12_CompiledNoAppend = doT12.template(snippet)
 			,doT11_CompiledLoop = doT11.template(snippetByObj) //iterator by root object
-			,data2 = [], cnt =0;
+			,doT12_CompiledLoop = doT12.template(snippetByObj) //iterator by root object
+			,dataArr = [], cnt =0;
 		for(var i in data)
-			data2[cnt++] = data[i];
+			dataArr[cnt++] = data[i];
 		var doT11_CompiledLoopArr = doT11.template(snippetByArray)
-			,doT11m_CompiledLoopArr = doT12.template(snippetByArray);
+			,doT12_CompiledLoopArr = doT12.template(snippetByArray);
 
-		jslitmus.test('doU.js', function(){
+		/*jslitmus.test('doU.js', function(){
 			doUCompiled(data);
 		});
 		jslitmus.test('doU.js - [loop]', function(count){while(count--){
@@ -138,8 +150,8 @@
 			doT11_Compiled.call(data);
 		}});
 		jslitmus.test('4.doT12 - using this [loop]', function(count){while(count--){
-			doT11m_Compiled.call(data);
-		}});
+			doT12_Compiled.call(data);
+		}});*/
 		jslitmus.test('1.doT.js - using it', function() {
 			doTCompiledParam(data);
 		});
@@ -150,7 +162,7 @@
 			doT11_CompiledParam(data);
 		}});
 		jslitmus.test('4.doT12 - using it [loop]', function(count){while(count--){
-			doT11m_CompiledParam(data);
+			doT12_CompiledParam(data);
 		}});
 		jslitmus.test('5.doT.js-compile+exec(no loop)', function() {
 			doT.template(snippet)(data);
@@ -171,16 +183,19 @@
 			doT11_CompiledNoAppend(data);
 		}});
 		jslitmus.test('4.doT12 - append off [loop]', function(count){while(count--){
-			doT11m_CompiledNoAppend(data);
+			doT12_CompiledNoAppend(data);
 		}});
 		jslitmus.test('doT11 - iterator by object', function(count){while(count--){
 			doT11_CompiledLoop(data);
 		}});
+		jslitmus.test('doT12 - iterator by object', function(count){while(count--){
+			doT12_CompiledLoop(data); //iterator by root object
+		}});
 		jslitmus.test('doT11 - iterator by Array', function(count){while(count--){
-			doT11_CompiledLoopArr(data2);
+			doT11_CompiledLoopArr(dataArr);
 		}});
 		jslitmus.test('doT12 - iterator by Array', function(count){while(count--){
-			doT11m_CompiledLoopArr(data2);
+			doT12_CompiledLoopArr(dataArr);
 		}});
 	}
 })();

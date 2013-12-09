@@ -10,18 +10,22 @@
 	var doT = {
 		version: '1.2.0',
 		templateSettings: {
-			valEncEval:  /\{\{([=!]?)([\s\S]+?(\}?)+)\}\}/g //{{=.+}} | {{!.+}} | {{.+}}
-			,use:         /\{\{#([\s\S]+?)\}\}/g //{{#.+}}
+			//valEncEval:  /\{\{([=!]?)([\s\S]+?(\}?)+)\}\}/g //{{=.+}} | {{!.+}} | {{.+}}
+			//,evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g //{{.+}}
+			interpolate: /\{\{=([\s\S]+?)\}\}/g //{{=.+}}
+			,encode:      /\{\{!([\s\S]+?)\}\}/g //{{!.+}}
+			//,use:         /\{\{#([\s\S]+?)\}\}/g //{{#.+}}
 			,useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g
-			,define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
+			//,define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g
 			,defineParams:/^\s*([\w$]+):([\s\S]+)/ // .:.
 			,conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g //{{? .* }}
-			,iterate:     /\{\{~\s*(?:\}\}|(\[[\s\S]+?\]|.+?)\s*(?::\s*([\w$]*)\s*(?::\s*([\w$]*))?\s*)?\}\})/g //{{~.*:.*:.*}}
-			,iterHash:    /\{\{@\s*(?:\}\}|(\{[\s\S]+?\}|\[[\s\S]+?\]|.+?)\s*(?::\s*([\w$]*)\s*(?::\s*([\w$]*))?\s*\:?((?:[^}]|\}(?!\}))*)\s*)?\}\})/g //{{@.*:.*:.*:.*}}
+			,iterate:     /\{\{~\s*(?:\}\}|(.+?)\s*(?:\:\s*([\w$]*)\s*(?:\:\s*([\w$]*))?\s*)?\}\})/g //{{~.*:.*:.*}}
+			,iterHash:    /\{\{@\s*(?:\}\}|(\{[\s\S]+?\}|.+?)\s*(?:\:\s*([\w$]*)\s*(?:\:\s*([\w$]*))?\s*\:?((?:[^}]|\}(?!\}))*)\s*)?\}\})/g //{{@.*:.*:.*:.*}}
 			,varname:	'it'
-			,strip:		true
-			,append:		true //or split of concatenation
+			,strip: true
+			,append: true //or split of concatenation
 			,useGlobalEncode: true
+			,restoreLtGtChrome: false
 			,globalName:'doT12'
 		},
 		compile: function(tmpl, def){ //fn, for express
@@ -45,20 +49,26 @@
 							(code ? "';if("+ unescape(code) +"){out+='" : "'}out+='");
 					})
 					.replace(c.iterate || skip, function(m, iterate, vname, iname){ // ~
-						if(!iterate) return "';}}out+='";
+						if(!iterate) return "';} } out+='";
 						sid++; indv = iname ||'i'+ sid; iterate = unescape(iterate);
 						return "';var arr"+ sid +'='+ iterate +';if(arr'+ sid +'){var '+ (vname = vname ||'arrI'+ sid) +','
 							+indv +'=-1,l'+ sid +'=arr'+ sid +'.length-1;while('+ indv +'<l'+ sid +'){'+ vname +'=arr'+ sid
 							+'[++'+ indv +"];out+='";
 					})
 					.replace(c.iterHash || skip, function(m, iterHash, vname, iname, cond){ // @ m, hash, value, index
-						if(!iterHash) return "';}}out+='";
+						if(!iterHash) return "';} } out+='";
 						sid++; indv = iname ||'i'+ sid; iterHash = unescape(iterHash);
 						return "';var arr"+ sid +'='+ iterHash +';if(arr'+ sid +')for(var '+ indv +' in arr'+ sid +'){var '
 							+(vname = vname ||'arrI'+ sid) +'=arr'+ sid +'['+ indv +'];if('+ (cond ? vname :1)
 							+unescape(cond||'') +"){out+='";
 					})
-					.replace(c.valEncEval || skip, valEncEvalF) // =|!|{{ expr -- interpolate or encode or eval
+					//.replace(c.valEncEval || skip, valEncEvalF) // =|!|{{ expr -- interpolate or encode or eval
+					.replace(c.interpolate || skip, valEncEvalF)
+					.replace(c.encode || skip, function(m, code){
+						needhtmlencode = true;
+						return cse2 + unescape(code) + cseE;
+					})
+					//.replace(c.evaluate || skip, valEncEvalF) // =|!|{{ expr -- interpolate or encode or eval
 				+ "';return out;")
 				.replace(/([\n\t\r])/g,'\\$1')
 				.replace(/\+''|(\s|;|\}|^|\{)(out\+='';|(out\+=)''\+)/g,'$1$3');//needhtmlencode = !dS.useGlobalEncode &&"op =='!'";
@@ -95,7 +105,7 @@
 			return '';
 		})
 		.replace(c.use || skip, function(m, code){ // #
-			if(c.useParams) code = code.replace(c.useParams, function(m, s, d, param){
+			if(c.useParams) code = code.replace(c.useParams, function(m, s, d, param){ // def.
 				if(def[d] && def[d].arg && param){
 					var rw = (d +':'+ param).replace(/'|\\/g,'_');
 					def.__exp = def.__exp ||{};
@@ -107,18 +117,21 @@
 			return v ? resolveDefs(c, v, def) : v;
 		});
 	}}
-	,unescape = window.chrome ? function(code){
+	,unescape = window.chrome && dS.restoreLtGtChrome ? function(code){
 			return code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>'); //Chrome <,>
 		} : function(code){return code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ')}
 	,global
 	,needhtmlencode
+	,cse1 = cse['=']
+	,cse2 = cse['!']
+	,cseE = cse[')!']
 	,cse3 = cse[')=']
-	,valEncEvalF = window.chrome ? function(m, op, code){
-			needhtmlencode = op =='!';
-			return cse[op] + code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>') + (op ? cse3 :";out+='");
-		} : function(m, op, code){
-			needhtmlencode = op =='!';
-			return cse[op] + code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ') + (op ? cse3 :";out+='");
+	,valEncEvalF = window.chrome && dS.restoreLtGtChrome ? function(m,  code){
+			//needhtmlencode = op =='!';
+			return cse1 + code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>') + cseE;
+		} : function(m,  code){
+			//needhtmlencode = op =='!';
+			return cse1 + code.replace(/\\('|\\)/g,'$1').replace(/[\n\t\r]/g,' ') + cseE;
 		};
 
 	if(typeof module !=='undefined'&& module.exports)
