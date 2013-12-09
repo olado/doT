@@ -3,13 +3,14 @@ Created in search of the fastest and concise JavaScript templating function with
 doT.js is fast, small and has no dependencies.
 
 ## Features
-    custom delimiters
+    custom delimitersd
     runtime evaluation
     runtime interpolation
     compile-time evaluation
     partials support
     conditionals support
     array iterators
+    object iterators with filters (since v.1.1)
     encoding
     control whitespace - strip or preserve
     streaming friendly
@@ -19,6 +20,62 @@ doT.js is fast, small and has no dependencies.
 
 http://olado.github.com/doT (todo: update docs with new features added in version 1.0.0)
 
+## New in version 1.1.0 (by author spmbt)
+
+###doT.js iterations by objects with conditions:
+* Iterator by object (may be just "it"):
+
+		{{@ it.myObject : value : key}}
+			<div>{{=value }} === it.myObject[{{=it.myObject[key]}}] </div>
+		{{@}}
+* Iterator by object with default params:
+
+		{{@ it.myObject : value}}
+			<div>{{=value }} - value; [{{=i1}}] (default key if this iterator is first) </div>
+		{{@}}
+
+		{{@ it.myObject : : key}}
+			<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
+		{{@}}
+* Iterator by object with filter: if it need take part of object or filter by property of object, then, for example
+
+		{{@ it.myObject : value : key :.hasOwnProperty(key)}}
+			<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
+		{{@}}
+
+or any single-line or multiline expression. It means: "value.hasOwnProperty(key)".
+
+We may to filter by any expression without context "value" if print comma: 
+
+	{{@ it.myObject : value : key :, /y\\d+/.test(key)}}
+
+(means expression: "value, /y\d+/.test(key)"). It takes all properties of it.myObject with key which have first letter "y".
+
+####Inline one-level hash (multiline, without "}") or array (single-line, without ":") in first parameter of iterator
+	{{@ {x1: 5,
+		x2: 6,
+		x3: 7,
+		x4: it.someProperty
+	} : value : key}}
+		<div>key: {{=key}} ; value: {{=value}}; </div>
+	{{@}}
+	{{@ [5, 6, 7, it.someProperty] : value : key}}
+		<div>key: {{=key}} ; value: {{=value}}; </div>
+	{{@}}
+This test [example in jsfiddle.net](http://jsfiddle.net/spmbt/6KU9Y/2/).
+###Not need any default parameters in iterator by Array
+	{{~ it.myObject : : key}}
+		<div>{{=key}} - key; [{{=it.myObject[key]}}] (default key if this iterator is first) </div>
+	{{~}}
+	{{~ it.myObject : value}}
+		<div>{{=value}} - value </div>
+	{{~}}
+####Tests of performance for version 1.1.0
+
+(include previous tests and benchmarks of iterators)
+
+	doT/benchmarks/compileBench.html - full text (compile + execition)
+	doT/benchmarks/index.html - execution of compiled patterns only
 ## New in version 1.0.0
 
 ####Added parameters support in partials
@@ -66,7 +123,8 @@ Details
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
 ## Author
-Laura Doktorova @olado
+Laura Doktorova @olado<br>
+version 1.1 is modified by author spmbt
 
 ## License
 doT is licensed under the MIT License. (See LICENSE-DOT)

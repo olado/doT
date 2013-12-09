@@ -429,7 +429,7 @@
         humanize(this.getHz()) + 'hz (' +
         humanize(this.count) + '/' + humanize(this.time) + 'secs)';
       } else {
-        return this.name + ', count = '  + humanize(this.count);
+        return this.name + ', count = ' + humanize(this.count);
       }
     };
   };
@@ -443,7 +443,7 @@
   // Set default property values
   extend(Test.prototype, {
     // Initial number of iterations
-    INIT_COUNT: 10,
+    INIT_COUNT: 100,
 
     // Max iterations allowed (used to detect bad looping functions)
     MAX_COUNT: 1e9,
