@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>My Project Name</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+        <link rel="stylesheet" href="assets/css/bootstrap/bootstrap.css">
+        <link rel="stylesheet" href="assets/css/bootstrap/responsive.css">
+        <link rel="stylesheet" href="assets/css/main.css">
+
+    </head>
+
+    <body>
+
+        <script id="require-lib" data-main="src/config" src="src/libs/require.js"></script>
+
+        <h1>Project: Test</h1>
+
+        <%? it.hasLiveReload %>
+        <script id="live-reload">// live reload snippet, this is removed by build script for production
+        document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+        <%?%>
+
+    </body>
+
+</html>
