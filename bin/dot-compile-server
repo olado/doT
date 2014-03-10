@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require 'pathname'
+require 'sinatra'
+require 'haml'
+require 'slim'
+require 'coffee_script'
+
+template_dir = Pathname(Dir.pwd) + (ARGV.last || '.')
+set :public_folder, template_dir
+set :views, template_dir
+
+get // do
+  path = request.path_info
+  extension = File.extname(path)
+  path = path.chomp(extension)
+  path = :index if path == '/'
+  path = path.to_sym
+
+  %w(haml slim).each do |ext|
+    return send(ext, path) if File.exists?(File.join(template_dir, "#{path}.#{ext}"))
+  end
+end

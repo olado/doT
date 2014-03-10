@@ -4,7 +4,8 @@
   "description": "fast & powerfull template engine",
   "main": "do_t.coffee",
   "bin": {
-    "dot-compile": "bin/dot-compile"
+    "dot-compile": "bin/dot-compile",
+    "dot-compile-server": "bin/dot-compile-server"
   },
   "directories": {
     "example": "examples"

@@ -2,7 +2,7 @@ assert  = require 'assert'
 doT     = require '../do_t'
 compile = require '../compile'
 global.doT    = doT
-doT.autoload  = doT.autoloadFail
+doT.autoload  = doT.constructor.autoloadFail
 
 dir = require('fs').realpathSync __dirname
 
@@ -28,19 +28,19 @@ describe 'compile', ->
   it 'compiles file', (done) ->
     compile files: ["#{dir}/tmpl/one.tmpl"], (err, data) ->
       assert.equal err, null
-      assert.equal "one hi\n", doT.render 'one', val: 'hi'
+      assert.equal 'one hi', doT.render 'one', val: 'hi'
       done()
 
   it 'compiles directory', (done) ->
     compile files: ["#{dir}/tmpl/dir"], (err, data) ->
       assert.equal err, null
-      assert.equal "two hi\n", doT.render 'two', val: 'hi'
+      assert.equal 'two hi', doT.render 'two', val: 'hi'
       done()
 
   it 'uses `base` parametr', (done) ->
     compile files: ["#{dir}/tmpl/dir"], base: "#{dir}/tmpl", (err, data) ->
       assert.equal err, null
-      assert.equal "two hi\n", doT.render 'dir.two', val: 'hi'
+      assert.equal 'two hi', doT.render 'dir.two', val: 'hi'
       done()
 
   context 'when filename ends with', ->
@@ -48,5 +48,16 @@ describe 'compile', ->
       it 'precompiles using haml', (done)->
         compile files: ["#{dir}/tmpl/haml"], (err, data) ->
           assert.equal err, null
-          assert.equal "<html>hi</html>\n", doT.render 'test', val: 'hi'
+          assert.equal '<html>hi</html>', doT.render 'test', val: 'hi'
           done()
+      context 'and ruby_server is true', ->
+        it 'precompiles using ruby server', (done)->
+          @timeout 5000
+          compile
+            ruby_server: true
+            files: ["#{dir}/tmpl/haml"]
+            base: "#{dir}/tmpl/haml"
+            (err, data) ->
+              assert.equal err, null
+              assert.equal '<html>hi</html>', doT.render 'test', val: 'hi'
+              done()

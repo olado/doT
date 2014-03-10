@@ -11,7 +11,7 @@ describe 'doT', ->
       str = "<div>{{!it.foo || ''}}</div>"
       tmpl = doT.compile str
       assert.equal '<div>http</div>', tmpl foo: 'http'
-      assert.equal '<div>http:&#47;&#47;abc.com</div>', tmpl foo: 'http://abc.com'
+      assert.equal '<div>http://abc.com</div>', tmpl foo: 'http://abc.com'
       assert.equal '<div></div>', tmpl {}
 
   context 'with caching', ->
@@ -69,7 +69,7 @@ describe 'doT', ->
         str = "{{##def.tmp:<div>{{!it.foo || ''}}</div>#}}{{#def.tmp}}"
         tmpl = doT.compile str
         assert.equal '<div>http</div>', tmpl foo: 'http'
-        assert.equal '<div>http:&#47;&#47;abc.com</div>', tmpl foo: 'http://abc.com'
+        assert.equal '<div>http://abc.com</div>', tmpl foo: 'http://abc.com'
         assert.equal '<div></div>', tmpl {}
 
     describe '`interpolate`', ->

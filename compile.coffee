@@ -34,9 +34,9 @@ module.exports = (data, finalcb) ->
     flow.exec(
       ->
         #TODO: prefilters
-        if file.match /.haml$/
-          compile_haml file, @
-          file = file.slice 0, -5
+        if file.match /.(haml|slim)$/
+          compile_with_ruby file, @
+          file = file.replace new RegExp("#{path.extname file}$"), ''
         else
           fs.readFile file, @
       (err, text) ->
@@ -57,45 +57,47 @@ module.exports = (data, finalcb) ->
         callback err, f
     )
 
-  haml_server = null
+  ruby_server = null
   do new flow
     error: ->
-      haml_server.kill('SIGHUP') if haml_server
+      ruby_server.kill('SIGINT') if ruby_server
       finalcb? arguments...
     blocks: [
       ->
-        return @() unless data.haml_server && data.haml_server == true
-        data.haml_server =
+        return @() unless data.ruby_server == true
+        data.ruby_server =
           host: 'localhost'
           port: 4000
-        haml_env = process.env
-        haml_env.RACK_ENV = 'production'
-        haml_server = child.spawn 'haml-server',
-          ["-p#{data.haml_server.port}", data.base], env: haml_env
+        ruby_env = process.env
+        ruby_env.RACK_ENV = 'production'
+        ruby_server = child.spawn path.join(__dirname, 'bin', 'dot-compile-server'),
+          ["-p#{data.ruby_server.port}", data.base], env: ruby_env
         started = false
-        haml_server.on 'error', (err) => @ err
-        haml_server.stderr.on 'data', (data) =>
+        ruby_server.on 'error', (err) => @ err
+        ruby_server.stderr.on 'data', (data) =>
           # console.log data.toString()
           return if started
-          if /(start|already)/.test data.toString()
+          if /has taken the stage/.test data.toString()
             started = true
-            console.error 'haml-server started'
+            console.error 'ruby-server started'
             @()
       ->
         readItem file, @multi() for file in data.files
         @multi() null
       (err, results) ->
-        haml_server.kill('SIGHUP') if haml_server
+        ruby_server.kill('SIGINT') if ruby_server
         finalcb? err, doT.exportCached()
     ]
 
   # private helpers
-  compile_haml = (file, callback) ->
-    return child.exec "haml '#{file}'", callback unless data.haml_server
+  compile_with_ruby = (file, callback) ->
+    return child.exec "haml '#{file}'", callback unless data.ruby_server
+    filename = file.replace new RegExp("#{path.extname file}$"), '.html'
+    request = '/' + path.relative(data.base, filename)
     http.get(
-      host:   data.haml_server.host
-      port:   data.haml_server.port
-      path:   '/' + path.relative(data.base, file).replace /\.haml$/, '.html'
+      host:   data.ruby_server.host
+      port:   data.ruby_server.port
+      path:   request
       (res) ->
         res_data = ''
         res.on 'data',  (chunk) -> res_data += chunk

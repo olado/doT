@@ -25,7 +25,7 @@ Created in search of the fastest and concise JavaScript templating function with
 - precompiling/exporting/importing cached templates
 - dynamic includes
 - type any spaces you want inside tags
-- precompilers (haml, slim'll come soon)
+- precompilers (haml, slim)
 - written with coffee
 
 ##Docs
@@ -115,7 +115,7 @@ I moved all tag's definitions into `doT.tags` object:
 ```javascript
 doT.tags.tagname = {
 	regex: /your regex/,
-	func: function(...){...} // to pass 2nd param to String.replace 
+	func: function(...){...} // to pass 2nd param to String.replace
 }
 ```
 Take a look at existing tags defenitions and you can easily define your new one
@@ -276,11 +276,10 @@ For `-b root root/t1.tmpl root/t2.tmpl root/dir1/dir2/t1.tmpl` ids would be `[t1
 It requires `optimist` module, so install it before use.
 
 **Precompilers!**
-`.haml` files will be passed through haml before compilation! To speedup this process you can `gem install haml-server`.
-So it'll run ruby just once for all the compiled files. Otherwise it'll run `haml %file%` for every file,
-which is slow enough for many files.
-
-I expect to add `.slim` support soon.
+`.haml` files will be passed through haml before compilation!
+To speedup this process you can install gems from included Gemfile.
+Then you can pass `ruby_server: true` to compiler and it'll run sinatra server to
+precompile templates. `.slim` is also supported in this mode.
 
 ##License:
 - doT is an open source component of http://bebedo.com
