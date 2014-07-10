@@ -14,7 +14,6 @@ var fs = require('fs');
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
 			use:         /\{\{#([\s\S]+?)\}\}/g,
-			include:     /\{\{>([\s\S]+?)\}\}/g,
 			useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
 			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
@@ -23,12 +22,12 @@ var fs = require('fs');
 			varname:	'it',
 			strip:		true,
 			append:		true,
-            dir:__dirname,
+            dir: __dirname,
 			selfcontained: false
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
-	};
+	}, global;
 
     doT.set = function(key, value) {
         if (Object.prototype.toString.call(key) === '[object Object]') {
@@ -49,7 +48,8 @@ var fs = require('fs');
 	} else if (typeof define === 'function' && define.amd) {
 		define(function(){return doT;});
 	} else {
-		(function(){ return this || (0,eval)('this'); }()).doT = doT;
+		global = (function(){ return this || (0,eval)('this'); }());
+		global.doT = doT;
 	}
 
 	function encodeHTMLSource() {
@@ -106,6 +106,7 @@ var fs = require('fs');
                 });
             }
         });
+        ;
 	}
 
 	function unescape(code) {
