@@ -1,6 +1,8 @@
 // doT.js
 // 2011, Laura Doktorova, https://github.com/olado/doT
 // Licensed under the MIT license.
+var path = require('path');
+var fs = require('fs');
 
 (function() {
 	"use strict";
@@ -12,6 +14,7 @@
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
 			use:         /\{\{#([\s\S]+?)\}\}/g,
+			include:     /\{\{>([\s\S]+?)\}\}/g,
 			useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
 			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
@@ -20,19 +23,33 @@
 			varname:	'it',
 			strip:		true,
 			append:		true,
+            dir:__dirname,
 			selfcontained: false
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
-	}, global;
+	};
+
+    doT.set = function(key, value) {
+        if (Object.prototype.toString.call(key) === '[object Object]') {
+            var templateSettings = this.templateSettings;
+            for (var i in key) {
+                if (key.hasOwnProperty(i)) {
+                    templateSettings[i] = key[i];
+                }
+            }
+        } else if ('string' === typeof key){
+            this.templateSettings[key] = value;
+        }
+        return this;
+    };
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
 	} else if (typeof define === 'function' && define.amd) {
 		define(function(){return doT;});
 	} else {
-		global = (function(){ return this || (0,eval)('this'); }());
-		global.doT = doT;
+		(function(){ return this || (0,eval)('this'); }()).doT = doT;
 	}
 
 	function encodeHTMLSource() {
@@ -78,7 +95,17 @@
 			});
 			var v = new Function("def", "return " + code)(def);
 			return v ? resolveDefs(c, v, def) : v;
-		});
+		})
+        .replace(c.include || skip, function(m, code) {
+            try {
+                return resolveDefs(c, fs.readFileSync(path.join(doT.templateSettings.dir, code), 'utf8'), def);
+            } catch(e) {
+                return JSON.stringify({
+                    message: e.message,
+                    stack: e.stack
+                });
+            }
+        });
 	}
 
 	function unescape(code) {
