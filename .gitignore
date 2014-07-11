@@ -1,0 +1,15 @@
+*.swp
+*.pyc
+*.bak
+*.swo
+*.DS_Store
+*~
+~*
+*Thumbs.db
+*.tar.gz
+*.svn
+*.sass-cache
+/node_modules
+npm-debug.log
+test.js
+._README.md
