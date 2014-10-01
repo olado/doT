@@ -1,6 +1,7 @@
 // doT.js
 // 2011, Laura Doktorova, https://github.com/olado/doT
 // 2013, modified by spmbt0 (iterHash iterator in objects with conditions)
+// 2014, modified by sasha_ch (+ comment tag)
 // Licensed under the MIT license.
 
 (function(){
@@ -11,6 +12,7 @@
 var doT = {
 	version: '1.2.0',
 	templateSettings: {
+		comment:  /\{\{\*(.*?)\*\}\}/g, //{{* .+ *}}
 		valEncEval:  /\{\{([=!]?)([\s\S]+?(\}?)+)\}\}/g, //{{=.+}} | {{!.+}} | {{.+}}
 		use:         /\{\{#([\s\S]+?)\}\}/g, //{{#.+}}
 		useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
@@ -38,6 +40,9 @@ var doT = {
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
 				.replace(/'|\\/g,'\\$&') //escape "'" and "\"
+				.replace(c.comment || skip, function(m, code){ // * comments *
+					return '';
+				})
 				.replace(c.conditional || skip, function(m, elsecase, code){ // ? expr | ?? expr | ?? --- if | else if | else
 					return elsecase ?
 						(code ? "'}else if("+ unescape(code) +"){out+='" : "'}else{out+='") :
