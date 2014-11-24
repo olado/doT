@@ -71,10 +71,8 @@ Laura Doktorova @olado
 ## License
 doT is licensed under the MIT License. (See LICENSE-DOT)
 
-Logo by Kevin Kirchner
-
 <p align="center">
-  <img src="http://olado.github.io/doT/doT-js-100@2x.png"/>
+  <img src="http://olado.github.io/doT/doT-js-100@2x.png" alt="logo by Kevin Kirchner"/>
 </p>
 
 
