@@ -62,7 +62,7 @@ Details
 	./bin/dot-packer -s examples/views -d out/views
 
 ## Example for express
-	Many people are using doT with expree. I added an example of the best way of doing it:
+	Many people are using doT with express. I added an example of the best way of doing it examples/express:
 
 [doT with express](examples/express)
 
