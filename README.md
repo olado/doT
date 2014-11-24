@@ -63,7 +63,8 @@ Details
 
 ## Example for express
 	Many people are using doT with expree. I added an example of the best way of doing it:
-	[doT with express](https://github.com/olado/doT/tree/dev/examples/express)
+
+[doT with express](examples/express)
 
 ## Notes
     doU.js is here only so that legacy external tests do not break. Use doT.js.
