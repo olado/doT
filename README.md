@@ -2,8 +2,6 @@ Created in search of the fastest and concise JavaScript templating function with
 
 doT.js is fast, small and has no dependencies.
 
-->![alt tag](http://olado.github.io/doT/doT-js-100@2x.png)<-
-
 ## Features
     custom delimiters
     runtime evaluation
@@ -72,3 +70,9 @@ Laura Doktorova @olado
 
 ## License
 doT is licensed under the MIT License. (See LICENSE-DOT)
+
+<p align="center">
+  <img src="http://olado.github.io/doT/doT-js-100@2x.png"/>
+</p>
+
+
