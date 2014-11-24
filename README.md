@@ -2,7 +2,7 @@ Created in search of the fastest and concise JavaScript templating function with
 
 doT.js is fast, small and has no dependencies.
 
-![alt tag](http://olado.github.io/doT/doT-js-100@2x.png)
+->![alt tag](http://olado.github.io/doT/doT-js-100@2x.png)<-
 
 ## Features
     custom delimiters
