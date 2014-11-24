@@ -6,7 +6,7 @@
 	"use strict";
 
 	var doT = {
-		version: '1.0.1',
+		version: '1.0.2',
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -20,32 +20,34 @@
 			varname:	'it',
 			strip:		true,
 			append:		true,
-			selfcontained: false
+			selfcontained: false,
+			doNotSkipEncoded: false
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined  //fn, for express
+	}, _globals;
+
+	doT.encodeHTMLSource = function(doNotSkipEncoded) {
+		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
+			matchHTML = doNotSkipEncoded ? /&|<|>|"|'|\//g : /&(?!#?\w+;)|<|>|"|'|\//g;
+		return function(code) {
+			return code ? code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
+		};
 	};
+
+	_globals = (function(){ return this || (0,eval)('this'); }());
 
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = doT;
 	} else if (typeof define === 'function' && define.amd) {
 		define(function(){return doT;});
 	} else {
-		(function(){ return this || (0,eval)('this'); }()).doT = doT;
+		_globals.doT = doT;
 	}
-
-	function encodeHTMLSource() {
-		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
-			matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
-		return function() {
-			return this ? this.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : this;
-		};
-	}
-	String.prototype.encodeHTML = encodeHTMLSource();
 
 	var startend = {
-		append: { start: "'+(",      end: ")+'",      endencode: "||'').toString().encodeHTML()+'" },
-		split:  { start: "';out+=(", end: ");out+='", endencode: "||'').toString().encodeHTML();out+='"}
+		append: { start: "'+(''+",      end: ")+'",      startencode: "'+encodeHTML(" },
+		split:  { start: "';out+=(''+", end: ");out+='", startencode: "';out+=encodeHTML(" }
 	}, skip = /$^/;
 
 	function resolveDefs(c, block, def) {
@@ -97,7 +99,7 @@
 			})
 			.replace(c.encode || skip, function(m, code) {
 				needhtmlencode = true;
-				return cse.start + unescape(code) + cse.endencode;
+				return cse.startencode + unescape(code) + cse.end;
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
@@ -118,8 +120,11 @@
 			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, '')
 			.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
-		if (needhtmlencode && c.selfcontained) {
-			str = "String.prototype.encodeHTML=(" + encodeHTMLSource.toString() + "());" + str;
+		if (needhtmlencode) {
+			if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = doT.encodeHTMLSource(c.doNotSkipEncoded);
+			str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
+				+ doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
+				+ str;
 		}
 		try {
 			return new Function(c.varname, str);
