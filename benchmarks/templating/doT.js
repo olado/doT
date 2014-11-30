@@ -29,7 +29,7 @@
 
 	doT.encodeHTMLSource = function(doNotSkipEncoded) {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
-			matchHTML = doNotSkipEncoded ? /&|<|>|"|'|\//g : /&(?!#?\w+;)|<|>|"|'|\//g;
+			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
 		return function(code) {
 			return code ? code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
 		};
@@ -46,8 +46,8 @@
 	}
 
 	var startend = {
-		append: { start: "'+(''+",      end: ")+'",      startencode: "'+encodeHTML(" },
-		split:  { start: "';out+=(''+", end: ");out+='", startencode: "';out+=encodeHTML(" }
+		append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
+		split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" }
 	}, skip = /$^/;
 
 	function resolveDefs(c, block, def) {
@@ -117,8 +117,8 @@
 			})
 			+ "';return out;")
 			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
-			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, '')
-			.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
+			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, '');
+			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
 		if (needhtmlencode) {
 			if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = doT.encodeHTMLSource(c.doNotSkipEncoded);
