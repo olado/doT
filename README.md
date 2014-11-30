@@ -61,6 +61,11 @@ Details
 
 	./bin/dot-packer -s examples/views -d out/views
 
+## Example for express
+	Many people are using doT with express. I added an example of the best way of doing it examples/express:
+
+[doT with express](examples/express)
+
 ## Notes
     doU.js is here only so that legacy external tests do not break. Use doT.js.
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
