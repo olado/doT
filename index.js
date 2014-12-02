@@ -76,7 +76,7 @@ InstallDots.prototype.compileToFile = function(path, template, def) {
 	}
 	compiled += defaultcompiled.toString().replace('anonymous', modulename);
 	fs.writeFileSync(path, "(function(){" + compiled
-		+ "var itself=" + modulename + ", _encodeHTML=(" + doT.encodeHTMLSource.toSource() + "(" + (settings.doNotSkipEncoded || '') + "));"
+		+ "var itself=" + modulename + ", _encodeHTML=(" + doT.encodeHTMLSource.toString() + "(" + (settings.doNotSkipEncoded || '') + "));"
 		+ addexports(exports)
 		+ "if(typeof module!=='undefined' && module.exports) module.exports=itself;else if(typeof define==='function')define(function(){return itself;});else {"
 		+ this.__global + "=" + this.__global + "||{};" + this.__global + "['" + modulename + "']=itself;}}());");
