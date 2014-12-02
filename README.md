@@ -80,4 +80,6 @@ doT is licensed under the MIT License. (See LICENSE-DOT)
   <img src="http://olado.github.io/doT/doT-js-100@2x.png" alt="logo by Kevin Kirchner"/>
 </p>
 
+Thank you Kevin Kirchner for the logo.
+
 

@@ -55,6 +55,9 @@ describe('doT', function(){
 			global._encodeHTML = undefined;
 			doT.templateSettings.doNotSkipEncoded = true;
 			assert.equal(doT.template(definestemplate)({foo:"&amp;"}), "<div>&#38;amp;</div>");
+			assert.equal(doT.template('{{!it.a}}')({a:"& < > / ' \""}), "&#38; &#60; &#62; &#47; &#39; &#34;");
+			assert.equal(doT.template('{{!"& < > / \' \\""}}')(), "&#38; &#60; &#62; &#47; &#39; &#34;");
+
 		});
 	});
 
