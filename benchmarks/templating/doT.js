@@ -1,12 +1,12 @@
 // doT.js
-// 2011, Laura Doktorova, https://github.com/olado/doT
+// 2011-2014, Laura Doktorova, https://github.com/olado/doT
 // Licensed under the MIT license.
 
 (function() {
 	"use strict";
 
 	var doT = {
-		version: '1.0.2',
+		version: "1.0.3",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -17,7 +17,7 @@
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
-			varname:	'it',
+			varname:	"it",
 			strip:		true,
 			append:		true,
 			selfcontained: false,
@@ -28,18 +28,18 @@
 	}, _globals;
 
 	doT.encodeHTMLSource = function(doNotSkipEncoded) {
-		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': '&#34;', "'": '&#39;', "/": '&#47;' },
+		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
 			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
 		return function(code) {
-			return code ? code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
+			return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
 		};
 	};
 
-	_globals = (function(){ return this || (0,eval)('this'); }());
+	_globals = (function(){ return this || (0,eval)("this"); }());
 
-	if (typeof module !== 'undefined' && module.exports) {
+	if (typeof module !== "undefined" && module.exports) {
 		module.exports = doT;
-	} else if (typeof define === 'function' && define.amd) {
+	} else if (typeof define === "function" && define.amd) {
 		define(function(){return doT;});
 	} else {
 		_globals.doT = doT;
@@ -51,13 +51,13 @@
 	}, skip = /$^/;
 
 	function resolveDefs(c, block, def) {
-		return ((typeof block === 'string') ? block : block.toString())
+		return ((typeof block === "string") ? block : block.toString())
 		.replace(c.define || skip, function(m, code, assign, value) {
-			if (code.indexOf('def.') === 0) {
+			if (code.indexOf("def.") === 0) {
 				code = code.substring(4);
 			}
 			if (!(code in def)) {
-				if (assign === ':') {
+				if (assign === ":") {
 					if (c.defineParams) value.replace(c.defineParams, function(m, param, v) {
 						def[code] = {arg: param, text: v};
 					});
@@ -66,12 +66,12 @@
 					new Function("def", "def['"+code+"']=" + value)(def);
 				}
 			}
-			return '';
+			return "";
 		})
 		.replace(c.use || skip, function(m, code) {
 			if (c.useParams) code = code.replace(c.useParams, function(m, s, d, param) {
 				if (def[d] && def[d].arg && param) {
-					var rw = (d+":"+param).replace(/'|\\/g, '_');
+					var rw = (d+":"+param).replace(/'|\\/g, "_");
 					def.__exp = def.__exp || {};
 					def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])" + def[d].arg + "([^\\w$])", "g"), "$1" + param + "$2");
 					return s + "def.__exp['"+rw+"']";
@@ -83,7 +83,7 @@
 	}
 
 	function unescape(code) {
-		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, ' ');
+		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
 	doT.template = function(tmpl, c, def) {
@@ -91,9 +91,9 @@
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
-		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g,' ')
-					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,''): str)
-			.replace(/'|\\/g, '\\$&')
+		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
+					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
+			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;
 			})
@@ -116,8 +116,8 @@
 				return "';" + unescape(code) + "out+='";
 			})
 			+ "';return out;")
-			.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
-			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, '');
+			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
+			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
 		if (needhtmlencode) {
@@ -129,7 +129,7 @@
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
-			if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
+			if (typeof console !== "undefined") console.log("Could not create a template function: " + str);
 			throw e;
 		}
 	};
