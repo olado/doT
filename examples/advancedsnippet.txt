@@ -116,4 +116,20 @@ Array iterators
 
 {{#def.block1:{a:1, b:2} || ''}}
 
+{{##def.testFunctionWithParam = function(str) {
+		return "My name is: " + str;
+	}
+#}}
+
+{{##def.mytestparam: {{=it.name}} #}}
+{{#def.testFunctionWithParam(def.mytestparam)}}
+
+{{#def.testFunctionWithParam("\{\{=it.name\}\}")}}
+
+{{##def.testParamDef:myparam:
+My name is: {{=myparam}}
+#}}
+
+{{#def.testParamDef:it.name}}
+
 The end
