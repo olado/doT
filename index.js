@@ -118,25 +118,28 @@ InstallDots.prototype.compileAll = function() {
 
 	var defFolder = this.__path,
 		sources = fs.readdirSync(defFolder),
-		k, l, name;
+		k, l, name,
+		defRx = /\.def(\.dot|\.jst)?$/,
+		dotRx = /\.dot(\.def|\.jst)?$/,
+		jstRx = /\.jst(\.dot|\.def)?$/;
 
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
-		if (/\.def(\.dot|\.jst)?$/.test(name)) {
+		if (defRx.test(name)) {
 			if (doT.log) console.log("Loaded def " + name);
-			this.__includes[name.substring(0, name.indexOf('.'))] = readdata(defFolder + name);
+			this.__includes[name.replace(defRx, "")] = readdata(defFolder + name);
 		}
 	}
 
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
-		if (/\.dot(\.def|\.jst)?$/.test(name)) {
+		if (dotRx.test(name)) {
 			if (doT.log) console.log("Compiling " + name + " to function");
-			this.__rendermodule[name.substring(0, name.indexOf('.'))] = this.compilePath(defFolder + name);
+			this.__rendermodule[name.replace(dotRx, "")] = this.compilePath(defFolder + name);
 		}
-		if (/\.jst(\.dot|\.def)?$/.test(name)) {
+		if (jstRx.test(name)) {
 			if (doT.log) console.log("Compiling " + name + " to file");
-			this.compileToFile(this.__destination + name.substring(0, name.indexOf('.')) + '.js',
+			this.compileToFile(this.__destination + name.replace(jstRx, "") + '.js',
 					readdata(defFolder + name));
 		}
 	}
