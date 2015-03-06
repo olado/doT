@@ -86,7 +86,7 @@
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
-	doT.template = function(tmpl, c, def) {
+	doT.template = function(tmpl, c, def, sourceURL) {
 		c = c || doT.templateSettings;
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
@@ -126,6 +126,11 @@
 				+ doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
 				+ str;
 		}
+		
+		if(sourceURL){
+			str = str + '\n //# sourceURL=' + sourceURL + ' \n //@ sourceURL=' + sourceURL;
+		}
+		
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
@@ -134,7 +139,7 @@
 		}
 	};
 
-	doT.compile = function(tmpl, def) {
-		return doT.template(tmpl, null, def);
+	doT.compile = function(tmpl, def, sourceURL) {
+		return doT.template(tmpl, null, def, sourceURL);
 	};
 }());
