@@ -6,7 +6,7 @@
 	"use strict";
 
 	var doT = {
-		version: "1.0.3",
+		version: "1.1.4",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -91,7 +91,7 @@
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
-		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
+		str = (c.varname + "=" + c.varname + "||{};" + "var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
