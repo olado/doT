@@ -22,9 +22,9 @@
     "test": "mocha"
   },
   "dependencies": {
+    "commander": "*"
   },
   "devDependencies": {
-    "commander": "*",
     "uglify-js": "*",
     "mkdirp": "*",
     "mocha":"*",
