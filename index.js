@@ -44,6 +44,7 @@ function InstallDots(o) {
 	this.__rendermodule	= o.rendermodule || {};
 	this.__settings 	= o.templateSettings ? copy(o.templateSettings, copy(doT.templateSettings)) : undefined;
 	this.__includes		= {};
+    this.__debug        = o.debug || false;
 }
 
 InstallDots.prototype.compileToFile = function(path, template, def) {
@@ -113,7 +114,9 @@ InstallDots.prototype.compilePath = function(path) {
 };
 
 InstallDots.prototype.compileAll = function() {
-	console.log("Compiling all doT templates...");
+	if (this.__debug) {
+        console.log("Compiling all doT templates...");
+    }
 
 	var defFolder = this.__path,
 		sources = fs.readdirSync(defFolder),
@@ -122,7 +125,9 @@ InstallDots.prototype.compileAll = function() {
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
 		if (/\.def(\.dot|\.jst)?$/.test(name)) {
-			console.log("Loaded def " + name);
+			if (this.__debug) {
+                console.log("Loaded def " + name);
+            }
 			this.__includes[name.substring(0, name.indexOf('.'))] = readdata(defFolder + name);
 		}
 	}
@@ -130,11 +135,15 @@ InstallDots.prototype.compileAll = function() {
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
 		if (/\.dot(\.def|\.jst)?$/.test(name)) {
-			console.log("Compiling " + name + " to function");
+			if (this.__debug) {
+                console.log("Compiling " + name + " to function");
+            }
 			this.__rendermodule[name.substring(0, name.indexOf('.'))] = this.compilePath(defFolder + name);
 		}
 		if (/\.jst(\.dot|\.def)?$/.test(name)) {
-			console.log("Compiling " + name + " to file");
+			if (this.__debug) {
+                console.log("Compiling " + name + " to file");
+            }
 			this.compileToFile(this.__destination + name.substring(0, name.indexOf('.')) + '.js',
 					readdata(defFolder + name));
 		}
