@@ -91,8 +91,7 @@
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
-		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
-					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
+		str = ("var out='" + (c.strip ? str.replace(/\s+/g," ") : str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;

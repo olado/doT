@@ -61,4 +61,15 @@ describe('doT', function(){
 		});
 	});
 
+	describe('whitespace stripping', function() {
+		function assert_match(actual, expected) {
+			assert(actual.match(expected), JSON.stringify(actual) + " did not match " + expected);
+		}
+		it('should replace stretches of whitespace with one whitespace', function() {
+			assert_match(doT.template('<div>    </div>')(), /^<div>\s<\/div>$/);
+		});
+		it('should recognize any whitespace as significant', function() {
+			assert_match(doT.template('<div>\n\r<img\n\tsrc="image.png">\n  </div>')(), /^<div>\s<img\ssrc="image.png">\s<\/div>$/);
+		});
+	});
 });
