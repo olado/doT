@@ -23,11 +23,11 @@
     "test": "mocha"
   },
   "dependencies": {
-  },
-  "devDependencies": {
     "commander": "*",
     "uglify-js": "*",
-    "mkdirp": "*",
+    "mkdirp": "*"
+  },
+  "devDependencies": {
     "mocha":"*",
     "jshint":"*"
   }
