@@ -24,6 +24,7 @@
   "dependencies": {},
   "devDependencies": {
     "commander": "*",
+    "coveralls": "^2.11.14",
     "jshint": "*",
     "mkdirp": "*",
     "mocha": "*",
