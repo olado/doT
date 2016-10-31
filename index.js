@@ -117,13 +117,17 @@ InstallDots.prototype.compileAll = function() {
 
 	var defFolder = this.__path,
 		sources = fs.readdirSync(defFolder),
-		k, l, name;
+		k, l, name, include;
 
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
-		if (/\.def(\.dot|\.jst)?$/.test(name)) {
+		if (/\.def(\.dot|\.jst|\.json)?$/.test(name)) {
 			console.log("Loaded def " + name);
-			this.__includes[name.substring(0, name.indexOf('.'))] = readdata(defFolder + name);
+			include = readdata(defFolder + name);
+			if (/\.json$/.test(name)) {
+				include = JSON.parse(include);
+			}
+			this.__includes[name.substring(0, name.indexOf('.'))] = include;
 		}
 	}
 
