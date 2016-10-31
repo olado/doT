@@ -4,9 +4,9 @@ Created in search of the fastest and concise JavaScript templating function with
 
 doT.js is fast, small and has no dependencies.
 
-[![Build Status](https://travis-ci.org/olado/dot.svg?branch=master)](https://travis-ci.org/olado/dot)
+[![Build Status](https://travis-ci.org/olado/doT.svg?branch=master)](https://travis-ci.org/olado/doT)
 [![npm version](https://badge.fury.io/js/dot.svg)](https://www.npmjs.com/package/dot)
-[![Coverage Status](https://coveralls.io/repos/olado/dot/badge.svg?branch=master&service=github)](https://coveralls.io/github/olado/dot?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/olado/doT/badge.svg?branch=master)](https://coveralls.io/github/olado/doT?branch=master)
 
 
 ## Features
