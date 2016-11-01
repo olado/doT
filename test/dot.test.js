@@ -51,15 +51,6 @@ describe('doT', function(){
 		});
 	});
 
-	describe('evaluate 2 numbers in the middle', function() {
-		it('should print numbers next to each other', function() {
-			test([
-				'{{?it.one}}{{=it.one}}{{?}}{{=it.one}}{{=it.two}}',
-				'{{? it.one }}{{= it.one }}{{?}}{{= it.one }}{{= it.two }}'
-			], {one:1, two: 2}, '112');
-		});
-	});
-
 	describe('encoding with doNotSkipEncoded=true', function() {
 		it('should replace &', function() {
 			global._encodeHTML = undefined;

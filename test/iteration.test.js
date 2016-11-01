@@ -1,9 +1,6 @@
 'use strict';
 
 var test = require('./util').test;
-var assert = require('assert')
-var doT = require('../doT');
-
 
 describe('iteration', function() {
     describe('without index', function() {
