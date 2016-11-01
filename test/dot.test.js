@@ -1,4 +1,9 @@
-var assert = require("assert"), doT = require("../doT");
+'use strict';
+
+var test = require('./util').test;
+var assert = require("assert")
+var doT = require("../doT");
+
 
 describe('doT', function(){
 	var basictemplate = "<div>{{!it.foo}}</div>",
@@ -38,15 +43,20 @@ describe('doT', function(){
 
 	describe('evaluate 2 numbers', function() {
 		it('should print numbers next to each other', function() {
-			var fn = doT.template("{{=it.one}}{{=it.two}}");
-			assert.equal(fn({one:1, two: 2}), "12");
+			test([
+				'{{=it.one}}{{=it.two}}',
+				'{{= it.one}}{{= it.two}}',
+				'{{= it.one }}{{= it.two }}'
+			], {one:1, two: 2}, '12');
 		});
 	});
 
 	describe('evaluate 2 numbers in the middle', function() {
 		it('should print numbers next to each other', function() {
-			var fn = doT.template("{{?it.one}}{{=it.one}}{{?}}{{=it.one}}{{=it.two}}");
-			assert.equal(fn({one:1, two: 2}), "112");
+			test([
+				'{{?it.one}}{{=it.one}}{{?}}{{=it.one}}{{=it.two}}',
+				'{{? it.one }}{{= it.one }}{{?}}{{= it.one }}{{= it.two }}'
+			], {one:1, two: 2}, '112');
 		});
 	});
 
