@@ -6,10 +6,8 @@ var doT = require("../doT");
 
 
 describe('doT', function(){
-	var basictemplate = "<div>{{!it.foo}}</div>",
-		basiccompiled = doT.template(basictemplate),
-		definestemplate = "{{##def.tmp:<div>{{!it.foo}}</div>#}}{{#def.tmp}}",
-		definescompiled = doT.template(definestemplate);
+	var basictemplate = "<div>{{!it.foo}}</div>";
+	var basiccompiled = doT.template(basictemplate);
 
 	describe('#template()', function(){
 		it('should return a function', function(){
@@ -25,19 +23,12 @@ describe('doT', function(){
 		});
 	});
 
-	describe('defines', function(){
-		it('should render define', function(){
-			assert.equal(definescompiled({foo:"http"}), "<div>http</div>");
-			assert.equal(definescompiled({foo:"http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>");
-			assert.equal(definescompiled({}), "<div></div>");
-		});
-	});
-
 	describe('encoding with doNotSkipEncoded=false', function() {
 		it('should not replace &', function() {
 			global._encodeHTML = undefined;
 			doT.templateSettings.doNotSkipEncoded = false;
-			assert.equal(doT.template(definestemplate)({foo:"&amp;"}), "<div>&amp;</div>");
+			var fn = doT.template('<div>{{!it.foo}}</div>');
+			assert.equal(fn({foo:"&amp;"}), "<div>&amp;</div>");
 		});
 	});
 
@@ -63,10 +54,9 @@ describe('doT', function(){
 		it('should replace &', function() {
 			global._encodeHTML = undefined;
 			doT.templateSettings.doNotSkipEncoded = true;
-			assert.equal(doT.template(definestemplate)({foo:"&amp;"}), "<div>&#38;amp;</div>");
+			assert.equal(doT.template('<div>{{!it.foo}}</div>')({foo:"&amp;"}), "<div>&#38;amp;</div>");
 			assert.equal(doT.template('{{!it.a}}')({a:"& < > / ' \""}), "&#38; &#60; &#62; &#47; &#39; &#34;");
 			assert.equal(doT.template('{{!"& < > / \' \\""}}')(), "&#38; &#60; &#62; &#47; &#39; &#34;");
-
 		});
 	});
 
