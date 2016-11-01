@@ -7,7 +7,7 @@
     "simple",
     "templating"
   ],
-  "version": "1.0.3",
+  "version": "1.1.0",
   "main": "index",
   "bin": {
     "dottojs": "./bin/dot-packer"
