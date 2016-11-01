@@ -41,13 +41,21 @@ describe('doT', function(){
 		});
 	});
 
-	describe('evaluate 2 numbers', function() {
+	describe('interpolate 2 numbers', function() {
 		it('should print numbers next to each other', function() {
 			test([
 				'{{=it.one}}{{=it.two}}',
 				'{{= it.one}}{{= it.two}}',
 				'{{= it.one }}{{= it.two }}'
 			], {one:1, two: 2}, '12');
+		});
+	});
+
+	describe('evaluate JavaScript', function() {
+		it('should print numbers next to each other', function() {
+			test([
+				'{{ it.one = 1; it.two = 2; }}{{= it.one }}{{= it.two }}',
+			], {}, '12');
 		});
 	});
 
