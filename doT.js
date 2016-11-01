@@ -24,7 +24,8 @@
 			doNotSkipEncoded: false
 		},
 		template: undefined, //fn, compile template
-		compile:  undefined  //fn, for express
+		compile:  undefined, //fn, for express
+		log: true
 	}, _globals;
 
 	doT.encodeHTMLSource = function(doNotSkipEncoded) {

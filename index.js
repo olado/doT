@@ -113,7 +113,7 @@ InstallDots.prototype.compilePath = function(path) {
 };
 
 InstallDots.prototype.compileAll = function() {
-	console.log("Compiling all doT templates...");
+	if (doT.log) console.log("Compiling all doT templates...");
 
 	var defFolder = this.__path,
 		sources = fs.readdirSync(defFolder),
@@ -122,7 +122,7 @@ InstallDots.prototype.compileAll = function() {
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
 		if (/\.def(\.dot|\.jst)?$/.test(name)) {
-			console.log("Loaded def " + name);
+			if (doT.log) console.log("Loaded def " + name);
 			this.__includes[name.substring(0, name.indexOf('.'))] = readdata(defFolder + name);
 		}
 	}
@@ -130,11 +130,11 @@ InstallDots.prototype.compileAll = function() {
 	for( k = 0, l = sources.length; k < l; k++) {
 		name = sources[k];
 		if (/\.dot(\.def|\.jst)?$/.test(name)) {
-			console.log("Compiling " + name + " to function");
+			if (doT.log) console.log("Compiling " + name + " to function");
 			this.__rendermodule[name.substring(0, name.indexOf('.'))] = this.compilePath(defFolder + name);
 		}
 		if (/\.jst(\.dot|\.def)?$/.test(name)) {
-			console.log("Compiling " + name + " to file");
+			if (doT.log) console.log("Compiling " + name + " to file");
 			this.compileToFile(this.__destination + name.substring(0, name.indexOf('.')) + '.js',
 					readdata(defFolder + name));
 		}
