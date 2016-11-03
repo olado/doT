@@ -1,7 +1,7 @@
 {
   "name": "dot",
   "description": "Concise and fast javascript templating compatible with nodejs and other javascript environments",
-  "main": "index.js",
+  "main": "doT.js",
   "authors": [
     "Laura Doktorova <ldoktorova@gmail.com>"
   ],
