@@ -20,7 +20,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "nyc mocha"
+    "test": "nyc mocha test/*.test.js"
   },
   "dependencies": {},
   "devDependencies": {
