@@ -20,12 +20,15 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "nyc mocha test/*.test.js"
+    "eslint": "eslint *.js --ignore-pattern *.min.js",
+    "test-cov": "nyc mocha test/*.test.js",
+    "test": "npm run eslint && npm run test-cov"
   },
   "dependencies": {},
   "devDependencies": {
     "commander": "*",
     "coveralls": "^2.11.14",
+    "eslint": "^3.9.1",
     "jshint": "*",
     "mkdirp": "*",
     "mocha": "*",

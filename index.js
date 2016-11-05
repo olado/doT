@@ -83,7 +83,8 @@ InstallDots.prototype.compileToFile = function(path, template, def) {
 };
 
 function addexports(exports) {
-	for (var ret ='', i=0; i< exports.length; i++) {
+	var ret = '';
+	for (var i=0; i< exports.length; i++) {
 		ret += "itself." + exports[i]+ "=" + exports[i]+";";
 	}
 	return ret;
