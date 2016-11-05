@@ -20,7 +20,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "eslint": "eslint *.js --ignore-pattern *.min.js",
+    "eslint": "if-node-version '>=4' eslint *.js --ignore-pattern *.min.js",
     "test-cov": "nyc mocha test/*.test.js",
     "test": "npm run eslint && npm run test-cov"
   },
@@ -29,6 +29,7 @@
     "commander": "*",
     "coveralls": "^2.11.14",
     "eslint": "^3.9.1",
+    "if-node-version": "^1.1.0",
     "jshint": "*",
     "mkdirp": "*",
     "mocha": "*",
