@@ -60,4 +60,11 @@ describe('doT', function(){
 		});
 	});
 
+	describe('invalid JS in templates', function() {
+		it('should throw exception', function() {
+			assert.throws(function() {
+				var fn = doT.template('<div>{{= foo + }}</div>');
+			});
+		});
+	});
 });
