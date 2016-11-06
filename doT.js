@@ -6,7 +6,7 @@
 	"use strict";
 
 	var doT = {
-		version: "1.0.3",
+		version: "1.1.1",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -38,6 +38,7 @@
 
 	_globals = (function(){ return this || (0,eval)("this"); }());
 
+	/* istanbul ignore else */
 	if (typeof module !== "undefined" && module.exports) {
 		module.exports = doT;
 	} else if (typeof define === "function" && define.amd) {
@@ -130,6 +131,7 @@
 		try {
 			return new Function(c.varname, str);
 		} catch (e) {
+			/* istanbul ignore else */
 			if (typeof console !== "undefined") console.log("Could not create a template function: " + str);
 			throw e;
 		}
