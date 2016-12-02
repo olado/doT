@@ -6,6 +6,7 @@
 	"use strict";
 
 	var doT = {
+		engine: "doT",
 		version: "1.1.1",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,

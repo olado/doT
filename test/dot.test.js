@@ -9,6 +9,12 @@ describe('doT', function(){
 	var basictemplate = "<div>{{!it.foo}}</div>";
 	var basiccompiled = doT.template(basictemplate);
 
+	describe('.engine', function (){
+		it('should have an engine paramter of doT', function(){
+			assert.strictEqual(doT.engine, 'doT');
+		});
+	});
+	
 	describe('#template()', function(){
 		it('should return a function', function(){
 			assert.equal(typeof basiccompiled, "function");
