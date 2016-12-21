@@ -109,8 +109,7 @@
 				return cse.start + unescape(code,c.canReturnNull) + cse.end;
 			}).replace(c.func || skip,function(m, code){
 				//如果是方法则执行方法的内容
-				needhtmlencode = true;
-				return cse.startencode + unescape(code+'()',c.canReturnNull) + cse.end;
+				return cse.start + unescape(code+'()',c.canReturnNull) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
 				needhtmlencode = true;
