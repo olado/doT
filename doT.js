@@ -86,14 +86,15 @@
 		});
 	}
 
-	function nullCheck(code,canReturnNull){
-		if(!canReturnNull){
-			return code+"?"+code+":''";
-		}
+	function nullCheck(code){
+		return "(" + code+") !=undefined?"+code+":''";
 	}
 
 	function unescape(code,canReturnNull) {
-			return nullCheck(code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " "),canReturnNull);
+			if(!canReturnNull){
+				return nullCheck(code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " "))
+			}
+			return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
 	doT.template = function(tmpl, c, def) {
