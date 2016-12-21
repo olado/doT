@@ -95,24 +95,24 @@ add function surport
 
 e.m:
 
-<script type="text/html" id="tpl">
-    <div>
-        <a>name:{{= it.name}}</a>
-        <p>age:{{= it.age}}</p>
-        <p>hello:{{_ it.hello}}</p>
-        {{~ it.arr:item}}
-            <p>{{=item.id}}:{{=item.text}}</p>
-        {{~}}
-    </div>
-</script>
-<script>
-    $("#app").html(doT.template($("#tpl").html())({
-        name:'stringParams2',
-        stringParams1:'stringParams1_value',
-        stringParams2:0,
-        arr:[{id:0,text:'val1'},{id:1,text:'val2'}],
-        hello:function () {
-            return this[this.name]
-        }
-    }));
-</script>
+#<script type="text/html" id="tpl">
+#    <div>
+#        <a>name:{{= it.name}}</a>
+#        <p>age:{{= it.age}}</p>
+#        <p>hello:{{_ it.hello}}</p>
+#        {{~ it.arr:item}}
+#            <p>{{=item.id}}:{{=item.text}}</p>
+#        {{~}}
+#    </div>
+#</script>
+#<script>
+#    $("#app").html(doT.template($("#tpl").html())({
+#        name:'stringParams2',
+#        stringParams1:'stringParams1_value',
+#        stringParams2:0,
+#        arr:[{id:0,text:'val1'},{id:1,text:'val2'}],
+#        hello:function () {
+#            return this[this.name]
+#        }
+#    }));
+#</script>
