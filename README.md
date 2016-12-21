@@ -93,7 +93,7 @@ Thank you [@KevinKirchner](https://twitter.com/kevinkirchner) for the logo.
 
 add function surport
 
-##e.m
+## e.m
 <script type="text/html" id="tpl">
     <div>
         <a>name:{{= it.name}}</a>
