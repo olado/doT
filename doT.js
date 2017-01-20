@@ -6,7 +6,7 @@
 	"use strict";
 
 	var doT = {
-		version: "1.1.1",
+		version: "1.1.2",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
@@ -17,11 +17,13 @@
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			func:		/\{\{_([\s\S]+?)\}\}/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
 			selfcontained: false,
-			doNotSkipEncoded: false
+			doNotSkipEncoded: false,
+			canReturnNull: false,
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined, //fn, for express
@@ -30,7 +32,7 @@
 
 	doT.encodeHTMLSource = function(doNotSkipEncoded) {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
-			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
+			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#_?\w+;)|<|>|"|'|\//g;
 		return function(code) {
 			return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
 		};
@@ -84,8 +86,15 @@
 		});
 	}
 
-	function unescape(code) {
-		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
+	function nullCheck(code){
+		return "(" + code+") !=undefined?"+code+":''";
+	}
+
+	function unescape(code,canReturnNull) {
+			if(!canReturnNull){
+				return nullCheck(code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " "))
+			}
+			return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
 	doT.template = function(tmpl, c, def) {
@@ -97,16 +106,19 @@
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
-				return cse.start + unescape(code) + cse.end;
+				return cse.start + unescape(code,c.canReturnNull) + cse.end;
+			}).replace(c.func || skip,function(m, code){
+				//如果是方法则执行方法的内容
+				return cse.start + unescape(code+'()',c.canReturnNull) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
 				needhtmlencode = true;
-				return cse.startencode + unescape(code) + cse.end;
+				return cse.startencode + unescape(code,c.canReturnNull) + cse.end;
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
-					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
-					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
+					(code ? "';}else if(" + unescape(code,c.canReturnNull) + "){out+='" : "';}else{out+='") :
+					(code ? "';if(" + unescape(code,c.canReturnNull) + "){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
@@ -115,7 +127,7 @@
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
-				return "';" + unescape(code) + "out+='";
+				return "';" + unescape(code,c.canReturnNull) + "out+='";
 			})
 			+ "';return out;")
 			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
