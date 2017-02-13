@@ -2,10 +2,11 @@
 // 2011-2014, Laura Doktorova, https://github.com/olado/doT
 // Licensed under the MIT license.
 
-(function() {
+(function () {
 	"use strict";
 
 	var doT = {
+		name: "doT",
 		version: "1.1.1",
 		templateSettings: {
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
