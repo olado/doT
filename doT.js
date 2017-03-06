@@ -9,7 +9,7 @@
 		name: "doT",
 		version: "1.1.1",
 		templateSettings: {
-			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+			evaluate:    /\{\{([\s\S]+?)\}\}(?!\})/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
 			use:         /\{\{#([\s\S]+?)\}\}/g,
