@@ -28,7 +28,7 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 
 ## New in version 1.0.0
 
-####Added parameters support in partials
+#### Added parameters support in partials
 
 	{{##def.macro:param:
 		<div>{{=param.foo}}</div>
@@ -36,7 +36,7 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 
 	{{#def.macro:myvariable}}
 
-####Node module now supports auto-compilation of dot templates from specified path
+#### Node module now supports auto-compilation of dot templates from specified path
 
 	var dots = require("dot").process({ path: "./views"});
 
@@ -64,7 +64,7 @@ Details
   	* Return an object with functions compiled from .dot templates as its properties
   	* Render mytemplate template
  
-####CLI tool to compile dot templates into js files
+#### CLI tool to compile dot templates into js files
 
 	./bin/dot-packer -s examples/views -d out/views
 
