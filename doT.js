@@ -9,15 +9,15 @@
 		name: "doT",
 		version: "1.1.1",
 		templateSettings: {
-			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
-			interpolate: /\{\{=([\s\S]+?)\}\}/g,
-			encode:      /\{\{!([\s\S]+?)\}\}/g,
-			use:         /\{\{#([\s\S]+?)\}\}/g,
+		    evaluate:    /(\r\n[\s\t]*\{\{-|\{\{)([\s\S]+?(\}?)+)(-\}\}[\s\t]*\r\n|\}\})/g,
+		    interpolate: /(\r\n[\s\t]*\{\{-|\{\{)=([\s\S]+?)(-\}\}[\s\t]*\r\n|\}\})/g,
+		    encode:      /(\r\n[\s\t]*\{\{-|\{\{)!([\s\S]+?)(-\}\}[\s\t]*\r\n|\}\})/g,
+		    use:         /(\r\n[\s\t]*\{\{-|\{\{)#([\s\S]+?)(-\}\}[\s\t]*\r\n|\}\})/g,
 			useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+			define:      /(\r\n[\s\t]*\{\{-|\{\{)##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#(-\}\}[\s\t]*\r\n|\}\})/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
-			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			conditional: /(\r\n[\s\t]*\{\{-|\{\{)\?(\?)?\s*([\s\S]*?)\s*(-\}\}[\s\t]*\r\n|\}\})/g,
+			iterate:     /(\r\n[\s\t]*\{\{-|\{\{)~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*(-\}\}[\s\t]*\r\n|\}\}))/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
@@ -55,7 +55,7 @@
 
 	function resolveDefs(c, block, def) {
 		return ((typeof block === "string") ? block : block.toString())
-		.replace(c.define || skip, function(m, code, assign, value) {
+		.replace(c.define || skip, function(m, ignore, code, assign, value) {
 			if (code.indexOf("def.") === 0) {
 				code = code.substring(4);
 			}
@@ -71,7 +71,7 @@
 			}
 			return "";
 		})
-		.replace(c.use || skip, function(m, code) {
+		.replace(c.use || skip, function(m, ignore, code) {
 			if (c.useParams) code = code.replace(c.useParams, function(m, s, d, param) {
 				if (def[d] && def[d].arg && param) {
 					var rw = (d+":"+param).replace(/'|\\/g, "_");
@@ -97,25 +97,25 @@
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
-			.replace(c.interpolate || skip, function(m, code) {
+			.replace(c.interpolate || skip, function(m, ignore, code) {
 				return cse.start + unescape(code) + cse.end;
 			})
-			.replace(c.encode || skip, function(m, code) {
+			.replace(c.encode || skip, function(m, ignore, code) {
 				needhtmlencode = true;
 				return cse.startencode + unescape(code) + cse.end;
 			})
-			.replace(c.conditional || skip, function(m, elsecase, code) {
+			.replace(c.conditional || skip, function(m, ignore, elsecase, code) {
 				return elsecase ?
 					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
 					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 			})
-			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
+			.replace(c.iterate || skip, function(m, ignore, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
-			.replace(c.evaluate || skip, function(m, code) {
+			.replace(c.evaluate || skip, function(m, ignore, code) {
 				return "';" + unescape(code) + "out+='";
 			})
 			+ "';return out;")
