@@ -130,7 +130,12 @@
 				+ str;
 		}
 		try {
-			return new Function(c.varname, str);
+			var varname = new RegExp(c.varname + '\\.?', 'g');
+			if(varname.test(str)) {
+				return new Function(c.varname, str);
+			} else {
+				return new Function('', str);
+			}
 		} catch (e) {
 			/* istanbul ignore else */
 			if (typeof console !== "undefined") console.log("Could not create a template function: " + str);
