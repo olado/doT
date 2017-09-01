@@ -31,7 +31,7 @@ var fs = require("fs"),
 	doT = module.exports = require("./doT");
 
 doT.process = function(options) {
-	//path, destination, global, rendermodule, templateSettings
+	//path, destination, global, rendermodule, templateSettings, includes
 	return new InstallDots(options).compileAll();
 };
 
@@ -43,7 +43,7 @@ function InstallDots(o) {
 	this.__global		= o.global || "window.render";
 	this.__rendermodule	= o.rendermodule || {};
 	this.__settings 	= o.templateSettings ? copy(o.templateSettings, copy(doT.templateSettings)) : undefined;
-	this.__includes		= {};
+	this.__includes		= o.includes || {};
 }
 
 InstallDots.prototype.compileToFile = function(path, template, def) {
