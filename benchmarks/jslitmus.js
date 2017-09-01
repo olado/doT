@@ -466,7 +466,7 @@
 
   var tests = [], // test store (all tests added w/ jslitmus.test())
       queue = [], // test queue (to be run)
-      currentTest; // currently runnning test
+      currentTest; // currently running test
 
   // jslitmus gets EventEmitter API
   EventEmitter.call(jslitmus);
