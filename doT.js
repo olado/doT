@@ -90,8 +90,9 @@
 		return code.replace(/\\('|\\)/g, "$1").replace( minify || skip, " ");
 	}
 
-	doT.template = function(tmpl, c, def) {
+	doT.template = function(tmpl, c, def, surl) {
 		c = c || doT.templateSettings;
+		surl = surl ? '//# sourceURL=' + surl : '';
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
@@ -119,7 +120,7 @@
 			.replace(c.evaluate || skip, function(m, code) {
 				return "';" + unescape(code, c.minify) + "out+='";
 			})
-			+ "';return out;")
+			+ "';return out;" + surl)
 			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
 			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
@@ -139,7 +140,7 @@
 		}
 	};
 
-	doT.compile = function(tmpl, def) {
-		return doT.template(tmpl, null, def);
+	doT.compile = function(tmpl, def, surl) {
+		return doT.template(tmpl, null, def, surl);
 	};
 }());
