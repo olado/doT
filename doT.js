@@ -121,7 +121,6 @@
 				return "';" + unescape(code, c.minify) + "out+='";
 			})
 			+ "';return out;" + surl)
-			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
 			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
