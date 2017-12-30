@@ -112,19 +112,20 @@
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
-					(code ? "`;}else if(" + unescape(code) + "){out+=`" : "`;}else{out+=`") :
-					(code ? "`;if(" + unescape(code) + "){out+=`" : "`;}out+=`");
+					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
+					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
-				if (!iterate) return "`;} } out+=`";
+				if (!iterate) return "';} } out+='";
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
-				return "`;var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
-					+vname+"=arr"+sid+"["+indv+"+=1];out+=`";
+				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
+					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
-				return "`;" + unescape(code) + "out+=`";
+				return "';" + unescape(code) + "out+='";
 			})
-			+ "`;return out;" + surl)
+			+ "';return out;" + surl)
+			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
 			.replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
 			//.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
