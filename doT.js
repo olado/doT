@@ -87,7 +87,7 @@
 	}
 
 	function unescape(code) {
-		return code.replace(/\\('|\\)/g, "$1").replace( /[\r\t\n]/g, " ");
+		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
 	}
 
 	doT.template = function(tmpl, c, def) {
