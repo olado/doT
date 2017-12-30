@@ -89,15 +89,19 @@
 		return code.replace(/\\('|\\)/g, "$1").replace( /[\r\t\n]/g, " ");
 	}
 
-	doT.template = function(tmpl, c, def, surl) {
+	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
-		surl = surl ? '//# sourceURL=' + surl : '';
+		var surl = '';
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
+			.replace(/(\/\/#[\s]+sourceURL=[\S]+)$/g, function(m, code) {
+				surl = code;
+				return '';
+			})
 			.replace(c.interpolate || skip, function(m, code) {
 				return cse.start + unescape(code) + cse.end;
 			})
@@ -139,7 +143,7 @@
 		}
 	};
 
-	doT.compile = function(tmpl, def, surl) {
-		return doT.template(tmpl, null, def, surl);
+	doT.compile = function(tmpl, def) {
+		return doT.template(tmpl, null, def);
 	};
 }());
