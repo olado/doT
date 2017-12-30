@@ -18,6 +18,7 @@
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
 			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			url:				 /(\/\/#[\s]+sourceURL=[\S]+)$/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
@@ -98,7 +99,7 @@
 		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
-			.replace(/(\/\/#[\s]+sourceURL=[\S]+)$/g, function(m, code) {
+			.replace(c.url || skip, function(m, code) {
 				surl = code;
 				return '';
 			})
