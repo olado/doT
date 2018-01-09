@@ -29,6 +29,28 @@
 		log: true
 	}, _globals;
 
+	function _regexStr(str) {
+		return str.replace(/([^a-z0-9_])/ig, '\\$1')
+	}
+
+	function _toRegExp(str) {
+		var rx = str.match(regexpStringPattern);
+		if (rx) return new RegExp(rx[1], rx[2]);
+	}
+
+	doT.setInterpolationSymbols = function(startSymbol, endSymbol) {
+		for (var option in doT.templateSettings) {
+			var value = doT.templateSettings[option];
+			if (value instanceof RegExp) {
+				var regexStr = value.toString();
+				regexStr = regexStr
+					.replace(/\\\{\\\{/g, _regexStr(startSymbol))
+					.replace(/\\\}\\\}/g, _regexStr(endSymbol));
+				doT.templateSettings[option] = _toRegExp(regexStr);
+			}
+		}
+	};
+
 	doT.encodeHTMLSource = function(doNotSkipEncoded) {
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
 			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
