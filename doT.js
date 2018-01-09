@@ -29,6 +29,7 @@
 		log: true
 	}, _globals;
 
+    var regexpStringPattern = /^\/(.*)\/([gimy]*)$/;
 	function _regexStr(str) {
 		return str.replace(/([^a-z0-9_])/ig, '\\$1')
 	}
