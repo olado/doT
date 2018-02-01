@@ -16,9 +16,9 @@
   "homepage": "http://github.com/olado/doT",
   "repository": "git://github.com/olado/doT.git",
   "author": "Laura Doktorova <ldoktorova@gmail.com>",
-  "engines": [
-    "node >=0.2.6"
-  ],
+  "engines": {
+    "node": ">=4"
+  },
   "license": "MIT",
   "scripts": {
     "eslint": "if-node-version '>=4' eslint *.js --ignore-pattern *.min.js",
