@@ -17,7 +17,7 @@
 			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*(?:\:\s*([\w$]+))?\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
@@ -111,6 +111,7 @@
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
+				vname = vname || c.varname.split(',')[0];
 				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";

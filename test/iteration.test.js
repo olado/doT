@@ -1,6 +1,7 @@
 'use strict';
 
 var test = require('./util').test;
+var doT = require('../doT');
 
 describe('iteration', function() {
     describe('without index', function() {
@@ -15,6 +16,25 @@ describe('iteration', function() {
 
         it('should concatenate items', function() {
             test(['{{~it.arr:x}}{{=x}}{{~}}'], {arr: [1,2,3]}, '123');
+        });
+    });
+
+    describe('without name', function () {
+        it('should concatenate items', function () {
+            test(['{{~it.arr}}{{=it}}{{~}}'], { arr: [1, 2, 3] }, '123');
+        });
+    });
+    
+    describe('without name and different varname', function() {
+        var originalVarName = doT.templateSettings.varname;
+        beforeEach(function() {
+            doT.templateSettings.varname = 'y, moo';
+        });
+        afterEach(function() {
+            doT.templateSettings.varname = originalVarName;
+        });
+        it('should concatenate items if varname has multiple names', function () {
+            test(['{{~y.arr}}{{=y}}{{~}}'], { arr: [1, 2, 3] }, '123');
         });
     });
 
