@@ -110,9 +110,9 @@
 					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
-				if (!iterate) return "';} } out+='";
+				if (!iterate) return "';} } } out+='";
 				indv=iname || "i"; iterate=unescape(iterate);
-				return "';var arr="+iterate+";if(arr){var "+vname+","+indv+"=-1,l=arr.length-1;while("+indv+"<l){"
+				return "';{let arr="+iterate+";if(arr){let "+indv+"=-1,l=arr.length-1;while("+indv+"<l){let "
 					+vname+"=arr["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
