@@ -85,9 +85,9 @@
 		});
 	}
 
-	function unescape(code) {
+	doT.unescape = function(code) {
 		return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
-	}
+	};
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
@@ -98,25 +98,25 @@
 					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
-				return cse.start + unescape(code) + cse.end;
+				return cse.start + doT.unescape(code) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
 				needhtmlencode = true;
-				return cse.startencode + unescape(code) + cse.end;
+				return cse.startencode + doT.unescape(code) + cse.end;
 			})
 			.replace(c.conditional || skip, function(m, elsecase, code) {
 				return elsecase ?
-					(code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
-					(code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
+					(code ? "';}else if(" + doT.unescape(code) + "){out+='" : "';}else{out+='") :
+					(code ? "';if(" + doT.unescape(code) + "){out+='" : "';}out+='");
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
-				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
+				sid+=1; indv=iname || "i"+sid; iterate=doT.unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
 			.replace(c.evaluate || skip, function(m, code) {
-				return "';" + unescape(code) + "out+='";
+				return "';" + doT.unescape(code) + "out+='";
 			})
 			+ "';return out;")
 			.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
