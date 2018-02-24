@@ -161,7 +161,7 @@
       if (arr) {
         sid += 1;
         i = i || "i"+sid;
-        return `';`
+        return "';"
           + "var arr"+sid+" = "+ unescape(arr) +";"
           + "if (arr"+sid+") {"
           +   "var "+v+", "+i+" = -1, l"+sid+" = arr"+sid+".length - 1;"
@@ -178,7 +178,7 @@
 
   function resolveEvaluate (tmpl, conf) {
     return tmpl.replace(conf.evaluate || _skip, function (match, code) {
-      return `'; ${unescape(code)}; out += '`;
+      return "'; " + unescape(code) + "; out += '";
     });
   }
 
