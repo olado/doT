@@ -50,6 +50,12 @@
    *  API Functions
    * ===========================================================================
    */
+
+  /**
+   * Encode HTML Source
+   * @param  {Boolean} doNotSkipEncoded
+   * @return {Function}
+   */
   doT.encodeHTMLSource = function (doNotSkipEncoded) {
     var encodeHTMLRules = {
       "&": "&#38;",
@@ -63,13 +69,19 @@
                   ? /[&<>"'\/]/g
                   : /&(?!#?\w+;)|<|>|"|'|\//g;
     return function (code) {
-      if (!code) { return ""; };
+      if (!code) { return ""; }
       return code.toString().replace(matchHTML, function (match) {
         return encodeHTMLRules[match] || match;
       });
     };
   };
 
+  /**
+   * @param  {String} tmpl - template text
+   * @param  {Object} conf - custom compilation settings
+   * @param  {Object} def  - defines for compile time evaluation
+   * @return {Function}
+   */
   doT.template = function (tmpl, conf, def) {
     conf = conf || doT.templateSettings;
     var wipTmpl = tmpl;
@@ -100,6 +112,11 @@
     }
   };
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} def
+   * @return {Function}
+   */
   doT.compile = function (tmpl, def) {
     return doT.template(tmpl, null, def);
   };
@@ -113,8 +130,8 @@
 
   /**
    * Resolve Template String to Funcion String
-   * @param  {String} tmpl - Template string
-   * @param  {Object} conf - Config
+   * @param  {String} tmpl
+   * @param  {Object} conf
    * @return {String}
    */
   function resolveTemplate (tmpl, conf) {
@@ -131,21 +148,36 @@
     funcBody = resolveEvaluate(funcBody, conf);
     funcBody = resolveMisc(funcBody);
     funcBody = funcBody + "'; return out;";
-    return funcBody
+    return funcBody;
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveInterpolate (tmpl, conf) {
     return tmpl.replace(conf.interpolate || _skip, function (match, code) {
       return conf.startend.start + unescape(code) + conf.startend.end;
     });
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveEncode (tmpl, conf) {
     return tmpl.replace(conf.encode || _skip, function (match, code) {
       return conf.startend.startEncode + unescape(code) + conf.startend.end;
     });
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveConditional (tmpl, conf) {
     return tmpl.replace(conf.conditional || _skip, function (match, elsecase, code) {
       return code ? (!elsecase ? "'; if (" + unescape(code) + ") { out += '"
@@ -155,6 +187,11 @@
     });
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveIterate (tmpl, conf) {
     var sid = 0;
     return tmpl.replace(conf.iterate || _skip, function (match, arr, v, i) {
@@ -176,12 +213,22 @@
     });
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveEvaluate (tmpl, conf) {
     return tmpl.replace(conf.evaluate || _skip, function (match, code) {
       return "'; " + unescape(code) + "; out += '";
     });
   }
 
+  /**
+   * @param  {String} tmpl
+   * @param  {Object} conf
+   * @return {String}
+   */
   function resolveDefine (tmpl, conf, def) {
     if ("string" !== typeof tmpl) {
       tmpl = tmpl.toString();
@@ -224,10 +271,19 @@
     return tmpl;
   }
 
+  /**
+   * @param  {String} tmpl
+   * @return {String}
+   */
   function resolveStrip (tmpl) {
     return tmpl.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, " ")
                .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, "");
   }
+
+  /**
+   * @param  {String} tmpl
+   * @return {String}
+   */
   function resolveMisc (tmpl) {
     return tmpl.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
                .replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
@@ -238,6 +294,11 @@
    * ===========================================================================
    *  Util Functions
    * ===========================================================================
+   */
+
+  /**
+   * @param  {String} code
+   * @return {String}
    */
   function unescape (code) {
     return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
