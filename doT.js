@@ -53,8 +53,8 @@
 
   /**
    * Encode HTML Source
-   * @param  {Boolean} doNotSkipEncoded
-   * @return {Function}
+   * @param  {Boolean} doNotSkipEncoded - whether do not skip encode
+   * @return {Function}                 - encodeHTML()
    */
   doT.encodeHTMLSource = function (doNotSkipEncoded) {
     var encodeHTMLRules = {
@@ -80,7 +80,7 @@
    * @param  {String} tmpl - template text
    * @param  {Object} conf - custom compilation settings
    * @param  {Object} def  - defines for compile time evaluation
-   * @return {Function}
+   * @return {Function}    - template function
    */
   doT.template = function (tmpl, conf, def) {
     conf = conf || doT.templateSettings;
@@ -113,9 +113,9 @@
   };
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} def
-   * @return {Function}
+   * @param  {String} tmpl - template
+   * @param  {Object} def  - defines
+   * @return {Function}    - template function
    */
   doT.compile = function (tmpl, def) {
     return doT.template(tmpl, null, def);
@@ -130,9 +130,9 @@
 
   /**
    * Resolve Template String to Funcion String
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template work in process
+   * @param  {Object} conf - config
+   * @return {String}      - template function body
    */
   function resolveTemplate (tmpl, conf) {
     var startend = {
@@ -152,9 +152,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveInterpolate (tmpl, conf) {
     return tmpl.replace(conf.interpolate || _skip, function (match, code) {
@@ -163,9 +163,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveEncode (tmpl, conf) {
     return tmpl.replace(conf.encode || _skip, function (match, code) {
@@ -174,9 +174,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveConditional (tmpl, conf) {
     return tmpl.replace(conf.conditional || _skip, function (match, elsecase, code) {
@@ -188,9 +188,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveIterate (tmpl, conf) {
     var sid = 0;
@@ -214,9 +214,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveEvaluate (tmpl, conf) {
     return tmpl.replace(conf.evaluate || _skip, function (match, code) {
@@ -225,9 +225,9 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @param  {Object} conf
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @param  {Object} conf - config
+   * @return {String}      - template after process
    */
   function resolveDefine (tmpl, conf, def) {
     if ("string" !== typeof tmpl) {
@@ -272,8 +272,8 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @return {String}      - template after process
    */
   function resolveStrip (tmpl) {
     return tmpl.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, " ")
@@ -281,8 +281,8 @@
   }
 
   /**
-   * @param  {String} tmpl
-   * @return {String}
+   * @param  {String} tmpl - template before process
+   * @return {String}      - template after process
    */
   function resolveMisc (tmpl) {
     return tmpl.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
@@ -297,8 +297,8 @@
    */
 
   /**
-   * @param  {String} code
-   * @return {String}
+   * @param  {String} code - template code string
+   * @return {String}      - unescap string
    */
   function unescape (code) {
     return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ");
