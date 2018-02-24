@@ -84,7 +84,7 @@
    */
   doT.template = function (tmpl, conf, def) {
     conf = conf || doT.templateSettings;
-    var wipTmpl = tmpl;
+    var wipTmpl = tmpl.toString();
     if (conf.define || conf.use) {
       wipTmpl = resolveDefine(wipTmpl, conf, def || {});
     }
@@ -227,26 +227,20 @@
   /**
    * @param  {String} tmpl - template before process
    * @param  {Object} conf - config
+   * @param  {Object} def  - defines
    * @return {String}      - template after process
    */
   function resolveDefine (tmpl, conf, def) {
-    if ("string" !== typeof tmpl) {
-      tmpl = tmpl.toString();
-    }
     tmpl = tmpl.replace(conf.define || _skip, function (match, defname, assign, value) {
       if (0 === defname.indexOf("def.")) {
         defname = defname.substring(4);
       }
       if (!(defname in def)) {
         if (":" === assign) {
-          if (conf.defineParams) {
-              value.replace(conf.defineParams, function (match, varname, subTmpl) {
-              def[defname] = { varname: varname, tmpl: subTmpl };
-            });
-          }
-          if (!(defname in def)) {
-            def[defname] = value;
-          }
+          def[defname] = value;
+          value.replace(conf.defineParams || _skip, function (match, varname, subTmpl) {
+            def[defname] = { varname: varname, tmpl: subTmpl };
+          });
         } else {
           new Function("def", "def['"+defname+"'] = " + value)(def);
         }
@@ -254,17 +248,15 @@
       return "";
     });
     tmpl = tmpl.replace(conf.use || _skip, function (match, code) {
-      if (conf.useParams) {
-        code = code.replace(conf.useParams, function (match, operator, defname, param) {
-          if (def[defname] && def[defname].varname && param) {
-            var key = (defname+":"+param).replace(/'|\\/g, "_");
-            var reg = "(^|[^\\w$])" + def[defname].varname + "([^\\w$])";
-            def.__exp = def.__exp || {};
-            def.__exp[key] = def[defname].tmpl.replace(new RegExp(reg, "g"), "$1"+param+"$2");
-            return operator + "def.__exp['"+key+"']";
-          }
-        });
-      }
+      code = code.replace(conf.useParams || _skip, function (match, operator, defname, param) {
+        if (def[defname] && def[defname].varname && param) {
+          var key = (defname+":"+param).replace(/'|\\/g, "_");
+          var reg = "(^|[^\\w$])" + def[defname].varname + "([^\\w$])";
+          def.__exp = def.__exp || {};
+          def.__exp[key] = def[defname].tmpl.replace(new RegExp(reg, "g"), "$1"+param+"$2");
+          return operator + "def.__exp['"+key+"']";
+        }
+      });
       var block = new Function("def", "return " + code)(def);
       return block ? resolveDefine(block, conf, def) : block;
     });
@@ -287,7 +279,6 @@
   function resolveMisc (tmpl) {
     return tmpl.replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
                .replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
-               // .replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
   }
 
   /**
