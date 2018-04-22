@@ -22,7 +22,8 @@
 			strip:		true,
 			append:		true,
 			selfcontained: false,
-			doNotSkipEncoded: false
+			doNotSkipEncoded: false,
+			spreadContext: false
 		},
 		template: undefined, //fn, compile template
 		compile:  undefined, //fn, for express
@@ -130,6 +131,21 @@
 				+ str;
 		}
 		try {
+			if (c.spreadContext) {
+				return function (context) {
+					var argnames = [];
+					var argvals = [];
+
+					for (var argname in context) {
+						argnames.push(argname);
+						argvals.push(context[argname]);
+					}
+
+					var f = Function.apply(this, argnames.concat([str]));
+
+					return f.apply(this, argvals);
+				};
+			}
 			return new Function(c.varname, str);
 		} catch (e) {
 			/* istanbul ignore else */

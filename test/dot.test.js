@@ -14,7 +14,7 @@ describe('doT', function(){
 			assert.strictEqual(doT.name, 'doT');
 		});
 	});
-	
+
 	describe('#template()', function(){
 		it('should return a function', function(){
 			assert.equal(typeof basiccompiled, "function");
@@ -26,6 +26,26 @@ describe('doT', function(){
 			assert.equal(basiccompiled({foo:"http"}), "<div>http</div>");
 			assert.equal(basiccompiled({foo:"http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>");
 			assert.equal(basiccompiled({}), "<div></div>");
+		});
+	});
+
+	describe('without scoping input to `varname`', function(){
+		var contextlesstemplate, contextlesscompiled
+
+		before(function(){
+			doT.templateSettings.spreadContext = true;
+			contextlesstemplate = "<div>{{!foo}}</div>";
+			contextlesscompiled = doT.template(contextlesstemplate);
+		});
+
+		after(function(){
+			doT.templateSettings.spreadContext = false;
+		});
+
+		it('should render the template without scoping input', function(){
+			assert.equal(contextlesscompiled({foo:"http"}), "<div>http</div>");
+			assert.equal(contextlesscompiled({foo:"http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>");
+			assert.equal(contextlesscompiled({foo:null}), "<div></div>");
 		});
 	});
 
