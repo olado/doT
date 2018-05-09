@@ -33,8 +33,8 @@
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
 			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
 		return function(code) {
-			code = '' + code;
-			return code ? code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
+			code = (undefined === code) ? '' : '' + code;
+			return code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;});
 		};
 	};
 
