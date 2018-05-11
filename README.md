@@ -61,12 +61,12 @@ Details
         var dots = require("dot").process({path: "./views"});
         dots.mytemplate({foo:"hello world"});
  ```
-   The above snippet will:
-	* Compile all templates in views folder (.dot, .def, .jst)
-  	* Place .js files compiled from .jst templates into the same folder
-     	   These files can be used with require, i.e. require("./views/mytemplate")
-  	* Return an object with functions compiled from .dot templates as its properties
-  	* Render mytemplate template
+The above snippet will:
+* Compile all templates in views folder (.dot, .def, .jst)
+* Place .js files compiled from .jst templates into the same folder
+   These files can be used with require, i.e. require("./views/mytemplate")
+* Return an object with functions compiled from .dot templates as its properties
+* Render mytemplate template
  
 #### CLI tool to compile dot templates into js files
 
