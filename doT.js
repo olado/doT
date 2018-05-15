@@ -33,7 +33,8 @@
 		var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
 			matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
 		return function(code) {
-			return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
+			code = (undefined === code) ? '' : '' + code;
+			return code.replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;});
 		};
 	};
 
@@ -74,7 +75,7 @@
 		.replace(c.use || skip, function(m, code) {
 			if (c.useParams) code = code.replace(c.useParams, function(m, s, d, param) {
 				if (def[d] && def[d].arg && param) {
-					var rw = (d+":"+param).replace(/'|\\/g, "_");
+					var rw = unescape((d+":"+param).replace(/'|\\/g, "_"));
 					def.__exp = def.__exp || {};
 					def.__exp[rw] = def[d].text.replace(new RegExp("(^|[^\\w$])" + def[d].arg + "([^\\w$])", "g"), "$1" + param + "$2");
 					return s + "def.__exp['"+rw+"']";
