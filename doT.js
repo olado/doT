@@ -9,6 +9,7 @@
 		name: "doT",
 		version: "1.1.1",
 		templateSettings: {
+			args:      /^\{\{\@([\s\S]+?)\}\}/,
 			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
 			interpolate: /\{\{=([\s\S]+?)\}\}/g,
 			encode:      /\{\{!([\s\S]+?)\}\}/g,
@@ -91,6 +92,16 @@
 
 	doT.template = function(tmpl, c, def) {
 		c = c || doT.templateSettings;
+
+		var fnArgs = c.varname;
+		if(c.args) {
+			var argsDeclMatch = c.args.exec(tmpl);
+			if(null !== argsDeclMatch) {
+				fnArgs = '{' + argsDeclMatch[1] + '}';
+				tmpl = tmpl.substr(argsDeclMatch[0].length);
+			}
+		}
+
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
@@ -130,10 +141,10 @@
 				+ str;
 		}
 		try {
-			return new Function(c.varname, str);
+			return new Function(fnArgs, str);
 		} catch (e) {
 			/* istanbul ignore else */
-			if (typeof console !== "undefined") console.log("Could not create a template function: " + str);
+			if (typeof console !== "undefined") console.log("Could not create a template function: (" + fnArgs + ") " + str);
 			throw e;
 		}
 	};
