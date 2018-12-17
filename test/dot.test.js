@@ -29,6 +29,17 @@ describe('doT', function(){
 		});
 	});
 
+	describe('encoding of falsy values', function(){
+		it('should render undefined to an empty string, and the other falsy values to their string values', function(){
+			assert.equal(basiccompiled({foo:''}), "<div></div>");
+			assert.equal(basiccompiled({foo:undefined}), "<div></div>");
+			assert.equal(basiccompiled({foo:null}), "<div>null</div>");
+			assert.equal(basiccompiled({foo:false}), "<div>false</div>");
+			assert.equal(basiccompiled({foo:NaN}), "<div>NaN</div>");
+			assert.equal(basiccompiled({foo:0}), "<div>0</div>");
+		});
+	});
+
 	describe('encoding with doNotSkipEncoded=false', function() {
 		it('should not replace &', function() {
 			global._encodeHTML = undefined;
