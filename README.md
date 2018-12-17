@@ -26,7 +26,19 @@ doT.js is fast, small and has no dependencies.
 
 http://olado.github.com/doT (todo: update docs with new features added in version 1.0.0)
 
-## New in version 1.0.0
+## Changelog 
+
+### New in version 2.0.0
+
+#### `{{! }}` renders falsy values – except `undefined`
+
+**Breaking change.** Falsy values – with the exception of `undefined` (i.e. `0`, `false`, `null`, `NaN` and an empty string) – are stringified to their string values. For example, `<p>{{! NaN }}</p>` is now rendered as `<p>NaN</p>`.
+
+In previous versions, an empty string was returned for falsy values.
+
+If you need `{{! value }}` to produce an empty string where `value` is falsy, write `{{! value || '' }}` or `{{! value || undefined }}`. 
+
+### New in version 1.0.0
 
 ####Added parameters support in partials
 
