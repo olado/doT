@@ -14,7 +14,7 @@ describe('doT', function(){
 			assert.strictEqual(doT.name, 'doT');
 		});
 	});
-	
+
 	describe('#template()', function(){
 		it('should return a function', function(){
 			assert.equal(typeof basiccompiled, "function");
@@ -30,13 +30,35 @@ describe('doT', function(){
 	});
 
 	describe('encoding of falsy values', function(){
-		it('should render undefined to an empty string, and the other falsy values to their string values', function(){
-			assert.equal(basiccompiled({foo:''}), "<div></div>");
-			assert.equal(basiccompiled({foo:undefined}), "<div></div>");
-			assert.equal(basiccompiled({foo:null}), "<div>null</div>");
-			assert.equal(basiccompiled({foo:false}), "<div>false</div>");
-			assert.equal(basiccompiled({foo:NaN}), "<div>NaN</div>");
-			assert.equal(basiccompiled({foo:0}), "<div>0</div>");
+		it('should render undefined to an empty string, and the other falsy values to their string values', function () {
+			assert.equal(basiccompiled({foo: ''}), "<div></div>");
+			assert.equal(basiccompiled({foo: undefined}), "<div></div>");
+			assert.equal(basiccompiled({foo: null}), "<div>null</div>");
+			assert.equal(basiccompiled({foo: false}), "<div>false</div>");
+			assert.equal(basiccompiled({foo: NaN}), "<div>NaN</div>");
+			assert.equal(basiccompiled({foo: 0}), "<div>0</div>");
+		});
+
+		it('should render an empty string when OR-ed with undefined', function () {
+			basictemplate = "<div>{{!it.foo || undefined}}</div>";
+			basiccompiled = doT.template(basictemplate);
+			assert.equal(basiccompiled({foo: ''}), "<div></div>");
+			assert.equal(basiccompiled({foo: undefined}), "<div></div>");
+			assert.equal(basiccompiled({foo: null}), "<div></div>");
+			assert.equal(basiccompiled({foo: false}), "<div></div>");
+			assert.equal(basiccompiled({foo: NaN}), "<div></div>");
+			assert.equal(basiccompiled({foo: 0}), "<div></div>");
+		});
+
+		it('should render an empty string when OR-ed with an empty string', function () {
+			basictemplate = "<div>{{!it.foo || ''}}</div>";
+			basiccompiled = doT.template(basictemplate);
+			assert.equal(basiccompiled({foo: ''}), "<div></div>");
+			assert.equal(basiccompiled({foo: undefined}), "<div></div>");
+			assert.equal(basiccompiled({foo: null}), "<div></div>");
+			assert.equal(basiccompiled({foo: false}), "<div></div>");
+			assert.equal(basiccompiled({foo: NaN}), "<div></div>");
+			assert.equal(basiccompiled({foo: 0}), "<div></div>");
 		});
 	});
 
