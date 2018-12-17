@@ -30,11 +30,11 @@ http://olado.github.com/doT (todo: update docs with new features added in versio
 
 ### New in version 2.0.0
 
-#### `{{! }}` renders falsy values – except `undefined`
+#### `{{! }}` renders falsy values with the exception of `undefined`
 
-**Breaking change.** Falsy values – with the exception of `undefined` (i.e. `0`, `false`, `null`, `NaN` and an empty string) – are stringified to their string values. For example, `<p>{{! NaN }}</p>` is now rendered as `<p>NaN</p>`.
+**Breaking change.** The falsy values `0`, `false`, `null`, `NaN` and an empty string, but not `undefined` are stringified to their string values. For example, `<p>{{! NaN }}</p>` is now rendered as `<p>NaN</p>`. However, `<p>{{! undefined }}</p>` is still rendered as `<p></p>`.
 
-In previous versions, an empty string was returned for falsy values.
+In previous versions, an empty string was returned for any falsy value.
 
 If you need `{{! value }}` to produce an empty string where `value` is falsy, write `{{! value || '' }}` or `{{! value || undefined }}`. 
 
