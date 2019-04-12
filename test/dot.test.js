@@ -14,7 +14,7 @@ describe('doT', function(){
 			assert.strictEqual(doT.name, 'doT');
 		});
 	});
-	
+
 	describe('#template()', function(){
 		it('should return a function', function(){
 			assert.equal(typeof basiccompiled, "function");
@@ -53,6 +53,38 @@ describe('doT', function(){
 			test([
 				'{{ it.one = 1; it.two = 2; }}{{= it.one }}{{= it.two }}',
 			], {}, '12');
+		});
+	});
+
+	describe('invalid tokens', function () {
+		it('should allow line separator in template', function () {
+			assert.doesNotThrow(function () {
+				assert.equal(doT.template('{{=it.test}}\u2028')({test:"ok"}), "ok\u2028");
+			});
+		});
+
+		it('should allow line separator in vars', function () {
+			assert.doesNotThrow(function () {
+				assert.equal(doT.template('{{=it.test}}')({test:"ok\u2028"}), "ok\u2028");
+			});
+		});
+
+		it('should allow line separator in defines', function () {
+			assert.doesNotThrow(function () {
+				assert.equal(doT.template('{{=it.test}}{{#def.myconst}}', null, {myconst: '\u2028'})({test:"ok"}), "ok\u2028");
+			});
+		});
+
+		it('should allow paragraph separator in defines', function () {
+			assert.doesNotThrow(function () {
+				assert.equal(doT.template('{{=it.test}}{{#def.myconst}}', null, {myconst: '\u2029'})({test:"ok"}), "ok\u2029");
+			});
+		});
+
+		it('should allow paragraph separator in template', function () {
+			assert.doesNotThrow(function () {
+				assert.equal(doT.template('{{=it.test}}\u2029')({test:"ok"}), "ok\u2029");
+			});
 		});
 	});
 
