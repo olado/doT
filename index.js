@@ -58,6 +58,12 @@ InstallDots.prototype.compileToFile = function(path, template, def) {
 		, fn;
 
 	for (var property in defs) {
+		// It looks like the code block inside "if" below can never be executed,
+		// because InstallDots constructor is private, compileToFile is only called from compileAll method
+		// and def parameter is never passed to it, so the condition in if will always fail.
+		// This code will be removed from the next major version.
+		// For now it is only excluded from coverage report
+		/* istanbul ignore if */
 		if (defs[property] !== def[property] && defs[property] !== this.__includes[property]) {
 			fn = undefined;
 			if (typeof defs[property] === 'string') {
