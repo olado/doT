@@ -42,7 +42,7 @@ function InstallDots(o) {
 	if (this.__destination[this.__destination.length-1] !== '/') this.__destination += '/';
 	this.__global		= o.global || "window.render";
 	this.__rendermodule	= o.rendermodule || {};
-	this.__settings 	= o.templateSettings ? copy(o.templateSettings, copy(doT.templateSettings)) : undefined;
+	this.__settings 	= Object.prototype.hasOwnProperty.call(o,"templateSettings") ? copy(o.templateSettings, copy(doT.templateSettings)) : undefined;
 	this.__includes		= {};
 }
 
