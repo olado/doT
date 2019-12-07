@@ -29,3 +29,5 @@ node_modules
 
 # MacOS directory info files
 .DS_Store
+
+package-lock.json

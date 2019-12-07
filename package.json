@@ -22,7 +22,8 @@
   "license": "MIT",
   "scripts": {
     "eslint": "if-node-version '>=4' eslint *.js --ignore-pattern *.min.js",
-    "test-cov": "nyc mocha test/*.test.js",
+    "test-spec": "mocha test/*.test.js",
+    "test-cov": "nyc npm run test-spec",
     "test": "npm run eslint && npm run test-cov",
     "bundle": "uglifyjs doT.js -o doT.min.js -c -m --preamble '/* Laura Doktorova https://github.com/olado/doT */'",
     "prepublish": "npm run bundle"
@@ -30,13 +31,13 @@
   "dependencies": {},
   "devDependencies": {
     "commander": "*",
-    "coveralls": "^2.11.14",
-    "eslint": "^3.9.1",
-    "if-node-version": "^1.1.0",
+    "coveralls": "^3.0.9",
+    "eslint": "^6.7.2",
+    "if-node-version": "^1.1.1",
     "jshint": "*",
     "mkdirp": "*",
     "mocha": "*",
-    "nyc": "^8.3.2",
+    "nyc": "^14.1.1",
     "pre-commit": "^1.1.3",
     "uglify-js": "*"
   },
