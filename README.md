@@ -9,6 +9,17 @@ doT.js is fast, small and has no dependencies.
 [![Coverage Status](http://coveralls.io/repos/github/olado/doT/badge.svg?branch=master)](https://coveralls.io/github/olado/doT?branch=master)
 
 
+## Note from the maintainer
+
+doT is a really solid piece of software engineering (I didn’t create it) that is rarely updated exactly for this reason.
+
+It took me years to grasp how it works even though it’s only 140 lines of code - it looks like magic.
+
+I used it in my other projects (e.g. [ajv](https://github.com/epoberezkin/ajv)) as the smallest, the fastest and the most functional (all three!) templating engine ever made, that is particularly useful in all code generation scenarios where manipulating AST is an overkill.
+
+It’s a race car of templating engines - doT lacks bells and whistles that other templating engines have, but it allows to achive more than any other, if you use it right (YMMV).
+
+
 ## Features
     custom delimiters
     runtime evaluation
