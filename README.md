@@ -81,6 +81,18 @@ Details
     doU.js is here only so that legacy external tests do not break. Use doT.js.
     doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
 
+## Security considerations
+
+doT allows arbitrary JavaScript code in templates, making it one of the most flexible and powerful templating engines. It means that doT security model assumes that you only use trusted templates and you don't use any  user input as any part of the template, as otherwise it can lead to code injection.
+
+It is strongly recommended to compile all templates to JS code as early as possible. Possible options:
+
+- using doT as dev-dependency only and compiling templates to JS files, for example, as described above or using a custom script, during the build. This is the most performant and secure approach and it is strongly recommended.
+- if the above approach is not possible for some reason (e.g. templates are dynamically generated using some run-time data), it is recommended to compile templates to in-memory functions during application start phase, before any external input is processed.
+- compiling templates lazily, on demand, is less safe. Even though the possibility of the code injection via prototype pollution was patched (#291), there may be some other unknown vulnerabilities that could lead to code injection.
+
+Please report any found vulnerabilities to npm, not via issue tracker.
+
 ## Author
 Laura Doktorova [@olado](http://twitter.com/olado)
 
