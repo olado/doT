@@ -98,7 +98,6 @@
 			.replace(/(-}})([\s])/g, "$1"): str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
-				console.log(code)
 				return cse.start + unescape(code) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
