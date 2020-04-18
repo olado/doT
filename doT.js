@@ -17,7 +17,7 @@
 			define:      /\{\{-?##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#-?\}\}/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
 			conditional: /\{\{-?\?(\?)?\s*([\s\S]*?)\s*-?\}\}/g,
-			iterate:     /\{\{-?~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*-?\}\})/g,
+			iterate:     /\{\{-?~\s*(?:-?\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*-?\}\})/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
@@ -112,7 +112,6 @@
 			})
 			.replace(c.iterate || skip, function(m, iterate, vname, iname) {
 				if (!iterate) return "';} } out+='";
-				sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
 				return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
 					+vname+"=arr"+sid+"["+indv+"+=1];out+='";
 			})
@@ -142,3 +141,40 @@
 		return doT.template(tmpl, null, def);
 	};
 }());
+
+
+var out = '';
+var arr1 = it.lines;
+if (arr1) {
+    var value, index = -1,
+        l1 = arr1.length - 1;
+    while (index < l1) {
+        value = arr1[index += 1];
+        out += '[list-item title="' + (value.title || '') + '" link="' + (value.url || '') + '" image_url="https://placehold.it/500x500" image_alt="' + (value.title || '') + '" price="' + (value.price || '') + '" callout="Callout Here" button_text="VIEW RECIPE" source="ketopots.com"';
+        if (value.carbs) {
+            out += ' carbs="';
+            value.carbsout += '" ';
+        }
+        if (value.sugar) {
+            out += 'sugar="';
+            value.sugarout += '" ';
+        }
+        if (value.protein) {
+            out += 'protein="';
+            value.proteinout += '" ';
+        }
+        if (value.calories) {
+            out += 'calories="';
+            value.caloriesout += '" ';
+        }
+        if (value.fat) {
+            out += 'fat="';
+            value.fatout += '" ';
+        }
+        if (value.fiber) {
+            out += 'fiber="';
+            value.fiberout += '" ';
+		}
+        out += ']\n' + (value.content || 'Content Goes Here') + '\n[/list-item]\n\n';
+        ~out += '';
+        return out;
