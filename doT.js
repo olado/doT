@@ -9,15 +9,15 @@
 		name: "doT",
 		version: "1.1.1",
 		templateSettings: {
-			evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
-			interpolate: /\{\{=([\s\S]+?)\}\}/g,
-			encode:      /\{\{!([\s\S]+?)\}\}/g,
-			use:         /\{\{#([\s\S]+?)\}\}/g,
+			evaluate:    /\{\{-*([\s\S]+?(\}?)+)-*\}\}/g,
+			interpolate: /\{\{-*=([\s\S]+?)-*\}\}/g,
+			encode:      /\{\{-*!([\s\S]+?)-*\}\}/g,
+			use:         /\{\{-*#([\s\S]+?)-*\}\}/g,
 			useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-			define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+			define:      /\{\{-*##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#-*\}\}/g,
 			defineParams:/^\s*([\w$]+):([\s\S]+)/,
-			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+			conditional: /\{\{-*\?(\?)?\s*([\s\S]*?)\s*-*\}\}/g,
+			iterate:     /\{\{-*~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*-*\}\})/g,
 			varname:	"it",
 			strip:		true,
 			append:		true,
@@ -94,10 +94,11 @@
 		var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
 			str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
-		str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
-					.replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
+		str = ("var out='" + (c.strip ? str.replace(/([\s]+)({{-)/g, "$2")
+			.replace(/(-}})([\s])/g, "$1"): str)
 			.replace(/'|\\/g, "\\$&")
 			.replace(c.interpolate || skip, function(m, code) {
+				console.log(code)
 				return cse.start + unescape(code) + cse.end;
 			})
 			.replace(c.encode || skip, function(m, code) {
