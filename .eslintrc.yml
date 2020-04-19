@@ -21,3 +21,4 @@ rules:
   no-return-assign: 2
   no-use-before-define: [ 2, nofunc ]
   no-path-concat: 2
+  no-useless-escape: 0

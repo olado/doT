@@ -1,7 +1,6 @@
 'use strict';
 
-var test = require('./util').test;
-var doT = require('../doT');
+var doT = require('..');
 var assert = require('assert');
 
 describe('defines', function() {

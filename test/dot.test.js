@@ -2,7 +2,7 @@
 
 var test = require('./util').test;
 var assert = require("assert")
-var doT = require("../doT");
+var doT = require("..");
 
 
 describe('doT', function(){
