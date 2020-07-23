@@ -4,22 +4,30 @@
 
 const doT = module.exports = {
   templateSettings: {
-    varname: "it",
-    strip: true
+    argName: "it",
+    internalPrefix: "val",
+    strip: true,
   },
   template,
   compile
 }
 
 const SYN = {
-  evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+  evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
   interpolate: /\{\{=([\s\S]+?)\}\}/g,
-  use:         /\{\{#([\s\S]+?)\}\}/g,
-  useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-  define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-  defineParams:/^\s*([\w$]+):([\s\S]+)/,
+  safeInterpolate: /\{\{(num|str|bool)=([\s\S]+?)\}\}/g,
+  use: /\{\{#([\s\S]+?)\}\}/g,
+  useParams: /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+  define: /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+  defineParams: /^\s*([\w$]+):([\s\S]+)/,
   conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-  iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+  iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+}
+
+const TYPES = {
+  num: {name: "number", check: (sid) => `typeof val${sid} == "number"`},
+  str: {name: "string", check: (sid) => `typeof val${sid} == "string"`},
+  bool: {name: "boolean", check: (sid) => `typeof val${sid} == "boolean"`},
 }
 
 function resolveDefs(c, block, def) {
@@ -71,15 +79,23 @@ function template(tmpl, c, def) {
         : str
       ) .replace(/'|\\/g, "\\$&")
         .replace(SYN.interpolate, (_, code) => `'+(${unesc(code)})+'`)
+        .replace(SYN.safeInterpolate, (_, typ, code) => {
+          sid++
+          const val = c.internalPrefix + sid
+          const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`
+          return `';const ${val}=(${unesc(code)});if(typeof ${val}!="${TYPES[typ]}") ${error};out+=${val}+'`
+        })
         .replace(SYN.conditional, (_, elseCase, code) =>
           elseCase
             ? (code ? `';}else if(${unesc(code)}){out+='` : "';}else{out+='")
             : (code ? `';if(${unesc(code)}){out+='` : "';}out+='"))
-        .replace(SYN.iterate, (_, arr, x, i) => {
+        .replace(SYN.iterate, (_, arr, vName, iName) => {
           if (!arr) return "';} } out+='"
-          sid += 1
-          i = i || `i${sid}`
-          return `';var arr${sid}=${unesc(arr)};if(arr${sid}){var ${x},${i}=-1,l${sid}=arr${sid}.length-1;while(${i}<l${sid}){${x}=arr${sid}[${i}+=1];out+='`
+          sid++
+          const defI = iName ? `let ${iName}=-1;` : ""
+          const incI = iName ? `${iName}++;` : ""
+          const val = c.internalPrefix + sid
+          return `';const ${val}=${unesc(arr)};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
         })
         .replace(SYN.evaluate, (_, code) => `';${unesc(code)}out+='`)
       + "';return out;"
@@ -88,7 +104,7 @@ function template(tmpl, c, def) {
     .replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "")
 
   try {
-    return new Function(c.varname, str)
+    return new Function(c.argName, str)
   } catch (e) {
     console.log("Could not create a template function: " + str)
     throw e
