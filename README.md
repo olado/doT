@@ -28,7 +28,6 @@ It’s a race car of templating engines - doT lacks bells and whistles that othe
     partials support
     conditionals support
     array iterators
-    encoding
     control whitespace - strip or preserve
     streaming friendly
     use it as logic-less or with logic, it is up to you
@@ -79,19 +78,6 @@ Details
   	* Return an object with functions compiled from .dot templates as its properties
   	* Render mytemplate template
  
-#### CLI tool to compile dot templates into js files
-
-	./bin/dot-packer -s examples/views -d out/views
-
-## Example for express
-	Many people are using doT with express. I added an example of the best way of doing it examples/express:
-
-[doT with express](examples/express)
-
-## Notes
-    doU.js is here only so that legacy external tests do not break. Use doT.js.
-    doT.js with doT.templateSettings.append=false provides the same performance as doU.js.
-
 ## Security considerations
 
 doT allows arbitrary JavaScript code in templates, making it one of the most flexible and powerful templating engines. It means that doT security model assumes that you only use trusted templates and you don't use any  user input as any part of the template, as otherwise it can lead to code injection.

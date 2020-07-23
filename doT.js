@@ -16,8 +16,7 @@ var doT = {
     conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
     iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
     varname:	"it",
-    strip:		true,
-    append:		true
+    strip:		true
   },
   template: undefined, //fn, compile template
   compile:  undefined, //fn, for express
@@ -26,10 +25,7 @@ var doT = {
 
 module.exports = doT;
 
-var startend = {
-  append: { start: "'+(",      end: ")+'" },
-  split:  { start: "';out+=(", end: ");out+='" }
-}, skip = /$^/;
+var skip = /$^/;
 
 function resolveDefs(c, block, def) {
   return ((typeof block === "string") ? block : block.toString())
@@ -69,14 +65,14 @@ function unescape(code) {
 
 doT.template = function(tmpl, c, def) {
   c = c || doT.templateSettings;
-  var cse = c.append ? startend.append : startend.split, sid = 0, indv,
+  var sid = 0, indv,
     str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
   str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
         .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
     .replace(/'|\\/g, "\\$&")
     .replace(c.interpolate || skip, function(m, code) {
-      return cse.start + unescape(code) + cse.end;
+      return "'+(" + unescape(code) + ")+'";
     })
     .replace(c.conditional || skip, function(m, elsecase, code) {
       return elsecase ?
@@ -95,7 +91,6 @@ doT.template = function(tmpl, c, def) {
     + "';return out;")
     .replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
     .replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
-    //.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
   try {
     return new Function(c.varname, str);
