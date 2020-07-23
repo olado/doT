@@ -6,15 +6,6 @@ var doT = {
   name: "doT",
   version: "1.1.1",
   templateSettings: {
-    evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
-    interpolate: /\{\{=([\s\S]+?)\}\}/g,
-    encode:      /\{\{!([\s\S]+?)\}\}/g,
-    use:         /\{\{#([\s\S]+?)\}\}/g,
-    useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
-    define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
-    defineParams:/^\s*([\w$]+):([\s\S]+)/,
-    conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-    iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
     varname:	"it",
     strip:		true
   },
@@ -23,19 +14,30 @@ var doT = {
   log: true
 };
 
+var syntax = {
+  evaluate:    /\{\{([\s\S]+?(\}?)+)\}\}/g,
+  interpolate: /\{\{=([\s\S]+?)\}\}/g,
+  use:         /\{\{#([\s\S]+?)\}\}/g,
+  useParams:   /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
+  define:      /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
+  defineParams:/^\s*([\w$]+):([\s\S]+)/,
+  conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
+  iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
+};
+
 module.exports = doT;
 
 var skip = /$^/;
 
 function resolveDefs(c, block, def) {
   return ((typeof block === "string") ? block : block.toString())
-  .replace(c.define || skip, function(m, code, assign, value) {
+  .replace(syntax.define || skip, function(m, code, assign, value) {
     if (code.indexOf("def.") === 0) {
       code = code.substring(4);
     }
     if (!(code in def)) {
       if (assign === ":") {
-        if (c.defineParams) value.replace(c.defineParams, function(m, param, v) {
+        if (syntax.defineParams) value.replace(syntax.defineParams, function(m, param, v) {
           def[code] = {arg: param, text: v};
         });
         if (!(code in def)) def[code]= value;
@@ -45,8 +47,8 @@ function resolveDefs(c, block, def) {
     }
     return "";
   })
-  .replace(c.use || skip, function(m, code) {
-    if (c.useParams) code = code.replace(c.useParams, function(m, s, d, param) {
+  .replace(syntax.use, function(m, code) {
+    if (syntax.useParams) code = code.replace(syntax.useParams, function(m, s, d, param) {
       if (def[d] && def[d].arg && param) {
         var rw = (d+":"+param).replace(/'|\\/g, "_");
         def.__exp = def.__exp || {};
@@ -66,26 +68,26 @@ function unescape(code) {
 doT.template = function(tmpl, c, def) {
   c = c || doT.templateSettings;
   var sid = 0, indv,
-    str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
+    str  = (syntax.use || syntax.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
   str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
         .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,""): str)
     .replace(/'|\\/g, "\\$&")
-    .replace(c.interpolate || skip, function(m, code) {
+    .replace(syntax.interpolate, function(m, code) {
       return "'+(" + unescape(code) + ")+'";
     })
-    .replace(c.conditional || skip, function(m, elsecase, code) {
+    .replace(syntax.conditional, function(m, elsecase, code) {
       return elsecase ?
         (code ? "';}else if(" + unescape(code) + "){out+='" : "';}else{out+='") :
         (code ? "';if(" + unescape(code) + "){out+='" : "';}out+='");
     })
-    .replace(c.iterate || skip, function(m, iterate, vname, iname) {
+    .replace(syntax.iterate, function(m, iterate, vname, iname) {
       if (!iterate) return "';} } out+='";
       sid+=1; indv=iname || "i"+sid; iterate=unescape(iterate);
       return "';var arr"+sid+"="+iterate+";if(arr"+sid+"){var "+vname+","+indv+"=-1,l"+sid+"=arr"+sid+".length-1;while("+indv+"<l"+sid+"){"
         +vname+"=arr"+sid+"["+indv+"+=1];out+='";
     })
-    .replace(c.evaluate || skip, function(m, code) {
+    .replace(syntax.evaluate, function(m, code) {
       return "';" + unescape(code) + "out+='";
     })
     + "';return out;")

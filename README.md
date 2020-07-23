@@ -21,7 +21,6 @@ It’s a race car of templating engines - doT lacks bells and whistles that othe
 
 
 ## Features
-    custom delimiters
     runtime evaluation
     runtime interpolation
     compile-time evaluation
