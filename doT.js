@@ -62,7 +62,7 @@ function resolveDefs(c, block, def) {
   });
 }
 
-function unesc(code) {
+function unescape(code) {
   return code.replace(/\\('|\\)/g, "$1").replace(/[\r\t\n]/g, " ")
 }
 
@@ -78,26 +78,26 @@ function template(tmpl, c, def) {
             .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,"")
         : str
       ) .replace(/'|\\/g, "\\$&")
-        .replace(SYN.interpolate, (_, code) => `'+(${unesc(code)})+'`)
+        .replace(SYN.interpolate, (_, code) => `'+(${unescape(code)})+'`)
         .replace(SYN.safeInterpolate, (_, typ, code) => {
           sid++
           const val = c.internalPrefix + sid
           const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`
-          return `';const ${val}=(${unesc(code)});if(typeof ${val}!="${TYPES[typ]}") ${error};out+=${val}+'`
+          return `';const ${val}=(${unescape(code)});if(typeof ${val}!="${TYPES[typ]}") ${error};out+=${val}+'`
         })
         .replace(SYN.conditional, (_, elseCase, code) =>
           elseCase
-            ? (code ? `';}else if(${unesc(code)}){out+='` : "';}else{out+='")
-            : (code ? `';if(${unesc(code)}){out+='` : "';}out+='"))
+            ? (code ? `';}else if(${unescape(code)}){out+='` : "';}else{out+='")
+            : (code ? `';if(${unescape(code)}){out+='` : "';}out+='"))
         .replace(SYN.iterate, (_, arr, vName, iName) => {
           if (!arr) return "';} } out+='"
           sid++
           const defI = iName ? `let ${iName}=-1;` : ""
           const incI = iName ? `${iName}++;` : ""
           const val = c.internalPrefix + sid
-          return `';const ${val}=${unesc(arr)};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
+          return `';const ${val}=${unescape(arr)};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
         })
-        .replace(SYN.evaluate, (_, code) => `';${unesc(code)}out+='`)
+        .replace(SYN.evaluate, (_, code) => `';${unescape(code)}out+='`)
       + "';return out;"
     )
     .replace(/\n/g, "\\n").replace(/\t/g, '\\t').replace(/\r/g, "\\r")
