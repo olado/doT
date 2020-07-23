@@ -17,30 +17,18 @@ var doT = {
     iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
     varname:	"it",
     strip:		true,
-    append:		true,
-    selfcontained: false,
-    doNotSkipEncoded: false
+    append:		true
   },
   template: undefined, //fn, compile template
   compile:  undefined, //fn, for express
   log: true
 };
 
-doT.encodeHTMLSource = function(doNotSkipEncoded) {
-  var encodeHTMLRules = { "&": "&#38;", "<": "&#60;", ">": "&#62;", '"': "&#34;", "'": "&#39;", "/": "&#47;" },
-    matchHTML = doNotSkipEncoded ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
-  return function(code) {
-    return code ? code.toString().replace(matchHTML, function(m) {return encodeHTMLRules[m] || m;}) : "";
-  };
-};
-
-var _globals = (function(){ return this || (0,eval)("this"); }());
-
 module.exports = doT;
 
 var startend = {
-  append: { start: "'+(",      end: ")+'",      startencode: "'+encodeHTML(" },
-  split:  { start: "';out+=(", end: ");out+='", startencode: "';out+=encodeHTML(" }
+  append: { start: "'+(",      end: ")+'" },
+  split:  { start: "';out+=(", end: ");out+='" }
 }, skip = /$^/;
 
 function resolveDefs(c, block, def) {
@@ -81,7 +69,7 @@ function unescape(code) {
 
 doT.template = function(tmpl, c, def) {
   c = c || doT.templateSettings;
-  var cse = c.append ? startend.append : startend.split, needhtmlencode, sid = 0, indv,
+  var cse = c.append ? startend.append : startend.split, sid = 0, indv,
     str  = (c.use || c.define) ? resolveDefs(c, tmpl, def || {}) : tmpl;
 
   str = ("var out='" + (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
@@ -89,10 +77,6 @@ doT.template = function(tmpl, c, def) {
     .replace(/'|\\/g, "\\$&")
     .replace(c.interpolate || skip, function(m, code) {
       return cse.start + unescape(code) + cse.end;
-    })
-    .replace(c.encode || skip, function(m, code) {
-      needhtmlencode = true;
-      return cse.startencode + unescape(code) + cse.end;
     })
     .replace(c.conditional || skip, function(m, elsecase, code) {
       return elsecase ?
@@ -113,12 +97,6 @@ doT.template = function(tmpl, c, def) {
     .replace(/(\s|;|\}|^|\{)out\+='';/g, '$1').replace(/\+''/g, "");
     //.replace(/(\s|;|\}|^|\{)out\+=''\+/g,'$1out+=');
 
-  if (needhtmlencode) {
-    if (!c.selfcontained && _globals && !_globals._encodeHTML) _globals._encodeHTML = doT.encodeHTMLSource(c.doNotSkipEncoded);
-    str = "var encodeHTML = typeof _encodeHTML !== 'undefined' ? _encodeHTML : ("
-      + doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
-      + str;
-  }
   try {
     return new Function(c.varname, str);
   } catch (e) {
