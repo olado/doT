@@ -9,12 +9,6 @@ describe('doT', function(){
 	var basictemplate = "<div>{{=it.foo}}</div>";
 	var basiccompiled = doT.template(basictemplate);
 
-	describe('.name', function (){
-		it('should have a name', function(){
-			assert.strictEqual(doT.name, 'doT');
-		});
-	});
-	
 	describe('#template()', function(){
 		it('should return a function', function(){
 			assert.equal(typeof basiccompiled, "function");
