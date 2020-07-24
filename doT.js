@@ -51,13 +51,13 @@ function resolveDefs(c, block, def) {
   .replace(SYN.use, (_, code) => {
     code = code.replace(SYN.useParams, (_, s, d, param) => {
       if (def[d] && def[d].arg && param) {
-        var rw = (d+":"+param).replace(/'|\\/g, "_")
+        const rw = (d+":"+param).replace(/'|\\/g, "_")
         def.__exp = def.__exp || {}
         def.__exp[rw] = def[d].text.replace(new RegExp(`(^|[^\\w$])${def[d].arg}([^\\w$])`, "g"), `$1${param}$2`);
         return s + `def.__exp['${rw}']`
       }
     })
-    var v = new Function("def", "return " + code)(def)
+    const v = new Function("def", "return " + code)(def)
     return v ? resolveDefs(c, v, def) : v
   });
 }
@@ -68,8 +68,8 @@ function unescape(code) {
 
 function template(tmpl, c, def) {
   c = c || doT.templateSettings
-  var sid = 0
-  var str  = resolveDefs(c, tmpl, def || {})
+  let sid = 0
+  let str  = resolveDefs(c, tmpl, def || {})
 
   str =
     ( "var out='" +

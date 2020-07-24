@@ -1,0 +1,5 @@
+bin
+coverage
+examples
+.nyc_output
+doT.js
