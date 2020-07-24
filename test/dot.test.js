@@ -17,10 +17,7 @@ describe("doT", () => {
   describe("#()", () => {
     it("should render the template", () => {
       assert.equal(basiccompiled({foo: "http"}), "<div>http</div>")
-      assert.equal(
-        basiccompiled({foo: "http://abc.com"}),
-        "<div>http://abc.com</div>"
-      )
+      assert.equal(basiccompiled({foo: "http://abc.com"}), "<div>http://abc.com</div>")
       assert.equal(basiccompiled({}), "<div>undefined</div>")
     })
   })
@@ -35,11 +32,7 @@ describe("doT", () => {
   describe("interpolate 2 numbers", () => {
     it("should print numbers next to each other", () => {
       test(
-        [
-          "{{=it.one}}{{=it.two}}",
-          "{{= it.one}}{{= it.two}}",
-          "{{= it.one }}{{= it.two }}",
-        ],
+        ["{{=it.one}}{{=it.two}}", "{{= it.one}}{{= it.two}}", "{{= it.one }}{{= it.two }}"],
         {one: 1, two: 2},
         "12"
       )
@@ -79,25 +72,49 @@ describe("doT", () => {
 
   describe("evaluate JavaScript", () => {
     it("should print numbers next to each other", () => {
-      test(
-        ["{{ it.one = 1; it.two = 2; }}{{= it.one }}{{= it.two }}"],
-        {},
-        "12"
-      )
+      test(["{{ it.one = 1; it.two = 2; }}{{= it.one }}{{= it.two }}"], {}, "12")
     })
   })
 
-  describe("no HTML encoding", () => {
+  describe("no HTML encoding by default", () => {
     it("should NOT replace &", () => {
-      assert.equal(
-        doT.template("<div>{{=it.foo}}</div>")({foo: "&amp;"}),
-        "<div>&amp;</div>"
-      )
-      assert.equal(
-        doT.template("{{=it.a}}")({a: "& < > / ' \""}),
-        "& < > / ' \""
-      )
+      assert.equal(doT.template("<div>{{=it.foo}}</div>")({foo: "&amp;"}), "<div>&amp;</div>")
+      assert.equal(doT.template("{{=it.a}}")({a: "& < > / ' \""}), "& < > / ' \"")
       assert.equal(doT.template('{{="& < > / \' \\""}}')(), "& < > / ' \"")
+    })
+  })
+
+  describe("custom encoders", () => {
+    it("should run specified encoder ", () => {
+      const cfg = {
+        ...doT.templateSettings,
+        encoders: {
+          "": require("../encodeHTML"),
+          str: JSON.stringify,
+          rx: (s) => new RegExp(s).toString(),
+        },
+      }
+      assert.equal(doT.template("{{str! it}}", cfg)({foo: "bar"}), '{"foo":"bar"}')
+      assert.equal(doT.template("{{rx! it.regex}}", cfg)({regex: "foo.*"}), "/foo.*/")
+    })
+
+    it("should encode HTML with provided encoder", () => {
+      test({
+        ...doT.templateSettings,
+        defaultEncoder: require("../encodeHTML"),
+      })
+      test({
+        ...doT.templateSettings,
+        encoders: {
+          "": require("../encodeHTML"),
+        },
+      })
+
+      function test(cfg) {
+        const tmpl = doT.template("<div>{{!it.foo}}</div>", cfg)
+        assert.equal(tmpl({foo: "http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>")
+        assert.equal(tmpl({foo: "&amp;"}), "<div>&amp;</div>")
+      }
     })
   })
 

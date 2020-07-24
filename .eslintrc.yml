@@ -5,7 +5,7 @@ extends:
   - "eslint:recommended"
   - prettier
 parserOptions:
-  ecmaVersion: 6
+  ecmaVersion: 2018
 rules:
   block-scoped-var: error
   dot-location: [error, property]
