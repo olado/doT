@@ -15,7 +15,7 @@ const doT = module.exports = {
 const SYN = {
   evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
   interpolate: /\{\{=([\s\S]+?)\}\}/g,
-  safeInterpolate: /\{\{(num|str|bool)=([\s\S]+?)\}\}/g,
+  typeInterpolate: /\{\{%([nsb])=([\s\S]+?)\}\}/g,
   use: /\{\{#([\s\S]+?)\}\}/g,
   useParams: /(^|[^\w$])def(?:\.|\[[\'\"])([\w$\.]+)(?:[\'\"]\])?\s*\:\s*([\w$\.]+|\"[^\"]+\"|\'[^\']+\'|\{[^\}]+\})/g,
   define: /\{\{##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\}\}/g,
@@ -25,9 +25,9 @@ const SYN = {
 }
 
 const TYPES = {
-  num: {name: "number", check: (sid) => `typeof val${sid} == "number"`},
-  str: {name: "string", check: (sid) => `typeof val${sid} == "string"`},
-  bool: {name: "boolean", check: (sid) => `typeof val${sid} == "boolean"`},
+  n: "number",
+  s: "string",
+  b: "boolean",
 }
 
 function resolveDefs(c, block, def) {
@@ -79,7 +79,7 @@ function template(tmpl, c, def) {
         : str
       ) .replace(/'|\\/g, "\\$&")
         .replace(SYN.interpolate, (_, code) => `'+(${unescape(code)})+'`)
-        .replace(SYN.safeInterpolate, (_, typ, code) => {
+        .replace(SYN.typeInterpolate, (_, typ, code) => {
           sid++
           const val = c.internalPrefix + sid
           const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`

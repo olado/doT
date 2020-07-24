@@ -40,6 +40,33 @@ describe('doT', function(){
 		});
 	});
 
+	describe('type-safe interpolation', () => {
+		it('should interpolate correct types', () => {
+			test([
+				'{{%n=it.num}}-{{%s=it.str}}-{{%b=it.bool}}',
+				'{{%n= it.num}}-{{%s= it.str}}-{{%b= it.bool}}',
+				'{{%n= it.num }}-{{%s= it.str }}-{{%b= it.bool }}'
+			], {num: 1, str: 'foo', bool: true}, '1-foo-true')
+		})
+
+		it('should throw on incorrect data types', () => {
+			const numTmpl = doT.template('{{%n=it.num}}')
+			assert.strictEqual(numTmpl({num: 1}), '1')
+			assert.throws(() => numTmpl({num: "1"}))
+			assert.throws(() => numTmpl({num: true}))
+
+			const strTmpl = doT.template('{{%s=it.str}}')
+			assert.strictEqual(strTmpl({str: "foo"}), 'foo')
+			assert.throws(() => strTmpl({str: 1}))
+			assert.throws(() => strTmpl({str: true}))
+
+			const boolTmpl = doT.template('{{%b=it.bool}}')
+			assert.strictEqual(boolTmpl({bool: true}), 'true')
+			assert.throws(() => boolTmpl({bool: "true"}))
+			assert.throws(() => boolTmpl({bool: 1}))
+		})
+	})
+
 	describe('evaluate JavaScript', function() {
 		it('should print numbers next to each other', function() {
 			test([
