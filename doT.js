@@ -72,7 +72,7 @@ function template(tmpl, c, def) {
   let str  = resolveDefs(c, tmpl, def || {})
 
   str =
-    ( "var out='" +
+    ( "let out='" +
       ( c.strip
         ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g," ")
             .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g,"")
@@ -83,7 +83,7 @@ function template(tmpl, c, def) {
           sid++
           const val = c.internalPrefix + sid
           const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`
-          return `';const ${val}=(${unescape(code)});if(typeof ${val}!="${TYPES[typ]}") ${error};out+=${val}+'`
+          return `';const ${val}=(${unescape(code)});if(typeof ${val}!=="${TYPES[typ]}") ${error};out+=${val}+'`
         })
         .replace(SYN.conditional, (_, elseCase, code) =>
           elseCase
