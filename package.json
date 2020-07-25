@@ -9,6 +9,7 @@
   ],
   "version": "2.0.0-beta.0",
   "main": "doT.js",
+  "types": "doT.d.ts",
   "bin": {
     "dottojs": "./bin/dot-packer"
   },
@@ -22,7 +23,8 @@
     "prettier:check": "prettier --list-different './**/*.{md,json,yaml,js,ts}'",
     "test-spec": "mocha test/*.test.js",
     "test-cov": "nyc npm run test-spec",
-    "test": "npm run eslint && npm run test-cov"
+    "test-ts": "tsc doT.d.ts",
+    "test": "npm run eslint && npm run test-cov && npm run test-ts"
   },
   "dependencies": {},
   "devDependencies": {
@@ -35,7 +37,8 @@
     "mocha": "*",
     "nyc": "^14.1.1",
     "pre-commit": "^1.1.3",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.7"
   },
   "nyc": {
     "exclude": [
