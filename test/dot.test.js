@@ -31,28 +31,20 @@ describe("doT", () => {
 
   describe("interpolate 2 numbers", () => {
     it("should print numbers next to each other", () => {
-      test(
-        ["{{=it.one}}{{=it.two}}", "{{= it.one}}{{= it.two}}", "{{= it.one }}{{= it.two }}"],
-        {one: 1, two: 2},
-        "12"
-      )
+      test(["{{=it.one}}{{=it.two}}", "{{= it.one}}{{= it.two}}", "{{= it.one }}{{= it.two }}"], {one: 1, two: 2}, "12")
     })
   })
 
   describe("type-safe interpolation", () => {
     it("should interpolate correct types", () => {
       test(
-        [
-          "{{%n=it.num}}-{{%s=it.str}}-{{%b=it.bool}}",
-          "{{%n= it.num}}-{{%s= it.str}}-{{%b= it.bool}}",
-          "{{%n= it.num }}-{{%s= it.str }}-{{%b= it.bool }}",
-        ],
+        ["{{%n=it.num}}-{{%s=it.str}}-{{%b=it.bool}}", "{{%n= it.num}}-{{%s= it.str}}-{{%b= it.bool}}", "{{%n= it.num }}-{{%s= it.str }}-{{%b= it.bool }}"],
         {num: 1, str: "foo", bool: true},
         "1-foo-true"
       )
     })
 
-    it("should throw on incorrect data types", () => {
+    it("should throw render-time exception on incorrect data types", () => {
       const numTmpl = doT.template("{{%n=it.num}}")
       assert.strictEqual(numTmpl({num: 1}), "1")
       assert.throws(() => numTmpl({num: "1"}))
@@ -85,36 +77,103 @@ describe("doT", () => {
   })
 
   describe("custom encoders", () => {
-    it("should run specified encoder ", () => {
-      const cfg = {
-        ...doT.templateSettings,
-        encoders: {
-          "": require("../encodeHTML"),
-          str: JSON.stringify,
-          rx: (s) => new RegExp(s).toString(),
-        },
-      }
-      assert.equal(doT.template("{{str! it}}", cfg)({foo: "bar"}), '{"foo":"bar"}')
-      assert.equal(doT.template("{{rx! it.regex}}", cfg)({regex: "foo.*"}), "/foo.*/")
+    describe("selfContained: false (default)", () => {
+      it("should run specified encoder", () => {
+        const cfg = {
+          ...doT.templateSettings,
+          encoders: {
+            str: JSON.stringify,
+            rx: (s) => new RegExp(s).toString(),
+          },
+        }
+        assert.equal(doT.template("{{str! it}}", cfg)({foo: "bar"}), '{"foo":"bar"}')
+        assert.equal(doT.template("{{rx! it.regex}}", cfg)({regex: "foo.*"}), "/foo.*/")
+      })
+
+      it("should encode HTML with provided encoder", () => {
+        const encodeHTML = require("../encodeHTML")()
+        test({
+          ...doT.templateSettings,
+          encoders: {
+            "": encodeHTML,
+          },
+        })
+
+        function test(cfg) {
+          const tmpl = doT.template("<div>{{!it.foo}}</div>", cfg)
+          assert.equal(tmpl({foo: "http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>")
+          assert.equal(tmpl({foo: "&amp;"}), "<div>&amp;</div>")
+        }
+      })
+
+      it("should throw compile time exception if encoder is not specified", () => {
+        const cfg = {
+          ...doT.templateSettings,
+          encoders: {
+            str: JSON.stringify,
+          },
+        }
+        assert.doesNotThrow(() => doT.template("{{str! it}}", cfg))
+        assert.throws(() => doT.template("{{rx! it}}", cfg), /unknown encoder/)
+      })
     })
 
-    it("should encode HTML with provided encoder", () => {
-      test({
-        ...doT.templateSettings,
-        defaultEncoder: require("../encodeHTML"),
-      })
-      test({
-        ...doT.templateSettings,
-        encoders: {
-          "": require("../encodeHTML"),
-        },
+    describe("selfContained: true", () => {
+      it("should inline specified encoders passed as strings", () => {
+        const cfg = {
+          ...doT.templateSettings,
+          selfContained: true,
+          encoders: {
+            str: "JSON.stringify",
+            rx: "(s) => new RegExp(s).toString()",
+          },
+        }
+        assert.equal(doT.template("{{str! it}}", cfg)({foo: "bar"}), '{"foo":"bar"}')
+        assert.equal(doT.template("{{rx! it.regex}}", cfg)({regex: "foo.*"}), "/foo.*/")
       })
 
-      function test(cfg) {
-        const tmpl = doT.template("<div>{{!it.foo}}</div>", cfg)
-        assert.equal(tmpl({foo: "http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>")
-        assert.equal(tmpl({foo: "&amp;"}), "<div>&amp;</div>")
-      }
+      it("should encode HTML with inlined HTML encoder", () => {
+        const getEncodeHTML = require("../encodeHTML").toString()
+        test({
+          ...doT.templateSettings,
+          selfContained: true,
+          encoders: {
+            "": getEncodeHTML + "()",
+          },
+        })
+
+        function test(cfg) {
+          const tmpl = doT.template("<div>{{!it.foo}}</div>", cfg)
+          assert.equal(tmpl({foo: "http://abc.com"}), "<div>http:&#47;&#47;abc.com</div>")
+          assert.equal(tmpl({foo: "&amp;"}), "<div>&amp;</div>")
+        }
+      })
+
+      it("should throw compile-time exception if encoder is not specified", () => {
+        const cfg = {
+          ...doT.templateSettings,
+          selfContained: true,
+          encoders: {
+            str: "JSON.stringify",
+          },
+        }
+        assert.doesNotThrow(() => doT.template("{{str! it}}", cfg))
+        assert.throws(() => doT.template("{{rx! it}}", cfg), /unknown encoder/)
+      })
+
+      it("should throw compile-time exception if encoder is of incorrect type", () => {
+        const cfg = {
+          ...doT.templateSettings,
+          encoders: {
+            str: JSON.stringify,
+            rx: "(s) => new RegExp(s).toString()",
+          },
+        }
+        assert.doesNotThrow(() => doT.template("{{str! it}}", cfg))
+        assert.doesNotThrow(() => doT.template("{{rx! it}}", {...cfg, selfContained: true}))
+        assert.throws(() => doT.template("{{str! it}}", {...cfg, selfContained: true}), /encoder type must be "string"/)
+        assert.throws(() => doT.template("{{rx! it}}", cfg), /encoder type must be "function"/)
+      })
     })
   })
 

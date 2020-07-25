@@ -12,7 +12,7 @@ const doT = {
     selfContained: false,
     defaultEncoder: undefined,
     encoders: {},
-    encodersName: "_enc",
+    encodersPrefix: "_enc",
   },
   template,
   compile,
@@ -68,10 +68,7 @@ function resolveDefs(c, block, def) {
         if (def[d] && def[d].arg && param) {
           const rw = (d + ":" + param).replace(/'|\\/g, "_")
           def.__exp = def.__exp || {}
-          def.__exp[rw] = def[d].text.replace(
-            new RegExp(`(^|[^\\w$])${def[d].arg}([^\\w$])`, "g"),
-            `$1${param}$2`
-          )
+          def.__exp[rw] = def[d].text.replace(new RegExp(`(^|[^\\w$])${def[d].arg}([^\\w$])`, "g"), `$1${param}$2`)
           return s + `def.__exp['${rw}']`
         }
       })
@@ -92,24 +89,20 @@ function template(tmpl, c, def) {
 
   str = (
     "let out='" +
-    (c.strip
-      ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, " ").replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, "")
-      : str
-    )
+    (c.strip ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, " ").replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, "") : str)
       .replace(/'|\\/g, "\\$&")
       .replace(SYN.interpolate, (_, code) => `'+(${unescape(code)})+'`)
       .replace(SYN.typeInterpolate, (_, typ, code) => {
         sid++
         const val = c.internalPrefix + sid
         const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`
-        return `';const ${val}=(${unescape(code)});if(typeof ${val}!=="${
-          TYPES[typ]
-        }") ${error};out+=${val}+'`
+        return `';const ${val}=(${unescape(code)});if(typeof ${val}!=="${TYPES[typ]}") ${error};out+=${val}+'`
       })
       .replace(SYN.encode, (_, enc = "", code) => {
         needEncoders[enc] = true
-        const prop = enc ? "." + enc : '[""]'
-        return `'+${c.encodersName}${prop}(${unescape(code)})+'`
+        code = unescape(code)
+        const e = c.selfContained ? enc : enc ? "." + enc : '[""]'
+        return `'+${c.encodersPrefix}${e}(${code})+'`
       })
       .replace(SYN.conditional, (_, elseCase, code) => {
         if (code) {
@@ -124,9 +117,7 @@ function template(tmpl, c, def) {
         const defI = iName ? `let ${iName}=-1;` : ""
         const incI = iName ? `${iName}++;` : ""
         const val = c.internalPrefix + sid
-        return `';const ${val}=${unescape(
-          arr
-        )};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
+        return `';const ${val}=${unescape(arr)};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
       })
       .replace(SYN.evaluate, (_, code) => `';${unescape(code)}out+='`) +
     "';return out;"
@@ -142,11 +133,7 @@ function template(tmpl, c, def) {
   }
   checkEncoders(c, needEncoders)
   str = `return function(${c.argName}){${str}};`
-  return try_(() =>
-    c.selfContained
-      ? new Function(addEncoders(c, needEncoders) + str)()
-      : new Function(c.encodersName, str)(c.encoders)
-  )
+  return try_(() => (c.selfContained ? new Function((str = addEncoders(c, needEncoders) + str))() : new Function(c.encodersPrefix, str)(c.encoders)))
 
   function try_(f) {
     try {
@@ -165,21 +152,14 @@ function compile(tmpl, def) {
 function checkEncoders(c, encoders) {
   const typ = encoderType[c.selfContained]
   for (const enc in encoders) {
-    const e = getEncoder(c, enc)
-    if (!e) throw new Error(`unknown encoder "${enc || "defaultEncoder"}"`)
-    if (typeof e !== typ)
-      throw new Error(`selfContained ${c.selfContained}: encoder type must be "${typ}"`)
+    const e = c.encoders[enc]
+    if (!e) throw new Error(`unknown encoder "${enc}"`)
+    if (typeof e !== typ) throw new Error(`selfContained ${c.selfContained}: encoder type must be "${typ}"`)
   }
 }
 
 function addEncoders(c, encoders) {
-  let s = `const ${c.encodersName}={`
-  for (const enc in encoders) {
-    s += `${enc}:${getEncoder(c, enc)},`
-  }
-  return s + "};"
-}
-
-function getEncoder(c, enc) {
-  return enc ? c.encoders[enc] : c.encoders[""] || (c.encoders[""] = c.defaultEncoder)
+  let s = ""
+  for (const enc in encoders) s += `const ${c.encodersPrefix}${enc}=${c.encoders[enc]};`
+  return s
 }
