@@ -23,9 +23,7 @@
     "eslint": "if-node-version '>=4' eslint *.js --ignore-pattern *.min.js",
     "test-spec": "mocha test/*.test.js",
     "test-cov": "nyc npm run test-spec",
-    "test": "npm run eslint && npm run test-cov",
-    "bundle": "uglifyjs doT.js -o doT.min.js -c -m --preamble '/* Laura Doktorova https://github.com/olado/doT */'",
-    "prepublish": "npm run bundle"
+    "test": "npm run eslint && npm run test-cov"
   },
   "dependencies": {},
   "devDependencies": {
