@@ -1,5 +1,5 @@
 {
-  "name": "dot",
+  "name": "dot-ts",
   "description": "Concise and fast javascript templating compatible with nodejs and other javascript environments",
   "keywords": [
     "template",
@@ -8,19 +8,18 @@
     "templating"
   ],
   "version": "2.0.0-beta.0",
-  "main": "index",
+  "main": "doT.js",
   "bin": {
     "dottojs": "./bin/dot-packer"
   },
   "homepage": "http://github.com/olado/doT",
   "repository": "git://github.com/olado/doT.git",
   "author": "Laura Doktorova <ldoktorova@gmail.com>",
-  "engines": [
-    "node >=0.2.6"
-  ],
   "license": "MIT",
   "scripts": {
-    "eslint": "if-node-version '>=4' eslint *.js --ignore-pattern *.min.js",
+    "eslint": "if-node-version '>=4' eslint {test/,}*.js --ignore-pattern *.min.js",
+    "prettier:write": "prettier --write './**/*.{md,json,yaml,js,ts}'",
+    "prettier:check": "prettier --list-different './**/*.{md,json,yaml,js,ts}'",
     "test-spec": "mocha test/*.test.js",
     "test-cov": "nyc npm run test-spec",
     "test": "npm run eslint && npm run test-cov"
@@ -30,12 +29,16 @@
     "commander": "*",
     "coveralls": "^3.0.9",
     "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.11.0",
+    "husky": "^4.2.5",
     "if-node-version": "^1.1.1",
     "jshint": "*",
+    "lint-staged": "^10.2.11",
     "mkdirp": "*",
     "mocha": "*",
     "nyc": "^14.1.1",
     "pre-commit": "^1.1.3",
+    "prettier": "^2.0.5",
     "uglify-js": "*"
   },
   "nyc": {
@@ -47,5 +50,13 @@
       "lcov",
       "text-summary"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{md,json,yaml,js,ts}": "prettier --write"
   }
 }

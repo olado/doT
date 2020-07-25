@@ -1,38 +1,40 @@
-'use strict';
+"use strict"
 
-var doT = require('..');
-var assert = require('assert');
+const doT = require("..")
+const assert = require("assert")
 
-describe('defines', function() {
-    describe('without parameters', function() {
-        it('should render define', function(){
-            testDef('{{##def.tmp:<div>{{!it.foo}}</div>#}}{{#def.tmp}}');
-        });
+describe("defines", () => {
+  describe("without parameters", () => {
+    it("should render define", () => {
+      testDef("{{##def.tmp:<div>{{=it.foo}}</div>#}}{{#def.tmp}}")
+    })
 
-        it('should render define if it is passed to doT.compile', function() {
-            testDef('{{#def.tmp}}', {tmp: '<div>{{!it.foo}}</div>'});
-        });
-    });
+    it("should render define if it is passed to doT.compile", () => {
+      testDef("{{#def.tmp}}", {tmp: "<div>{{=it.foo}}</div>"})
+    })
+  })
 
-    describe('with parameters', function() {
-        it('should render define', function(){
-            testDef('{{##def.tmp:foo:<div>{{!foo}}</div>#}}{{ var bar = it.foo; }}{{# def.tmp:bar }}');
-        });
+  describe("with parameters", () => {
+    it("should render define", () => {
+      testDef("{{##def.tmp:foo:<div>{{=foo}}</div>#}}{{ var bar = it.foo; }}{{# def.tmp:bar }}")
+    })
 
-        it('should render define multiline params', function(){
-            testDef('{{##def.tmp:data:{{=data.openTag}}{{!data.foo}}{{=data.closeTag}}#}}\n' +
-                '{{# def.tmp:{\n' +
-                '   foo: it.foo,\n' +
-                '   openTag: "<div>",\n' +
-                '   closeTag: "</div>"\n' +
-                '} }}');
-        });
-    });
+    it("should render define multiline params", () => {
+      testDef(
+        "{{##def.tmp:data:{{=data.openTag}}{{=data.foo}}{{=data.closeTag}}#}}\n" +
+          "{{# def.tmp:{\n" +
+          "   foo: it.foo,\n" +
+          '   openTag: "<div>",\n' +
+          '   closeTag: "</div>"\n' +
+          "} }}"
+      )
+    })
+  })
 
-    function testDef(tmpl, defines) {
-        var fn = doT.compile(tmpl, defines);
-        assert.equal(fn({foo:'http'}), '<div>http</div>');
-        assert.equal(fn({foo:'http://abc.com'}), '<div>http:&#47;&#47;abc.com</div>');
-        assert.equal(fn({}), '<div></div>');
-    }
-});
+  function testDef(tmpl, defines) {
+    const fn = doT.compile(tmpl, defines)
+    assert.equal(fn({foo: "http"}), "<div>http</div>")
+    assert.equal(fn({foo: "http://abc.com"}), "<div>http://abc.com</div>")
+    assert.equal(fn({}), "<div>undefined</div>")
+  }
+})

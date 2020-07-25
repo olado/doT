@@ -34,3 +34,6 @@ node_modules
 doT.min.js
 
 package-lock.json
+
+# Minified bundle
+doT.min.js

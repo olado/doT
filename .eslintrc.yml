@@ -1,24 +1,46 @@
 env:
   node: true
-extends: 'eslint:recommended'
-globals:
-  define: false
+  es6: true
+extends:
+  - "eslint:recommended"
+  - prettier
 parserOptions:
-  ecmaVersion: 5
+  ecmaVersion: 2018
 rules:
-  no-trailing-spaces: 2
-  linebreak-style: [ 2, unix ]
-  semi: [ 2, always ]
-  valid-jsdoc: [ 2, { requireReturn: false } ]
-  no-unused-vars: [ 2, { args: none } ]
+  block-scoped-var: error
+  dot-location: [error, property]
+  dot-notation: error
+  eqeqeq: [error, smart]
+  id-match: error
+  linebreak-style: [error, unix]
+  no-bitwise: error
+  no-cond-assign: error
   no-console: 0
-  block-scoped-var: 2
-  dot-location: [ 2, property ]
-  dot-notation: 2
-  no-else-return: 2
-  no-eq-null: 2
-  no-fallthrough: 2
-  no-return-assign: 2
-  no-use-before-define: [ 2, nofunc ]
-  no-path-concat: 2
+  no-debugger: error
+  no-duplicate-case: error
+  no-duplicate-imports: error
+  no-else-return: error
+  no-empty: error
+  no-eval: error
+  no-invalid-this: error
+  no-eq-null: error
+  no-fallthrough: error
+  no-new-wrappers: error
+  no-path-concat: error
+  no-redeclare: error
+  no-return-assign: error
+  no-sequences: error
+  no-template-curly-in-string: error
+  no-trailing-spaces: error
+  no-undef-init: error
+  no-unsafe-finally: error
+  no-unused-vars: [error, args: none]
+  no-use-before-define: [error, nofunc]
   no-useless-escape: 0
+  no-var: error
+  no-void: error
+  prefer-arrow-callback: error
+  prefer-const: error
+  radix: error
+  use-isnan: error
+  valid-jsdoc: [error, requireReturn: false]

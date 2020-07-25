@@ -1,0 +1,8 @@
+rules:
+  no-console: 0
+globals:
+  describe: false
+  it: false
+  # before: false
+  # beforeEach: false
+  # afterEach: false
