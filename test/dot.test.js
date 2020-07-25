@@ -88,7 +88,6 @@ describe("doT", () => {
     describe("selfContained: false (default)", () => {
       it("should run specified encoder", () => {
         const cfg = {
-          ...doT.templateSettings,
           encoders: {
             str: JSON.stringify,
             rx: (s) => new RegExp(s).toString(),
@@ -101,7 +100,6 @@ describe("doT", () => {
       it("should encode HTML with provided encoder", () => {
         const encodeHTML = require("../encodeHTML")()
         test({
-          ...doT.templateSettings,
           encoders: {
             "": encodeHTML,
           },
@@ -116,7 +114,6 @@ describe("doT", () => {
 
       it("should throw compile time exception if encoder is not specified", () => {
         const cfg = {
-          ...doT.templateSettings,
           encoders: {
             str: JSON.stringify,
           },
@@ -129,7 +126,6 @@ describe("doT", () => {
     describe("selfContained: true", () => {
       it("should inline specified encoders passed as strings", () => {
         const cfg = {
-          ...doT.templateSettings,
           selfContained: true,
           encoders: {
             str: "JSON.stringify",
@@ -143,7 +139,6 @@ describe("doT", () => {
       it("should encode HTML with inlined HTML encoder", () => {
         const getEncodeHTML = require("../encodeHTML").toString()
         test({
-          ...doT.templateSettings,
           selfContained: true,
           encoders: {
             "": getEncodeHTML + "()",
@@ -159,7 +154,6 @@ describe("doT", () => {
 
       it("should throw compile-time exception if encoder is not specified", () => {
         const cfg = {
-          ...doT.templateSettings,
           selfContained: true,
           encoders: {
             str: "JSON.stringify",
@@ -171,7 +165,6 @@ describe("doT", () => {
 
       it("should throw compile-time exception if encoder is of incorrect type", () => {
         const cfg = {
-          ...doT.templateSettings,
           encoders: {
             str: JSON.stringify,
             rx: "(s) => new RegExp(s).toString()",

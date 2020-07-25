@@ -10,7 +10,6 @@ const doT = {
     internalPrefix: "_val",
     strip: true,
     selfContained: false,
-    defaultEncoder: undefined,
     encoders: {},
     encodersPrefix: "_enc",
   },
@@ -85,7 +84,7 @@ function unescape(code) {
 }
 
 function template(tmpl, c, def) {
-  c = c || doT.templateSettings
+  c = c ? {...doT.templateSettings, ...c} : doT.templateSettings
   let sid = 0
   let str = resolveDefs(c, tmpl, def || {})
   const needEncoders = {}
