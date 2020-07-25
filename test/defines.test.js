@@ -18,6 +18,17 @@ describe("defines", () => {
     it("should render define", () => {
       testDef("{{##def.tmp:foo:<div>{{=foo}}</div>#}}{{ var bar = it.foo; }}{{# def.tmp:bar }}")
     })
+
+    it("should render define multiline params", () => {
+      testDef(
+        "{{##def.tmp:data:{{=data.openTag}}{{=data.foo}}{{=data.closeTag}}#}}\n" +
+          "{{# def.tmp:{\n" +
+          "   foo: it.foo,\n" +
+          '   openTag: "<div>",\n' +
+          '   closeTag: "</div>"\n' +
+          "} }}"
+      )
+    })
   })
 
   function testDef(tmpl, defines) {

@@ -31,3 +31,6 @@ node_modules
 .DS_Store
 
 package-lock.json
+
+# Minified bundle
+doT.min.js
