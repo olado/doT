@@ -66,7 +66,7 @@ function resolveDefs(c, block, def) {
     .replace(SYN.use, (_, code) => {
       code = code.replace(SYN.useParams, (_, s, d, param) => {
         if (def[d] && def[d].arg && param) {
-          const rw = (d + ":" + param).replace(/'|\\/g, "_")
+          const rw = unescape((d + ":" + param).replace(/'|\\/g, "_"))
           def.__exp = def.__exp || {}
           def.__exp[rw] = def[d].text.replace(
             new RegExp(`(^|[^\\w$])${def[d].arg}([^\\w$])`, "g"),
