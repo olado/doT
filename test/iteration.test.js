@@ -39,6 +39,19 @@ describe("iteration", () => {
         "0:10, 1:20, 2:30"
       )
     })
+
+    it("should interpolate nested array even if the same index variable is used", () => {
+      test(
+        ["{{~it.arr:x:i}}{{~x:y:i}}{{=y}}{{~}}{{~}}"],
+        {
+          arr: [
+            [1, 2, 3],
+            [4, 5, 6],
+          ],
+        },
+        "123456"
+      )
+    })
   })
 
   describe("iterables", () => {
