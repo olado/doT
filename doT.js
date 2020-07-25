@@ -93,7 +93,11 @@ function template(tmpl, c, def) {
   str = (
     "let out='" +
     (c.strip
-      ? str.replace(/(^|\r|\n)\t* +| +\t*(\r|\n|$)/g, " ").replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, "")
+      ? str
+          .trim()
+          .replace(/[\t ]+(\r|\n)/g, "\n") // remove trailing spaces
+          .replace(/(\r|\n)[\t ]+/g, " ") // leading spaces reduced to " "
+          .replace(/\r|\n|\t|\/\*[\s\S]*?\*\//g, "") // remove breaks, tabs and JS comments
       : str
     )
       .replace(/'|\\/g, "\\$&")
