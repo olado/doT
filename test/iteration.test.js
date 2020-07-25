@@ -25,11 +25,7 @@ describe("iteration", () => {
 
   describe("with index", () => {
     it("should repeat string N times", () => {
-      test(
-        ["{{~it.arr:x:i}}*{{~}}", "{{~ it.arr : x : i }}*{{~}}"],
-        {arr: Array(3)},
-        "***"
-      )
+      test(["{{~it.arr:x:i}}*{{~}}", "{{~ it.arr : x : i }}*{{~}}"], {arr: Array(3)}, "***")
     })
 
     it("should concatenate indices", () => {

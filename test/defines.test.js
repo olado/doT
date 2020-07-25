@@ -16,9 +16,7 @@ describe("defines", () => {
 
   describe("with parameters", () => {
     it("should render define", () => {
-      testDef(
-        "{{##def.tmp:foo:<div>{{=foo}}</div>#}}{{ var bar = it.foo; }}{{# def.tmp:bar }}"
-      )
+      testDef("{{##def.tmp:foo:<div>{{=foo}}</div>#}}{{ var bar = it.foo; }}{{# def.tmp:bar }}")
     })
   })
 

@@ -31,14 +31,22 @@ describe("doT", () => {
 
   describe("interpolate 2 numbers", () => {
     it("should print numbers next to each other", () => {
-      test(["{{=it.one}}{{=it.two}}", "{{= it.one}}{{= it.two}}", "{{= it.one }}{{= it.two }}"], {one: 1, two: 2}, "12")
+      test(
+        ["{{=it.one}}{{=it.two}}", "{{= it.one}}{{= it.two}}", "{{= it.one }}{{= it.two }}"],
+        {one: 1, two: 2},
+        "12"
+      )
     })
   })
 
   describe("type-safe interpolation", () => {
     it("should interpolate correct types", () => {
       test(
-        ["{{%n=it.num}}-{{%s=it.str}}-{{%b=it.bool}}", "{{%n= it.num}}-{{%s= it.str}}-{{%b= it.bool}}", "{{%n= it.num }}-{{%s= it.str }}-{{%b= it.bool }}"],
+        [
+          "{{%n=it.num}}-{{%s=it.str}}-{{%b=it.bool}}",
+          "{{%n= it.num}}-{{%s= it.str}}-{{%b= it.bool}}",
+          "{{%n= it.num }}-{{%s= it.str }}-{{%b= it.bool }}",
+        ],
         {num: 1, str: "foo", bool: true},
         "1-foo-true"
       )
@@ -171,7 +179,10 @@ describe("doT", () => {
         }
         assert.doesNotThrow(() => doT.template("{{str! it}}", cfg))
         assert.doesNotThrow(() => doT.template("{{rx! it}}", {...cfg, selfContained: true}))
-        assert.throws(() => doT.template("{{str! it}}", {...cfg, selfContained: true}), /encoder type must be "string"/)
+        assert.throws(
+          () => doT.template("{{str! it}}", {...cfg, selfContained: true}),
+          /encoder type must be "string"/
+        )
         assert.throws(() => doT.template("{{rx! it}}", cfg), /encoder type must be "function"/)
       })
     })

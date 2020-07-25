@@ -51,7 +51,6 @@
       "text-summary"
     ]
   },
-  "prettier": "./prettierrc.json",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
