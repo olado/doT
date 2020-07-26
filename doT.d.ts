@@ -10,7 +10,7 @@ declare namespace doT {
   function setDelimiters({start, end}: Delimiters): void
 
   interface TemplateSettings {
-    argName: string
+    argName: string | string[]
     encoders: {
       [key: string]: Encoder
     }

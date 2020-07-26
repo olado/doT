@@ -181,6 +181,14 @@ describe("doT", () => {
     })
   })
 
+  describe("context destructuring", () => {
+    it('should interpolate properties without "it"', () => {
+      const tmpl = doT.template("{{=foo}}{{=bar}}", {argName: ["foo", "bar"]})
+      console.log(tmpl.toString())
+      assert.equal(tmpl({foo: 1, bar: 2}), "12")
+    })
+  })
+
   describe("invalid JS in templates", () => {
     it("should throw exception", () => {
       assert.throws(() => {

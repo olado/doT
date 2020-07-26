@@ -150,11 +150,13 @@ function template(tmpl, c, def) {
     .replace(/(\s|;|\}|^|\{)out\+='';/g, "$1")
     .replace(/\+''/g, "")
 
+  const args = Array.isArray(c.argName) ? properties(c.argName) : c.argName
+
   if (Object.keys(needEncoders).length === 0) {
-    return try_(() => new Function(c.argName, str))
+    return try_(() => new Function(args, str))
   }
   checkEncoders(c, needEncoders)
-  str = `return function(${c.argName}){${str}};`
+  str = `return function(${args}){${str}};`
   return try_(() =>
     c.selfContained
       ? new Function((str = addEncoders(c, needEncoders) + str))()
@@ -214,6 +216,10 @@ const regexpPattern = /^\/(.*)\/([\w]*)$/
 function strToRegExp(str) {
   const [, rx, flags] = str.match(regexpPattern)
   return new RegExp(rx, flags)
+}
+
+function properties(args) {
+  return args.reduce((s, a, i) => s + (i ? "," : "") + a, "{") + "}"
 }
 
 function checkEncoders(c, encoders) {
