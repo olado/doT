@@ -7,7 +7,7 @@
     "simple",
     "templating"
   ],
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "main": "doT.js",
   "types": "doT.d.ts",
   "homepage": "http://github.com/olado/doT",
