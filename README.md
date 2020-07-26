@@ -10,7 +10,7 @@ doT.js is fast, small and has no dependencies.
 
 ## v2 !!!
 
-v2.0.0-beta.1 is released - switching recommended!
+[v2.0.0-beta.1](https://github.com/olado/doT/tree/v2) is released - switching recommended!
 
 See [release notes](https://github.com/olado/doT/releases/tag/v2.0.0-beta.1).
 
