@@ -15,7 +15,7 @@ declare namespace doT {
       [key: string]: Encoder
     }
     selfContained: boolean
-    stripWhitespace: boolean
+    strip: boolean
     internalPrefix: string
     encodersPrefix: string
     delimiters: Delimiters

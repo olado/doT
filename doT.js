@@ -9,7 +9,7 @@ const doT = {
     argName: "it",
     encoders: {},
     selfContained: false,
-    stripWhitespace: true,
+    strip: true,
     internalPrefix: "_val",
     encodersPrefix: "_enc",
     delimiters: {
@@ -100,7 +100,7 @@ function template(tmpl, c, def) {
 
   str = (
     "let out='" +
-    (c.stripWhitespace
+    (c.strip
       ? str
           .trim()
           .replace(/[\t ]+(\r|\n)/g, "\n") // remove trailing spaces
