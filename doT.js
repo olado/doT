@@ -4,25 +4,24 @@
 // 2011-2014, Laura Doktorova, https://github.com/olado/doT
 // Licensed under the MIT license.
 
-const doT = {
-  templateSettings: {
-    argName: "it",
-    encoders: {},
-    selfContained: false,
-    strip: true,
-    internalPrefix: "_val",
-    encodersPrefix: "_enc",
-    delimiters: {
-      start: "{{",
-      end: "}}",
-    },
-  },
+module.exports = {
   template,
   compile,
   setDelimiters,
 }
 
-module.exports = doT
+const templateSettings = {
+  argName: "it",
+  encoders: {},
+  selfContained: false,
+  strip: true,
+  internalPrefix: "_val",
+  encodersPrefix: "_enc",
+  delimiters: {
+    start: "{{",
+    end: "}}",
+  },
+}
 
 // depends on selfContained mode
 const encoderType = {
@@ -93,7 +92,7 @@ function unescape(code) {
 function template(tmpl, c, def) {
   const ds = c && c.delimiters
   const syn = ds && !sameDelimiters(ds) ? getSyntax(ds) : currentSyntax
-  c = c ? {...doT.templateSettings, ...c} : doT.templateSettings
+  c = c ? {...templateSettings, ...c} : templateSettings
   let sid = 0
   let str = resolveDefs(c, syn, tmpl, def || {})
   const needEncoders = {}
@@ -178,7 +177,7 @@ function compile(tmpl, def) {
 }
 
 function sameDelimiters({start, end}) {
-  const d = doT.templateSettings.delimiters
+  const d = templateSettings.delimiters
   return d.start === start && d.end === end
 }
 
@@ -188,7 +187,7 @@ function setDelimiters(delimiters) {
     return
   }
   currentSyntax = getSyntax(delimiters)
-  doT.templateSettings.delimiters = delimiters
+  templateSettings.delimiters = delimiters
 }
 
 function getSyntax({start, end}) {
