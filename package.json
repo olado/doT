@@ -21,10 +21,17 @@
     "test-spec": "mocha test/*.test.js",
     "test-cov": "nyc npm run test-spec",
     "test-ts": "tsc doT.d.ts",
-    "test": "npm run eslint && npm run test-cov && npm run test-ts"
+    "test": "npm run eslint && npm run test-cov && npm run test-ts",
+    "bundle": "browserify -s doT doT.js | uglifyjs -c -m -b 'beautify=false,preamble=\"/* Laura Doktorova https://github.com/olado/doT */\"' > doT.min.js",
+    "prepublish": "npm run bundle"
   },
+  "files": [
+    "*.js",
+    "doT.d.ts"
+  ],
   "dependencies": {},
   "devDependencies": {
+    "browserify": "^16.5.1",
     "coveralls": "^3.0.9",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.11.0",
@@ -33,7 +40,8 @@
     "mocha": "*",
     "nyc": "^14.1.1",
     "prettier": "^2.0.5",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "uglify-es": "^3.3.9"
   },
   "nyc": {
     "exclude": [
