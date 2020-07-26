@@ -83,6 +83,11 @@ describe("defines", () => {
         definesParamCompiled({})
       }, /TypeError: Cannot read property 'qux' of undefined/)
     })
+
+    it("should render define with array literal as parameter", () => {
+      const tmpl = doT.compile("{{## def.tmp:foo:{{~foo:x}}{{=x}}{{~}} #}}{{# def.tmp:[1,2,3] }}")
+      assert.equal(tmpl(), "123")
+    })
   })
 
   function testDef(tmpl, defines) {
