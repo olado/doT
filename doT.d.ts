@@ -1,5 +1,13 @@
 declare namespace doT {
-  type Encoder = (data: any) => string
+  function template(
+    tmpl: string,
+    cfg?: Partial<TemplateSettings>,
+    def?: Definitions
+  ): TemplateFunction
+
+  function compile(tmpl: string, def?: Definitions): TemplateFunction
+
+  function setDelimiters({start, end}: Delimiters): void
 
   interface TemplateSettings {
     argName: string
@@ -10,21 +18,21 @@ declare namespace doT {
     stripWhitespace: boolean
     internalPrefix: string
     encodersPrefix: string
+    delimiters: Delimiters
   }
+
+  type TemplateFunction = (data: any) => string
 
   interface Definitions {
     [key: string]: string | Function | any
   }
 
-  type TemplateFunction = (data: any) => string
+  type Encoder = (data: any) => string
 
-  function template(
-    tmpl: string,
-    cfg?: Partial<TemplateSettings>,
-    def?: Definitions
-  ): TemplateFunction
-
-  function compile(tmpl: string, def?: Definitions): TemplateFunction
+  type Delimiters = {
+    start: string
+    end: string
+  }
 }
 
 export = doT

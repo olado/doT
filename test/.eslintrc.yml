@@ -3,6 +3,6 @@ rules:
 globals:
   describe: false
   it: false
+  afterEach: false
   # before: false
   # beforeEach: false
-  # afterEach: false

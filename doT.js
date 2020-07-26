@@ -12,9 +12,14 @@ const doT = {
     stripWhitespace: true,
     internalPrefix: "_val",
     encodersPrefix: "_enc",
+    delimiters: {
+      start: "{{",
+      end: "}}",
+    },
   },
   template,
   compile,
+  setDelimiters,
 }
 
 module.exports = doT
@@ -25,7 +30,7 @@ const encoderType = {
   true: "string",
 }
 
-const SYN = {
+const defaultSYN = {
   evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
   interpolate: /\{\{=([\s\S]+?)\}\}/g,
   typeInterpolate: /\{\{%([nsb])=([\s\S]+?)\}\}/g,
@@ -38,21 +43,23 @@ const SYN = {
   iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 }
 
+let SYN = {...defaultSYN}
+
 const TYPES = {
   n: "number",
   s: "string",
   b: "boolean",
 }
 
-function resolveDefs(c, block, def) {
+function resolveDefs(c, syn, block, def) {
   return (typeof block === "string" ? block : block.toString())
-    .replace(SYN.define, (_, code, assign, value) => {
+    .replace(syn.define, (_, code, assign, value) => {
       if (code.indexOf("def.") === 0) {
         code = code.substring(4)
       }
       if (!(code in def)) {
         if (assign === ":") {
-          value.replace(SYN.defineParams, (_, param, v) => {
+          value.replace(syn.defineParams, (_, param, v) => {
             def[code] = {arg: param, text: v}
           })
           if (!(code in def)) def[code] = value
@@ -62,8 +69,8 @@ function resolveDefs(c, block, def) {
       }
       return ""
     })
-    .replace(SYN.use, (_, code) => {
-      code = code.replace(SYN.useParams, (_, s, d, param) => {
+    .replace(syn.use, (_, code) => {
+      code = code.replace(syn.useParams, (_, s, d, param) => {
         if (def[d] && def[d].arg && param) {
           const rw = unescape((d + ":" + param).replace(/'|\\/g, "_"))
           def.__exp = def.__exp || {}
@@ -75,7 +82,7 @@ function resolveDefs(c, block, def) {
         }
       })
       const v = new Function("def", "return " + code)(def)
-      return v ? resolveDefs(c, v, def) : v
+      return v ? resolveDefs(c, syn, v, def) : v
     })
 }
 
@@ -84,9 +91,11 @@ function unescape(code) {
 }
 
 function template(tmpl, c, def) {
+  const ds = c && c.delimiters
+  const syn = ds && !sameDelimiters(ds) ? getSyntax(ds) : SYN
   c = c ? {...doT.templateSettings, ...c} : doT.templateSettings
   let sid = 0
-  let str = resolveDefs(c, tmpl, def || {})
+  let str = resolveDefs(c, syn, tmpl, def || {})
   const needEncoders = {}
 
   str = (
@@ -100,8 +109,8 @@ function template(tmpl, c, def) {
       : str
     )
       .replace(/'|\\/g, "\\$&")
-      .replace(SYN.interpolate, (_, code) => `'+(${unescape(code)})+'`)
-      .replace(SYN.typeInterpolate, (_, typ, code) => {
+      .replace(syn.interpolate, (_, code) => `'+(${unescape(code)})+'`)
+      .replace(syn.typeInterpolate, (_, typ, code) => {
         sid++
         const val = c.internalPrefix + sid
         const error = `throw new Error("expected ${TYPES[typ]}, got "+ (typeof ${val}))`
@@ -109,20 +118,20 @@ function template(tmpl, c, def) {
           TYPES[typ]
         }") ${error};out+=${val}+'`
       })
-      .replace(SYN.encode, (_, enc = "", code) => {
+      .replace(syn.encode, (_, enc = "", code) => {
         needEncoders[enc] = true
         code = unescape(code)
         const e = c.selfContained ? enc : enc ? "." + enc : '[""]'
         return `'+${c.encodersPrefix}${e}(${code})+'`
       })
-      .replace(SYN.conditional, (_, elseCase, code) => {
+      .replace(syn.conditional, (_, elseCase, code) => {
         if (code) {
           code = unescape(code)
           return elseCase ? `';}else if(${code}){out+='` : `';if(${code}){out+='`
         }
         return elseCase ? "';}else{out+='" : "';}out+='"
       })
-      .replace(SYN.iterate, (_, arr, vName, iName) => {
+      .replace(syn.iterate, (_, arr, vName, iName) => {
         if (!arr) return "';} } out+='"
         sid++
         const defI = iName ? `let ${iName}=-1;` : ""
@@ -132,7 +141,7 @@ function template(tmpl, c, def) {
           arr
         )};if(${val}){${defI}for (const ${vName} of ${val}){${incI}out+='`
       })
-      .replace(SYN.evaluate, (_, code) => `';${unescape(code)}out+='`) +
+      .replace(syn.evaluate, (_, code) => `';${unescape(code)}out+='`) +
     "';return out;"
   )
     .replace(/\n/g, "\\n")
@@ -164,6 +173,47 @@ function template(tmpl, c, def) {
 
 function compile(tmpl, def) {
   return template(tmpl, null, def)
+}
+
+function sameDelimiters({start, end}) {
+  const d = doT.templateSettings.delimiters
+  return d.start === start && d.end === end
+}
+
+function setDelimiters(delimiters) {
+  if (sameDelimiters(delimiters)) {
+    console.log("delimiters did not change")
+    return
+  }
+  SYN = getSyntax(delimiters)
+  doT.templateSettings.delimiters = delimiters
+}
+
+function getSyntax({start, end}) {
+  start = escape(start)
+  end = escape(end)
+  const syntax = {}
+  for (const syn in defaultSYN) {
+    const s = defaultSYN[syn]
+      .toString()
+      .replace(/\\\{\\\{/g, start)
+      .replace(/\\\}\\\}/g, end)
+    syntax[syn] = strToRegExp(s)
+  }
+  return syntax
+}
+
+const escapeCharacters = /([{}[\]()<>\\\/^$\-.+*?!=|&:])/g
+
+function escape(str) {
+  return str.replace(escapeCharacters, "\\$1")
+}
+
+const regexpPattern = /^\/(.*)\/([\w]*)$/
+
+function strToRegExp(str) {
+  const [, rx, flags] = str.match(regexpPattern)
+  return new RegExp(rx, flags)
 }
 
 function checkEncoders(c, encoders) {
