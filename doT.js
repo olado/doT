@@ -30,7 +30,7 @@ const encoderType = {
   true: "string",
 }
 
-const defaultSYN = {
+const defaultSyntax = {
   evaluate: /\{\{([\s\S]+?(\}?)+)\}\}/g,
   interpolate: /\{\{=([\s\S]+?)\}\}/g,
   typeInterpolate: /\{\{%([nsb])=([\s\S]+?)\}\}/g,
@@ -43,7 +43,7 @@ const defaultSYN = {
   iterate: /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\}\})/g,
 }
 
-let SYN = {...defaultSYN}
+let currentSyntax = {...defaultSyntax}
 
 const TYPES = {
   n: "number",
@@ -92,7 +92,7 @@ function unescape(code) {
 
 function template(tmpl, c, def) {
   const ds = c && c.delimiters
-  const syn = ds && !sameDelimiters(ds) ? getSyntax(ds) : SYN
+  const syn = ds && !sameDelimiters(ds) ? getSyntax(ds) : currentSyntax
   c = c ? {...doT.templateSettings, ...c} : doT.templateSettings
   let sid = 0
   let str = resolveDefs(c, syn, tmpl, def || {})
@@ -187,7 +187,7 @@ function setDelimiters(delimiters) {
     console.log("delimiters did not change")
     return
   }
-  SYN = getSyntax(delimiters)
+  currentSyntax = getSyntax(delimiters)
   doT.templateSettings.delimiters = delimiters
 }
 
@@ -195,8 +195,8 @@ function getSyntax({start, end}) {
   start = escape(start)
   end = escape(end)
   const syntax = {}
-  for (const syn in defaultSYN) {
-    const s = defaultSYN[syn]
+  for (const syn in defaultSyntax) {
+    const s = defaultSyntax[syn]
       .toString()
       .replace(/\\\{\\\{/g, start)
       .replace(/\\\}\\\}/g, end)
