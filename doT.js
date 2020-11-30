@@ -131,7 +131,7 @@
 		}
 
 		try {
-			if (c.varname.length <= 0) {
+			if (c.varname.length === 0) {
 				var escapedFunctionBody = str
 					.replace(/\\'/g, "\\\\'")
 					.replace(/\\"/g, '\\\\"')
