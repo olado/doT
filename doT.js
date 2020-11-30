@@ -129,7 +129,23 @@
 				+ doT.encodeHTMLSource.toString() + "(" + (c.doNotSkipEncoded || '') + "));"
 				+ str;
 		}
+
 		try {
+			if (c.varname.length <= 0) {
+				var escapedFunctionBody = str
+					.replace(/\\'/g, "\\\\'")
+					.replace(/\\"/g, '\\\\"')
+					.replace(/(?!\\)'/g, "\\'")
+					.replace(/(?!\\)"/g, '\\"')
+					.replace(/\r/g, "\\r")
+					.replace(/\n/g, "\\n")
+					.replace(/\t/g, "\\t");
+
+				return new Function('it', (function (str) {
+					return 'return (new Function("{" + ' + "Object.keys(it).join(', ')" + ' + "}", "' + str + '"))(it)';
+				})(escapedFunctionBody));
+			}
+
 			return new Function(c.varname, str);
 		} catch (e) {
 			/* istanbul ignore else */
