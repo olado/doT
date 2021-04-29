@@ -28,7 +28,7 @@ It took me years to grasp how it works even though it’s only 140 lines of code
 
 I used it in my other projects (e.g. [ajv](https://github.com/epoberezkin/ajv)) as the smallest, the fastest and the most functional (all three!) templating engine ever made, that is particularly useful in all code generation scenarios where manipulating AST is an overkill.
 
-It’s a race car of templating engines - doT lacks bells and whistles that other templating engines have, but it allows to achive more than any other, if you use it right (YMMV).
+It’s a race car of templating engines - doT lacks bells and whistles that other templating engines have, but it allows to achieve more than any other, if you use it right (YMMV).
 
 
 ## Features
