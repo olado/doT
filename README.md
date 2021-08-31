@@ -118,6 +118,12 @@ Please report any found vulnerabilities to npm, not via issue tracker.
 ## Author
 Laura Doktorova [@olado](http://twitter.com/olado)
 
+## VS Code Extension
+- Extension Name : dotjs-snippet
+- Marketplace :https://marketplace.visualstudio.com/items?itemName=DEEPTHISS.dotjs-snippet
+- Github:https://github.com/Deepthi1496/doT-template-snippet
+
+
 ## License
 doT is licensed under the MIT License. (See LICENSE-DOT)
 
