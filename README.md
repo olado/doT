@@ -6,7 +6,7 @@ doT.js is fast, small and has no dependencies.
 
 [![Build Status](https://travis-ci.org/olado/doT.svg?branch=v2)](https://travis-ci.org/olado/doT)
 [![npm version](https://img.shields.io/npm/v/dot/beta.svg)](https://www.npmjs.com/package/dot)
-[![Coverage Status](http://coveralls.io/repos/github/olado/doT/badge.svg?branch=v2)](https://coveralls.io/github/olado/doT?branch=v2)
+[![Coverage Status](https://coveralls.io/repos/github/olado/doT/badge.svg?branch=v2)](https://coveralls.io/github/olado/doT?branch=v2)
 
 ## v2 !!!
 
@@ -46,7 +46,7 @@ It’s a race car of templating engines - doT lacks bells and whistles that othe
 
 ## Docs, live playground and samples
 
-http://olado.github.com/doT (todo: update docs with new features added in version 1.0.0)
+https://olado.github.io/doT (todo: update docs with new features added in version 1.0.0)
 
 ## New in version 1.0.0
 
@@ -116,13 +116,13 @@ It is strongly recommended to compile all templates to JS code as early as possi
 Please report any found vulnerabilities to npm, not via issue tracker.
 
 ## Author
-Laura Doktorova [@olado](http://twitter.com/olado)
+Laura Doktorova [@olado](https://twitter.com/olado)
 
 ## License
 doT is licensed under the MIT License. (See LICENSE-DOT)
 
 <p align="center">
-  <img src="http://olado.github.io/doT/doT-js-100@2x.png" alt="logo by Kevin Kirchner"/>
+  <img src="https://olado.github.io/doT/doT-js-100@2x.png" alt="logo by Kevin Kirchner"/>
 </p>
 
 Thank you [@KevinKirchner](https://twitter.com/kevinkirchner) for the logo.
