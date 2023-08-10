@@ -13,6 +13,14 @@
   "bin": {
     "dottojs": "./bin/dot-packer"
   },
+  "files": [
+    "bin",
+    "index.js",
+    "doT.js",
+    "doT.min.js",
+    "README.md",
+    "LICENSE-DOT.txt"
+  ],
   "homepage": "http://github.com/olado/doT",
   "repository": "git://github.com/olado/doT.git",
   "author": "Laura Doktorova <ldoktorova@gmail.com>",
