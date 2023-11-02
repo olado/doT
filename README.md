@@ -46,7 +46,7 @@ It’s a race car of templating engines - doT lacks bells and whistles that othe
 
 ## Docs, live playground and samples
 
-http://olado.github.com/doT (todo: update docs with new features added in version 1.0.0)
+https://olado.github.io/doT/ (todo: update docs with new features added in version 1.0.0)
 
 ## New in version 1.0.0
 
